@@ -1,0 +1,8 @@
+api:
+  prefix: /api/v1
+
+server:
+  port: 8081
+
+docker:
+  docker-file-path: "src/main/resources/docker"

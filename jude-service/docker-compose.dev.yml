@@ -1,0 +1,22 @@
+
+services:
+  cpp-compiler:
+    build:
+      context: src/main/resources/docker
+      dockerfile: cpp-compiler.Dockerfile
+    image: cpp-compiler:latest
+    container_name: cpp-compiler-dev
+
+  java-compiler:
+    build:
+      context: src/main/resources/docker
+      dockerfile: java-compiler.Dockerfile
+    image: java-compiler:latest
+    container_name: java-compiler-dev
+
+  python-compiler:
+    build:
+      context: src/main/resources/docker
+      dockerfile: python-compiler.Dockerfile
+    image: python-compiler:latest
+    container_name: python-compiler-dev
