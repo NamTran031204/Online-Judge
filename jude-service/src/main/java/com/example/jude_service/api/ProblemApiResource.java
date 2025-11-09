@@ -26,22 +26,22 @@ public class ProblemApiResource {
 
     @PostMapping(value = "/get-page")
     public PageResult<CommonResponse<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto input) {
-        return null;
+        return problemService.getProblemPage(input);
     }
 
-    @GetMapping(value = "/get-by-id/{id}")
-    public CommonResponse<ProblemEntity> getProblemById(@PathVariable("id") Long id) {
-        return null;
+    @GetMapping(value = "/get-by-id/{problemId}")
+    public CommonResponse<ProblemEntity> getProblemById(@PathVariable("problemId") String problemId) {
+        return problemService.getProblemById(problemId);
     }
 
-    @PostMapping(value = "/update")
-    public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input) {
-        return null;
+    @PostMapping(value = "/update/{problemId}")
+    public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input, @PathVariable("problemId") String problemId) {
+        return problemService.updateProblem(input, problemId);
     }
 
-    @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<String> deleteProblem(@PathVariable("id") Long id) {
-        return null;
+    @DeleteMapping(value = "/delete/{problemId}")
+    public CommonResponse<ProblemEntity> deleteProblem(@PathVariable("problemId") String problemId) {
+        return problemService.deleteProblem(problemId);
     }
 
 

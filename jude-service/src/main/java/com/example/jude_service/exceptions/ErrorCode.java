@@ -23,6 +23,7 @@ public enum ErrorCode {
     WRONG_ANSWER("4105", "Wrong answer", HttpStatus.BAD_REQUEST),
 
     PROBLEM_NOT_FOUND("4201", "Problem not found", HttpStatus.NOT_FOUND),
+    PROBLEM_VALIDATE("4202", "Problem validate", HttpStatus.BAD_REQUEST),
     TESTCASE_NOT_FOUND("4301", "Test case not found", HttpStatus.NOT_FOUND),
 
     DOCKER_ERROR("5001", "Docker container error", HttpStatus.INTERNAL_SERVER_ERROR),
