@@ -16,6 +16,8 @@ public enum ErrorCode {
 
     COMPILATION_ERROR("4001", "Code compilation failed", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_LANGUAGE("4003", "Programming language not supported", HttpStatus.BAD_REQUEST),
+    SUBMISSION_INVALID("4004", "Invalid submission", HttpStatus.BAD_REQUEST),
+    SUBMISSION_NOT_FOUND("4005", "Submission not found", HttpStatus.BAD_REQUEST),
 
     RUNTIME_ERROR("4101", "Runtime error during execution", HttpStatus.BAD_REQUEST),
     TIME_LIMIT_EXCEEDED("4102", "Execution time limit exceeded", HttpStatus.BAD_REQUEST),

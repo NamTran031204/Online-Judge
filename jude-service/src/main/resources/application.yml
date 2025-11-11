@@ -10,12 +10,8 @@ docker:
 spring:
   data:
     mongodb:
-      authentication-database: admin
-      database: judgeService
-      host: localhost
-      port: 27017
-      username: admin
-      password: admin$123456
+      uri: mongodb://admin:admin123456@localhost:27017/judgeService?authSource=admin&authMechanism=SCRAM-SHA-256
+
 
 minio:
   endpoint: http://localhost:9000

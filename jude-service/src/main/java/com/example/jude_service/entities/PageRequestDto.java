@@ -11,11 +11,11 @@ import org.springframework.data.domain.Sort;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageRequestDto {
+public class PageRequestDto<TRequest> {
     private Integer maxResultCount = 10;
     private Integer skipCount = 0;
     private String sorting;
-    private String filter;
+    private TRequest filter;
 
     @JsonIgnore
     public PageRequest getPageRequest() {
@@ -50,11 +50,11 @@ public class PageRequestDto {
         return sort;
     }
 
-    @JsonIgnore
-    public String getFts() {
-        if (StringUtils.isNullOrEmpty(filter)) {
-            return null;
-        }
-        return StringUtils.removeVietnameseAccents(filter).trim().toLowerCase();
-    }
+//    @JsonIgnore
+//    public String getFts() {
+//        if (StringUtils.isNullOrEmpty(filter)) {
+//            return null;
+//        }
+//        return StringUtils.removeVietnameseAccents(filter).trim().toLowerCase();
+//    }
 }

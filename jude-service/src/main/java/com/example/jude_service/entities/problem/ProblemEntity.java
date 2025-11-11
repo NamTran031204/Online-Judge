@@ -22,6 +22,8 @@ public class ProblemEntity {
     @Id
     private String problemId;
 
+    private String contestId;
+
     @NotNull
     private String title;
     /**

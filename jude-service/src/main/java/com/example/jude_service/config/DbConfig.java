@@ -7,18 +7,5 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @Configuration
 @EnableMongoAuditing
-public class DbConfig extends AbstractMongoClientConfiguration {
-
-    @Value ("${spring.data.mongodb.database}")
-    private String databaseName;
-
-    @Override
-    protected String getDatabaseName() {
-        return databaseName;
-    }
-
-//    @Bean
-//    public AuditorAware<String> auditorProvider() {
-//        return () -> Optional.of(SecurityContextHolder.getContext().getAuthentication().getName());
-//    } // dùng cho audit people
+public class DbConfig{
 }

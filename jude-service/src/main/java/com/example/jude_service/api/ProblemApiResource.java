@@ -7,7 +7,6 @@ import com.example.jude_service.entities.CommonResponse;
 import com.example.jude_service.entities.PageResult;
 import com.example.jude_service.services.ProblemService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,7 @@ public class ProblemApiResource {
     }
 
     @PostMapping(value = "/get-page")
-    public PageResult<CommonResponse<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto input) {
+    public CommonResponse<PageResult<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto<ProblemInputDto> input) {
         return problemService.getProblemPage(input);
     }
 
@@ -37,6 +36,16 @@ public class ProblemApiResource {
     @PostMapping(value = "/update/{problemId}")
     public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input, @PathVariable("problemId") String problemId) {
         return problemService.updateProblem(input, problemId);
+    }
+
+    @PostMapping(value = "/get-by-contest")
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<String> input) {
+        return problemService.getByContest(input);
+    }
+
+    @PostMapping(value = "/searching")
+    public CommonResponse<PageResult<ProblemEntity>> searchProblem(@RequestBody PageRequestDto<String> input) {
+        return problemService.searching(input);
     }
 
     @DeleteMapping(value = "/delete/{problemId}")
