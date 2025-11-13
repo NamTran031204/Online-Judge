@@ -10,7 +10,9 @@ import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
+import com.example.jude_service.repo.SubmissionRepo;
 import com.example.jude_service.services.ProblemService;
+import com.example.jude_service.services.SubmissionService;
 import com.example.jude_service.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemRepo problemRepo;
     private final MongoTemplate mongoTemplate;
+    private final SubmissionService submissionService;
 
     @Override
     public CommonResponse<ProblemEntity> addProblem(ProblemInputDto input) {
@@ -169,6 +172,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public CommonResponse<ProblemEntity> deleteProblem(String problemId) {
         if (problemRepo.existsById(problemId)) {
+            submissionService.deleteByProblem(problemId);
             problemRepo.deleteById(problemId);
             return CommonResponse.success();
         }
