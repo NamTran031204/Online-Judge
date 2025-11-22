@@ -35,3 +35,8 @@ build/
 differrent-profile.md
 /src/main/java/com/example/jude_service/compile/
 /src/main/resources/compile-test/
+
+temp-compile/
+temp-judge/
+compile-test/
+.env

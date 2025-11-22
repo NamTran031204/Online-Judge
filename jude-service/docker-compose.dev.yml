@@ -1,31 +1,38 @@
 
 services:
-  cpp-compiler:
-    build:
-      context: src/main/resources/docker
-      dockerfile: src/main/resources/docker/cpp-compiler.Dockerfile
-    image: cpp-compiler:latest
-    container_name: cpp-compiler-dev
-    networks:
-      - judge-service-network
 
-  java-compiler:
+  # C++ Judge Sandbox
+  judge-sandbox-cpp:
     build:
-      context: src/main/resources/docker
-      dockerfile: src/main/resources/docker/java-compiler.Dockerfile
-    image: java-compiler:latest
-    container_name: java-compiler-dev
-    networks:
-      - judge-service-network
+      context: ./docker-sandbox/cpp
+      dockerfile: Dockerfile
+    image: judge-sandbox-cpp:latest
+    container_name: judge-sandbox-cpp
+    # This container is used on-demand, not running continuously
+    profiles:
+      - build-only
 
-  python-compiler:
+  # Java Judge Sandbox
+  judge-sandbox-java:
     build:
-      context: src/main/resources/docker
-      dockerfile: src/main/resources/docker/python-compiler.Dockerfile
-    image: python-compiler:latest
-    container_name: python-compiler-dev
-    networks:
-      - judge-service-network
+      context: ./docker-sandbox/java
+      dockerfile: Dockerfile
+    image: judge-sandbox-java:latest
+    container_name: judge-sandbox-java
+    # This container is used on-demand, not running continuously
+    profiles:
+      - build-only
+
+  # Python Judge Sandbox
+  judge-sandbox-python:
+    build:
+      context: ./docker-sandbox/python
+      dockerfile: Dockerfile
+    image: judge-sandbox-python:latest
+    container_name: judge-sandbox-python
+    # This container is used on-demand, not running continuously
+    profiles:
+      - build-only
 
   mongodb:
     image: mongo:7.0

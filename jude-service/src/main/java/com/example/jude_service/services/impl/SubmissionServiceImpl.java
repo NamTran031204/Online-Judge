@@ -3,13 +3,19 @@ package com.example.jude_service.services.impl;
 import com.example.jude_service.entities.CommonResponse;
 import com.example.jude_service.entities.PageRequestDto;
 import com.example.jude_service.entities.PageResult;
+import com.example.jude_service.entities.judge.JudgeResult;
+import com.example.jude_service.entities.judge.TestCaseResult;
+import com.example.jude_service.entities.problem.ProblemEntity;
 import com.example.jude_service.entities.submission.SubmissionEntity;
 import com.example.jude_service.entities.submission.SubmissionInputDto;
+import com.example.jude_service.entities.submission.SubmissionResultEntity;
+import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.exceptions.specException.SubmissionBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
 import com.example.jude_service.repo.SubmissionRepo;
+import com.example.jude_service.services.JudgeService;
 import com.example.jude_service.services.SubmissionService;
 import com.example.jude_service.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +23,15 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +39,10 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final SubmissionRepo submissionRepo;
     private final ProblemRepo problemRepo;
     private final MongoTemplate mongoTemplate;
+    private final JudgeService judgeService;
 
     @Override
+    @Transactional(rollbackFor = {SubmissionBusinessException.class, ProblemBusinessException.class, IOException.class})
     public CommonResponse<SubmissionEntity> submit(SubmissionInputDto input) {
 
         if (StringUtils.isNullOrEmpty(input.getProblemId())) {
@@ -42,14 +57,48 @@ public class SubmissionServiceImpl implements SubmissionService {
             throw new SubmissionBusinessException(ErrorCode.FORBIDDEN, "user id is empty");
         }
 
-        switch (input.getLanguage()) {
-            case CPP -> submit();
-            case JAVA -> submit();
-            case PYTHON -> submit();
-            default -> submit();
-        }
+        try {
+            JudgeResult judgeResult = judgeService.judge(input, input.getProblemId());
+            List<SubmissionResultEntity> results = judgeResult.getTestCaseResults().stream()
+                    .map(this::convertToSubmissionResult)
+                    .collect(Collectors.toList());
 
-        return null;
+            SubmissionEntity entity = SubmissionEntity.builder()
+                    .problemId(input.getProblemId())
+                    .contestId(input.getContestId())
+                    .userId(input.getUserId())
+                    .sourceCode(input.getSourceCode())
+                    .language(input.getLanguage())
+                    .result(results)
+                    .build();
+
+            SubmissionEntity savedEntity = submissionRepo.save(entity);
+            return CommonResponse.success(savedEntity,
+                    String.format("Submission judged: %s (%d/%d passed)",
+                            judgeResult.getFinalVerdict(),
+                            judgeResult.getPassedTestCases(),
+                            judgeResult.getTotalTestCases()));
+        } catch (Exception e) {
+            throw new SubmissionBusinessException(
+                    ErrorCode.INTERNAL_SERVER_ERROR,
+                    "Failed to judge submission: " + e.getMessage()
+            );
+        }
+    }
+
+    private SubmissionResultEntity convertToSubmissionResult(TestCaseResult testCaseResult) {
+        return SubmissionResultEntity.builder()
+                .testcaseName(testCaseResult.getTestCaseId())
+                .input(null) // Không lưu input trong result
+                .output(testCaseResult.getActualOutput())
+                .status(testCaseResult.getVerdict())
+                .time(testCaseResult.getExecutionTime() != null
+                        ? testCaseResult.getExecutionTime().floatValue()
+                        : 0f)
+                .memory(testCaseResult.getMemoryUsed() != null
+                        ? testCaseResult.getMemoryUsed().floatValue()
+                        : 0f)
+                .build();
     }
 
     @Override
