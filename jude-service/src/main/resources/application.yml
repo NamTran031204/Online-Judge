@@ -1,0 +1,20 @@
+api:
+  prefix: /api/v1
+
+server:
+  port: 5000
+
+docker:
+  docker-file-path: "src/main/resources/docker"
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123456@localhost:27017/judgeService?authSource=admin&authMechanism=SCRAM-SHA-256
+
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: 6UGBs1aNth7L1LiwEdjq
+  secret-key: qmHy1xc3w7ZIqFJtIexZba8LCjQ3klP9HQ3E6BL0
+  bucket-name: judge-service

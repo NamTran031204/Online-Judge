@@ -92,7 +92,6 @@
 - `group:delete`
 - `group:create_contest`
 - `group:invite`
-- `group:delete` <!-- duplicated? -->
 
 ### User Permissions
 - `user:delete`
