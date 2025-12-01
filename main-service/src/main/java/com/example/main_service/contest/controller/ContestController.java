@@ -3,10 +3,7 @@ package com.example.main_service.contest.controller;
 import com.example.main_service.contest.dto.CommonResponse;
 import com.example.main_service.contest.dto.PageRequestDto;
 import com.example.main_service.contest.dto.PageResult;
-import com.example.main_service.contest.dto.contest.ContestCreateUpdateRequestDto;
-import com.example.main_service.contest.dto.contest.ContestCreateUpdateResponseDto;
-import com.example.main_service.contest.dto.contest.ContestDetailDto;
-import com.example.main_service.contest.dto.contest.ContestSummaryDto;
+import com.example.main_service.contest.dto.contest.*;
 import com.example.main_service.contest.model.ContestEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +25,7 @@ public class ContestController {
     }
 
     @PostMapping("/search")
-    public CommonResponse<PageResult<ContestSummaryDto>> getPages(@RequestBody PageRequestDto input) {
+    public CommonResponse<PageResult<ContestSummaryDto>> getPages(@RequestBody PageRequestDto<ContestFilterDto> input) {
         return CommonResponse.success();
     }
 

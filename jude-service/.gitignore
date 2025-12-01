@@ -40,3 +40,5 @@ temp-compile/
 temp-judge/
 compile-test/
 .env
+
+../.idea

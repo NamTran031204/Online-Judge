@@ -14,19 +14,9 @@ public enum ErrorCode {
     FORBIDDEN("403", "Forbidden", HttpStatus.FORBIDDEN),
     NOT_FOUND("404", "Resource not found", HttpStatus.NOT_FOUND),
 
-    COMPILATION_ERROR("4001", "Code compilation failed", HttpStatus.BAD_REQUEST),
-    UNSUPPORTED_LANGUAGE("4003", "Programming language not supported", HttpStatus.BAD_REQUEST),
-    SUBMISSION_INVALID("4004", "Invalid submission", HttpStatus.BAD_REQUEST),
-    SUBMISSION_NOT_FOUND("4005", "Submission not found", HttpStatus.BAD_REQUEST),
-
-    RUNTIME_ERROR("4101", "Runtime error during execution", HttpStatus.BAD_REQUEST),
-    TIME_LIMIT_EXCEEDED("4102", "Execution time limit exceeded", HttpStatus.BAD_REQUEST),
-    MEMORY_LIMIT_EXCEEDED("4103", "Memory limit exceeded", HttpStatus.BAD_REQUEST),
-    WRONG_ANSWER("4105", "Wrong answer", HttpStatus.BAD_REQUEST),
-
-    PROBLEM_NOT_FOUND("4201", "Problem not found", HttpStatus.NOT_FOUND),
-    PROBLEM_VALIDATE("4202", "Problem validate", HttpStatus.BAD_REQUEST),
-    TESTCASE_NOT_FOUND("4301", "Test case not found", HttpStatus.NOT_FOUND),
+    CONTEST_ERROR("4301", "CONTEST PROBLEM", HttpStatus.BAD_REQUEST),
+    CONTEST_INVALID_START_TIME("4302", "CONTEST INVALID START TIME", HttpStatus.BAD_REQUEST),
+    CONTEST_NOT_FOUND("4303", "CONTEST NOT FOUND", HttpStatus.NOT_FOUND),
 
     DOCKER_ERROR("5001", "Docker container error", HttpStatus.INTERNAL_SERVER_ERROR),
     DOCKER_BUILD_FAILED("5002", "Failed to build Docker image", HttpStatus.INTERNAL_SERVER_ERROR),
