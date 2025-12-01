@@ -30,6 +30,7 @@ public class ContestServiceImpl implements ContestService {
     private final ContestRepo contestRepo;
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public ContestCreateUpdateResponseDto createContest(ContestCreateUpdateRequestDto input) {
         contestCreateUpdateValidate(input, "create");
 
@@ -55,6 +56,7 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public ContestCreateUpdateResponseDto updateContest(Long contestId, ContestCreateUpdateRequestDto input) {
         contestCreateUpdateValidate(input, "update");
         ContestEntity contest = contestRepo.findById(contestId)
@@ -85,32 +87,43 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public PageResult<ContestEntity> search(PageRequestDto<ContestFilterDto> input) {
-        var filter = input.getFilter();
-        if (filter.getRated() == null) filter.setRated(Long.getLong("0"));
+        try {
+            var filter = input.getFilter();
+            Specification<ContestEntity> spec;
+            if (filter == null) {
+                spec = Specification.where(
+                        ((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get("rated"), 0L))
+                );
+            } else {
+                if (filter.getRated() == null) filter.setRated(0L);
 
-        Specification spec = Specification.where(ContestSpec.hasRated(filter.getRated()));
+                spec = Specification.where(ContestSpec.hasRated(filter.getRated()));
 
-        if (filter.getContestStatus() != null) {
-            spec.and(ContestSpec.hasContestStatus(filter.getContestStatus()));
-        }
-        if (filter.getContestType() != null) {
-            spec.and(ContestSpec.hasContestType(filter.getContestType()));
-        }
-        if (filter.getVisibility() != null) {
-            spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
-        }
-        if (filter.getGroupId() != null) {
-            spec.and(ContestSpec.hasGroupId(filter.getGroupId()));
-        }
-        if (filter.getAuthorId() != null) {
-            spec.and(ContestSpec.hasAuthorId(filter.getAuthorId()));
-        }
+                if (filter.getContestStatus() != null) {
+                    spec.and(ContestSpec.hasContestStatus(filter.getContestStatus()));
+                }
+                if (filter.getContestType() != null) {
+                    spec.and(ContestSpec.hasContestType(filter.getContestType()));
+                }
+                if (filter.getVisibility() != null) {
+                    spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
+                }
+                if (filter.getGroupId() != null) {
+                    spec.and(ContestSpec.hasGroupId(filter.getGroupId()));
+                }
+                if (filter.getAuthorId() != null) {
+                    spec.and(ContestSpec.hasAuthorId(filter.getAuthorId()));
+                }
+            }
 
-        var pageResult = contestRepo.findAll(spec, input.getPageRequest());
-        PageResult<ContestEntity> result = new PageResult<>();
-        result.setData(pageResult.getContent());
-        result.setTotalCount(pageResult.getTotalElements());
-        return result;
+            var pageResult = contestRepo.findAll(spec, input.getPageRequest());
+            PageResult<ContestEntity> result = new PageResult<>();
+            result.setData(pageResult.getContent());
+            result.setTotalCount(pageResult.getTotalElements());
+            return result;
+        } catch (Exception e) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
+        }
     }
 
     @Override
@@ -144,17 +157,33 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public void deleteContest(Long contestId) {
+        if (contestId == null) throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
         contestRepo.deleteById(contestId);
     }
 
-    void contestCreateUpdateValidate(ContestCreateUpdateRequestDto input, String type) {
+    private void contestCreateUpdateValidate(ContestCreateUpdateRequestDto input, String type) {
         if (!input.getStartTime().isEqual(null)) {
             if (input.getStartTime().isBefore(LocalDateTime.now())) {
                 throw new ContestBusinessException(ErrorCode.CONTEST_INVALID_START_TIME);
             }
         } else {
             if (type == "create") throw new ContestBusinessException(ErrorCode.CONTEST_INVALID_START_TIME, "Start time cannot be null");
+        }
+
+        boolean ok = true;
+        if (type == "create") {
+            if (input.getDuration() == null) ok = false;
+            if (StringUtils.isNotNullOrBlank(input.getTitle())) ok = false;
+            if (StringUtils.isNotNullOrBlank(input.getDescription())) ok = false;
+            if (input.getContestType() == null) ok = false;
+            if (input.getRated() == null) ok = false;
+            if (input.getVisibility() == null) ok = false;
+            if (input.getGroupId() == null) ok = false;
+        }
+        if (!ok) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR);
         }
     }
 }
