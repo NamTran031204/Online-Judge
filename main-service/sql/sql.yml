@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  oj-mysql:
+    image: mysql:8.0
+    container_name: oj-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: online_judge
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1210
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
