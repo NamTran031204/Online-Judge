@@ -1,5 +1,5 @@
 # Online Judge — Tài liệu tra cứu API 
-> 0) **Tất cả Data trả về** mặc định được hiểu là bọc trong **`CommonResponse`**
+> 0) **Tất cả Data trả về** mặc định được hiểu là bọc trong **`CommonResponse`** // RẤT QUAN TRỌNG, VÌ VỀ SAU KHÔNG NHẮC LẠI MÀ CHỈ VIẾT RESPONSE LÀ DATA CHỨ KHONG CÓ COMMONRESPONSE
 > 1) **Tất cả list/search endpoints** dùng **`POST .../search`** với body `PageRequestDto<FilterDto>`.  
 > 2) **GET** chỉ dùng cho **lấy chi tiết theo ID**.  
 > 3) **Dùng Redis ZSET cho Dashboard realtime** (tạm thời chưa dùng SSE/WebSocket vì khó config)  
@@ -116,7 +116,7 @@
 - `code`: có thể trùng HTTP (200/400/401/403/404/409/422/500) hoặc app-code nội bộ.
 - **Mọi API** trả về CommonResponse.
 
-### 0.2 Phân trang + Filter (bắt buộc cho list/search)
+### 0.2 Phân trang + Filter (bắt buộc cho list/search/get-all) - mọi kiểu lấy danh sách đều là lấy phân trang
 - **PageRequestDto<FilterDto>**
 ```json
 {
@@ -130,7 +130,7 @@
 ```json
 {
   "totalCount": 123,
-  "data": [ ]
+  "data": [ ] // kiểu list, data là kểu list<Object>, lưu ý đều này
 }
 ```
 
@@ -284,12 +284,13 @@
 ---
 
 ### 3.3 Contests
-- **POST** `/api/v1/contests/search` — Body: `PageRequestDto<ContestFilterDto>` → Data: `PageResult<ContestSummaryDto>`
+- **POST** `/api/v1/contests/search` — Body: `PageRequestDto<ContestFilterDto>` → Data: `PageResult<ContestSummaryDto>` // api này có the thay the get-page voi ContestFilterDto = null;
 - **GET** `/api/v1/contest/{contest_id}` — Data: `ContestDetailDto`
 - **POST** `/api/v1/contests` _(permission: `contest:create`)_ — Body: `ContestCreateRequestDto` → Data: `{ "contest_id": 201 }`
 - **POST** `/api/v1/contest/{contest_id}/edit` _(permission: `contest:edit`)_ — Body: `ContestUpdateRequestDto` → Data: `{ "contest_id": 201 }`
 - **POST** `/api/v1/contest/{contest_id}/problems` _(permission: `contest:edit`)_ — Body: `ContestAttachProblemRequestDto` → Data: `{ "contest_id": 201, "problem_id": "prob-xyz" }`
 - **DELETE** `/api/v1/contest/{contest_id}/problem/{problem_id}` _(permission: `contest:edit`)_ — Data: `{}`
+- **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
 - **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
 - **POST** `/api/v1/contest/{contest_id}/make-official` _(bot/admin)_ — Body: `ContestMakeOfficialRequestDto` → Data: `{ "contest_id": 201, "contest_type": "Official", "rated": true }`
 - **POST** `/api/v1/contest/{contest_id}/register` — Data: `ContestRegistrationDto`
