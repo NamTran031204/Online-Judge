@@ -270,91 +270,285 @@
 ## 3) Endpoints
 
 ### 3.1 Auth
-- **POST** `/api/v1/auth/register` — Body: `RegisterRequestDto` → Data: `RegisterResponseDto`
-- **POST** `/api/v1/auth/login` — Body: `LoginRequestDto` → Data: `LoginResponseDto`
-- **POST** `/api/v1/auth/refresh` — Body: `RefreshRequestDto` → Data: `RefreshResponseDto`
-- **POST** `/api/v1/auth/logout` — Data: `{}`
+- **POST** `/api/v1/auth/register`  
+  **Use Case:** A. Auth - 1. Đăng ký (Register)  
+  **Chức năng:** Đăng ký tài khoản người dùng mới vào hệ thống  
+  **Body:** `RegisterRequestDto` → **Data:** `RegisterResponseDto`
+
+- **POST** `/api/v1/auth/login`  
+  **Use Case:** A. Auth - 2. Đăng nhập (Login)  
+  **Chức năng:** Đăng nhập vào hệ thống và nhận access_token & refresh_token  
+  **Body:** `LoginRequestDto` → **Data:** `LoginResponseDto`
+
+- **POST** `/api/v1/auth/refresh`  
+  **Use Case:** A. Auth - 2. Đăng nhập (Login)  
+  **Chức năng:** Làm mới access_token bằng refresh_token  
+  **Body:** `RefreshRequestDto` → **Data:** `RefreshResponseDto`
+
+- **POST** `/api/v1/auth/logout`  
+  **Use Case:** A. Auth  
+  **Chức năng:** Đăng xuất khỏi hệ thống  
+  **Data:** `{}`
 
 ---
 
 ### 3.2 Users
-- **POST** `/api/v1/users/search` — Body: `PageRequestDto<UserFilterDto>` → Data: `PageResult<UserSummaryDto>`
-- **GET** `/api/v1/user/{user_name}` — Data: `UserDetailDto`
+- **POST** `/api/v1/users/search`  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Tìm kiếm danh sách người dùng theo bộ lọc với phân trang  
+  **Body:** `PageRequestDto<UserFilterDto>` → **Data:** `PageResult<UserSummaryDto>`
+
+- **GET** `/api/v1/user/{user_name}`  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xem thông tin chi tiết của một người dùng  
+  **Data:** `UserDetailDto`
 
 ---
 
 ### 3.3 Contests
-- **POST** `/api/v1/contests/search` — Body: `PageRequestDto<ContestFilterDto>` → Data: `PageResult<ContestSummaryDto>` // api này có the thay the get-page voi ContestFilterDto = null;
-- **GET** `/api/v1/contest/{contest_id}` — Data: `ContestDetailDto`
-- **POST** `/api/v1/contests` _(permission: `contest:create`)_ — Body: `ContestCreateRequestDto` → Data: `{ "contest_id": 201 }`
-- **POST** `/api/v1/contest/{contest_id}/edit` _(permission: `contest:edit`)_ — Body: `ContestUpdateRequestDto` → Data: `{ "contest_id": 201 }`
-- **POST** `/api/v1/contest/{contest_id}/problems` _(permission: `contest:edit`)_ — Body: `ContestAttachProblemRequestDto` → Data: `{ "contest_id": 201, "problem_id": "prob-xyz" }`
-- **DELETE** `/api/v1/contest/{contest_id}/problem/{problem_id}` _(permission: `contest:edit`)_ — Data: `{}`
-- **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
-- **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
-- **POST** `/api/v1/contest/{contest_id}/make-official` _(bot/admin)_ — Body: `ContestMakeOfficialRequestDto` → Data: `{ "contest_id": 201, "contest_type": "Official", "rated": true }`
-- **POST** `/api/v1/contest/{contest_id}/register` — Data: `ContestRegistrationDto`
-- **POST** `/api/v1/contest/{contest_id}/registrations/search` — Body: `PageRequestDto<ContestRegistrationFilterDto>` → Data: `PageResult<ContestRegistrationDto>`
-- **POST** `/api/v1/contest/{contest_id}/participants/search` — Body: `PageRequestDto<ContestParticipantFilterDto>` → Data: `PageResult<ContestParticipantDto>`
-- **POST** `/api/v1/contest/{contest_id}/invite-tester` _(permission: `contest:invite`)_ — Body: `InviteTesterRequestDto` → Data: `ContestInvitationDto`
-- **POST** `/api/v1/contest/{contest_id}/invitations/search` — Body: `PageRequestDto<ContestInvitationFilterDto>` → Data: `PageResult<ContestInvitationDto>`
-- **POST** `/api/v1/contest/{contest_id}/feedback` _(permission: `contest:tester_comment`)_ — Body: `{ "problem_id": "...", "like": true, "comment": "..." }` → Data: `{ "contest_id": 201, "problem_id": "prob-xyz", "user_id": 124, "like": true, "comment_id": 7001 }`
-- **POST** `/api/v1/contest/{contest_id}/rankings/search` — Body: `PageRequestDto<ContestParticipantFilterDto>` → Data: `PageResult<ContestParticipantDto>`
-- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_ — Body: `ContestRatingCalcRequestDto` → Data: `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
-- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_ — Body: `OpenSolutionsRequestDto` → Data: `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
-- **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
-- **POST** `/api/v1/contest/{contest_id}/submit-draft/queue` _(permission: `contest:submit_review`)_ — Body: `SubmitDraftToQueueRequestDto`  
-  → Data: `{ "contest_id": 201, "queued": true, "approved": false, "message": "Waiting for review" }`
-- **POST** `/api/v1/group/{group_id}/contest/create` _(permission: `group:contest_create`)_  
-  — Body: `CreateGroupContestRequestDto`  
-  → Data: `{ "contest_id": 350, "group_id": 42, "status": "Created" }`
+**Search Contests**
+- **POST** `/api/v1/contests/search`  
+  **Use Case:** B. Contest Management - 2. CRUD Contest  
+  **Chức năng:** Tìm kiếm danh sách contest theo bộ lọc với phân trang  
+  **Body:** `PageRequestDto<ContestFilterDto>` → **Data:** `PageResult<ContestSummaryDto>` // api này có the thay the get-page voi ContestFilterDto = null;
 
-- **POST** `/api/v1/contest/{contest_id}/promote-to-gym`   
-  — Body: `PromoteDraftToGymRequestDto`  
-  → Data: `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
+**Get Contest Detail**
+- **GET** `/api/v1/contest/{contest_id}`  
+  **Use Case:** B. Contest Management - 2. CRUD Contest  
+  **Chức năng:** Xem thông tin chi tiết của một contest  
+  **Data:** `ContestDetailDto`
+
+**Create Contest**
+- **POST** `/api/v1/contests` _(permission: `contest:create`)_ — Body: `ContestCreateRequestDto` → Data: `{ "contest_id": 201 }`
+
+**Update Contest**
+- **POST** `/api/v1/contest/{contest_id}/edit` _(permission: `contest:edit`)_ — Body: `ContestUpdateRequestDto` → Data: `{ "contest_id": 201 }`
+
+**Add Problem**
+- **POST** `/api/v1/contest/{contest_id}/problems` _(permission: `contest:edit`)_ — Body: `ContestAttachProblemRequestDto` → Data: `{ "contest_id": 201, "problem_id": "prob-xyz" }`
+
+**Remove Problem**
+- **DELETE** `/api/v1/contest/{contest_id}/problem/{problem_id}` _(permission: `contest:edit`)_ — Data: `{}`
+
+**Delete Contest**
+- **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
+
+**Set Draft Status**
+- **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
+
+**Make Official**
+- **POST** `/api/v1/contest/{contest_id}/make-official` _(bot/admin)_ — Body: `ContestMakeOfficialRequestDto` → Data: `{ "contest_id": 201, "contest_type": "Official", "rated": true }`
+
+**Register User**
+- **POST** `/api/v1/contest/{contest_id}/register`  
+  **Use Case:** B. Contest Management - 8. User đăng ký tham gia Contest  
+  **Chức năng:** Đăng ký tham gia một contest (Official/Gym)  
+  **Data:** `ContestRegistrationDto`
+
+**Search Registrations**
+- **POST** `/api/v1/contest/{contest_id}/registrations/search`  
+  **Use Case:** B. Contest Management - 8. User đăng ký tham gia Contest  
+  **Chức năng:** Xem danh sách người đã đăng ký tham gia contest  
+  **Body:** `PageRequestDto<ContestRegistrationFilterDto>` → **Data:** `PageResult<ContestRegistrationDto>`
+
+**Search Participants**
+- **POST** `/api/v1/contest/{contest_id}/participants/search`  
+  **Use Case:** B. Contest Management - 9. Vào Contest (Contest đang chạy)  
+  **Chức năng:** Xem danh sách người tham gia contest  
+  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
+
+**Invite Tester**
+- **POST** `/api/v1/contest/{contest_id}/invite-tester` _(permission: `contest:invite`)_  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Mời tester vào Draft Contest để đánh giá  
+  **Body:** `InviteTesterRequestDto` → **Data:** `ContestInvitationDto`
+
+**Search Invitations**
+- **POST** `/api/v1/contest/{contest_id}/invitations/search`  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Xem danh sách lời mời tester cho contest  
+  **Body:** `PageRequestDto<ContestInvitationFilterDto>` → **Data:** `PageResult<ContestInvitationDto>`
+
+**Submit Feedback**
+- **POST** `/api/v1/contest/{contest_id}/feedback` _(permission: `contest:tester_comment`)_  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Tester gửi feedback (like/comment) cho problem trong contest  
+  **Body:** `{ "problem_id": "...", "like": true, "comment": "..." }` → **Data:** `{ "contest_id": 201, "problem_id": "prob-xyz", "user_id": 124, "like": true, "comment_id": 7001 }`
+
+**Search Rankings**
+- **POST** `/api/v1/contest/{contest_id}/rankings/search`  
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Xem bảng xếp hạng của contest với phân trang  
+  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
+
+**Calculate Rating**
+- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_  
+  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
+  **Chức năng:** Tính toán và cập nhật rating cho user sau khi contest kết thúc  
+  **Body:** `ContestRatingCalcRequestDto` → **Data:** `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
+
+**Open Solutions**
+- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_  
+  **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
+  **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
+  **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
+
+**Set Draft Status**
+- **POST** `/api/v1/contest/{contest_id}/submit-draft`  
+  **Use Case:** B. Contest Management - 4. Submit Draft Contest vào Proposal Queue  
+  **Chức năng:** Đánh dấu contest đã sẵn sàng để submit vào queue duyệt (duplicate - xem endpoint trên)  
+  **Data:** `{ "contest_id": 201, "submitted": true }`
+
+**Submit to Queue**
+- **POST** `/api/v1/contest/{contest_id}/submit-draft/queue` _(permission: `contest:submit_review`)_  
+  **Use Case:** B. Contest Management - 4. Submit Draft Contest vào Proposal Queue  
+  **Chức năng:** Đưa Draft Contest vào hàng đợi để chờ Bot/Admin duyệt  
+  **Body:** `SubmitDraftToQueueRequestDto`  
+  → **Data:** `{ "contest_id": 201, "queued": true, "approved": false, "message": "Waiting for review" }`
+
+**Create Group Contest**
+- **POST** `/api/v1/group/{group_id}/contest/create` _(permission: `group:contest_create`)_  
+  **Use Case:** F. Group - 22. Add Draft Contest vào Group  
+  **Chức năng:** Tạo contest trực tiếp trong group  
+  **Body:** `CreateGroupContestRequestDto`  
+  → **Data:** `{ "contest_id": 350, "group_id": 42, "status": "Created" }`
+
+**Promote to Gym**
+- **POST** `/api/v1/contest/{contest_id}/promote-to-gym`  
+  **Use Case:** B. Contest Management - 5. Add Draft Contest vào Gym  
+  **Chức năng:** Chuyển Draft Contest sang dạng Gym (public, không tính rating)  
+  **Body:** `PromoteDraftToGymRequestDto`  
+  → **Data:** `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
 
 ---
 
 ### 3.4 Problems (Mongo)
-- **POST** `/api/v1/problems` _(permission: `problem:create`)_ — Body: `ProblemCreateRequestDto` → Data: `{ "problem_id": "prob-xyz" }`
-- **POST** `/api/v1/problem/{problem_id}/edit` _(permission: `problem:edit`)_ — Body: `ProblemUpdateRequestDto` → Data: `{ "problem_id": "prob-xyz" }`
-- **DELETE** `/api/v1/problem/{problem_id}` _(permission: `problem:delete`)_ — Data: `{}`
-- **POST** `/api/v1/problems/search` — Body: `PageRequestDto<ProblemFilterDto>` → Data: `PageResult<ProblemSummaryDto>`
-- **GET** `/api/v1/problem/{problem_id}` — Data: `ProblemDetailDto`
-- **POST** `/api/v1/problems/search-text` — Body: `PageRequestDto<string>` (`filter` = keyword) → Data: `PageResult<ProblemSummaryDto>`
-- **POST** `/api/v1/problems/by-contest` — Body: `PageRequestDto<ProblemByContestFilterDto>` → Data: `PageResult<ProblemSummaryDto>`
+- **POST** `/api/v1/problems` _(permission: `problem:create`)_  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Tạo mới một problem  
+  **Body:** `ProblemCreateRequestDto` → **Data:** `{ "problem_id": "prob-xyz" }`
+
+- **POST** `/api/v1/problem/{problem_id}/edit` _(permission: `problem:edit`)_  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Cập nhật thông tin của problem  
+  **Body:** `ProblemUpdateRequestDto` → **Data:** `{ "problem_id": "prob-xyz" }`
+
+- **DELETE** `/api/v1/problem/{problem_id}` _(permission: `problem:delete`)_  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Xóa một problem  
+  **Data:** `{}`
+
+- **POST** `/api/v1/problems/search`  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Tìm kiếm danh sách problem theo bộ lọc với phân trang  
+  **Body:** `PageRequestDto<ProblemFilterDto>` → **Data:** `PageResult<ProblemSummaryDto>`
+
+- **GET** `/api/v1/problem/{problem_id}`  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Xem thông tin chi tiết của một problem  
+  **Data:** `ProblemDetailDto`
+
+- **POST** `/api/v1/problems/search-text`  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Tìm kiếm problem theo từ khóa  
+  **Body:** `PageRequestDto<string>` (`filter` = keyword) → **Data:** `PageResult<ProblemSummaryDto>`
+
+- **POST** `/api/v1/problems/by-contest`  
+  **Use Case:** C. Problem Management - 13. CRUD Problem  
+  **Chức năng:** Lấy danh sách problem theo contest  
+  **Body:** `PageRequestDto<ProblemByContestFilterDto>` → **Data:** `PageResult<ProblemSummaryDto>`
 
 ---
 
 ### 3.5 Submissions (SQL + Mongo)
-- **POST** `/api/v1/submissions` — Body: `SubmissionCreateRequestDto` → Data: `{ "submission_id": "sub-1001" }`
-- **POST** `/api/v1/submissions/search` — Body: `PageRequestDto<SubmissionFilterDto>` → Data: `PageResult<SubmissionSummaryDto>`
-- **GET** `/api/v1/submission/{submission_id}` — Data: `SubmissionDetailDto`  _(trả `source_code` theo quyền)_
-- **DELETE** `/api/v1/submission/{submission_id}` _(admin)_ — Data: `{}`
-- **DELETE** `/api/v1/submission/by-problem/{problem_id}` _(admin)_ — Data: `{ "deleted": 15 }`
-- **DELETE** `/api/v1/submission/by-user/{user_id}` _(admin)_ — Data: `{ "deleted": 42 }`
+- **POST** `/api/v1/submissions`  
+  **Use Case:** D. Submission - 14. Submit trong Contest / 15. Submit ngoài Contest  
+  **Chức năng:** Nộp bài giải cho một problem (trong hoặc ngoài contest)  
+  **Body:** `SubmissionCreateRequestDto` → **Data:** `{ "submission_id": "sub-1001" }`
+
+- **POST** `/api/v1/submissions/search`  
+  **Use Case:** D. Submission - 16. Xem Submission trong Contest / 17. Xem Submission ngoài Contest  
+  **Chức năng:** Tìm kiếm danh sách submission theo bộ lọc với phân trang  
+  **Body:** `PageRequestDto<SubmissionFilterDto>` → **Data:** `PageResult<SubmissionSummaryDto>`
+
+- **GET** `/api/v1/submission/{submission_id}`  
+  **Use Case:** D. Submission - 16. Xem Submission trong Contest / 17. Xem Submission ngoài Contest  
+  **Chức năng:** Xem chi tiết một submission (source_code theo quyền)  
+  **Data:** `SubmissionDetailDto` _(trả `source_code` theo quyền)_
+
+- **DELETE** `/api/v1/submission/{submission_id}` _(admin)_  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xóa một submission  
+  **Data:** `{}`
+
+- **DELETE** `/api/v1/submission/by-problem/{problem_id}` _(admin)_  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xóa tất cả submission của một problem  
+  **Data:** `{ "deleted": 15 }`
+
+- **DELETE** `/api/v1/submission/by-user/{user_id}` _(admin)_  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xóa tất cả submission của một user  
+  **Data:** `{ "deleted": 42 }`
 
 ---
 
 ### 3.6 Comments
-- **POST** `/api/v1/comments/search` — Body: `PageRequestDto<CommentFilterDto>` → Data: `PageResult<CommentDetailDto>`
-- **POST** `/api/v1/comments` — Body: `CommentCreateRequestDto` → Data: `{ "comment_id": 7001 }`
-- **DELETE** `/api/v1/comment/{comment_id}` _(moderator/admin)_ — Data: `{}`
+- **POST** `/api/v1/comments/search`  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Tìm kiếm danh sách comment (tester/official) với phân trang  
+  **Body:** `PageRequestDto<CommentFilterDto>` → **Data:** `PageResult<CommentDetailDto>`
+
+- **POST** `/api/v1/comments`  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Tạo comment mới (tester_comment/official_comment)  
+  **Body:** `CommentCreateRequestDto` → **Data:** `{ "comment_id": 7001 }`
+
+- **DELETE** `/api/v1/comment/{comment_id}` _(moderator/admin)_  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xóa một comment  
+  **Data:** `{}`
 
 ---
 
 ### 3.7 Groups
-- **POST** `/api/v1/groups` _(permission: `group:create`)_ — Body: `GroupCreateRequestDto` → Data: `{ "group_id": 600 }`
-- **POST** `/api/v1/groups/search` — Body: `PageRequestDto<GroupFilterDto>` → Data: `PageResult<GroupDetailDto>`
-- **GET** `/api/v1/group/{group_id}` — Data: `GroupDetailDto`
-- **POST** `/api/v1/group/{group_id}/members/search` — Body: `PageRequestDto<GroupMemberFilterDto>` → Data: `PageResult<GroupMemberDto>`
-- **POST** `/api/v1/group/{group_id}/invite` _(permission: `group:invite`)_ — Body: `GroupInviteRequestDto` → Data: `GroupInvitationDto`
-- **POST** `/api/v1/group/{group_id}/invitations/search` — Body: `PageRequestDto<GroupInvitationFilterDto>` → Data: `PageResult<GroupInvitationDto>`
+- **POST** `/api/v1/groups` _(permission: `group:create`)_  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Tạo mới một group  
+  **Body:** `GroupCreateRequestDto` → **Data:** `{ "group_id": 600 }`
+
+- **POST** `/api/v1/groups/search`  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Tìm kiếm danh sách group với phân trang  
+  **Body:** `PageRequestDto<GroupFilterDto>` → **Data:** `PageResult<GroupDetailDto>`
+
+- **GET** `/api/v1/group/{group_id}`  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Xem thông tin chi tiết của một group  
+  **Data:** `GroupDetailDto`
+
+- **POST** `/api/v1/group/{group_id}/members/search`  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Xem danh sách thành viên của group  
+  **Body:** `PageRequestDto<GroupMemberFilterDto>` → **Data:** `PageResult<GroupMemberDto>`
+
+- **POST** `/api/v1/group/{group_id}/invite` _(permission: `group:invite`)_  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Mời người dùng vào group  
+  **Body:** `GroupInviteRequestDto` → **Data:** `GroupInvitationDto`
+
+- **POST** `/api/v1/group/{group_id}/invitations/search`  
+  **Use Case:** F. Group - 21. User mời người khác vào Group  
+  **Chức năng:** Xem danh sách lời mời vào group  
+  **Body:** `PageRequestDto<GroupInvitationFilterDto>` → **Data:** `PageResult<GroupInvitationDto>`
 
 ---
 
 ### 3.8 Ratings
-- **POST** `/api/v1/contest/{contest_id}/ratings/search` — Body: `PageRequestDto<UserRatingHistoryFilterDto>` → Data: `PageResult<UserRatingHistoryDto>`
+- **POST** `/api/v1/contest/{contest_id}/ratings/search`  
+  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
+  **Chức năng:** Xem lịch sử rating của user trong contest  
+  **Body:** `PageRequestDto<UserRatingHistoryFilterDto>` → **Data:** `PageResult<UserRatingHistoryDto>`
 
 ---
 
@@ -371,20 +565,30 @@ leaderboard:{contest_id}  // ZSET: member = user_id, score = score * 1e6 - penal
 
 _Read:_
 - **POST** `/api/v1/contest/{contest_id}/dashboard/page`  
-  **Body**: `DashboardPageRequestDto` → Data: `{ "total": number, "items": [ { "user_id", "user_name", "score", "penalty", "rank" } ] }`
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Xem bảng xếp hạng contest theo phân trang (realtime từ Redis ZSET)  
+  **Body**: `DashboardPageRequestDto` → **Data**: `{ "total": number, "items": [ { "user_id", "user_name", "score", "penalty", "rank" } ] }`
 
 - **POST** `/api/v1/contest/{contest_id}/dashboard/friends`  
-  **Body**: `DashboardFriendsRequestDto` → Data: như trên nhưng **chỉ lọc theo danh sách bạn** của caller.
+  **Use Case:** E. Dashboard - 19. Xem Dashboard Contest của bạn bè  
+  **Chức năng:** Xem bảng xếp hạng contest chỉ bao gồm bạn bè của user  
+  **Body**: `DashboardFriendsRequestDto` → **Data**: như trên nhưng **chỉ lọc theo danh sách bạn** của caller.
 
 - **POST** `/api/v1/contest/{contest_id}/dashboard/group`  
-  **Body**: `DashboardGroupRequestDto` → Data: như trên nhưng **chỉ lọc theo group** (nếu không truyền `group_id` sẽ lấy group mặc định/của caller).
+  **Use Case:** E. Dashboard - 20. Xem Dashboard Contest của user cùng Group  
+  **Chức năng:** Xem bảng xếp hạng contest chỉ bao gồm thành viên trong group  
+  **Body**: `DashboardGroupRequestDto` → **Data**: như trên nhưng **chỉ lọc theo group** (nếu không truyền `group_id` sẽ lấy group mặc định/của caller).
 
 _Write:_
-- **POST** `/api/v1/contest/{contest_id}/leaderboard/update-score`   
-  **Body** `{ "user_id": number, "score": number, "penalty": number }` → Data: `{ "updated": true }`
+- **POST** `/api/v1/contest/{contest_id}/leaderboard/update-score`  
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Cập nhật điểm và penalty của một user trong leaderboard (Redis ZSET)  
+  **Body** `{ "user_id": number, "score": number, "penalty": number }` → **Data**: `{ "updated": true }`
 
-- **POST** `/api/v1/contest/{contest_id}/leaderboard/batch-update` 
-  **Body** `{ "items": [ { "user_id": number, "score": number, "penalty": number }, ... ] }` → Data: `{ "updated": 42 }`
+- **POST** `/api/v1/contest/{contest_id}/leaderboard/batch-update`  
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Cập nhật điểm hàng loạt cho nhiều user (batch update Redis ZSET)  
+  **Body** `{ "items": [ { "user_id": number, "score": number, "penalty": number }, ... ] }` → **Data**: `{ "updated": 42 }`
 
 > ***Ghi chú***: FE **polling** định kỳ endpoint `/dashboard/page` với `offset(limit)` để cập nhật UI; 
 ---
@@ -392,18 +596,47 @@ _Write:_
 ## 4) Admin API
 
 **User Management**
-- **POST** `/api/v1/admin/users/{user_id}/delete` — Data: `{ "deleted": true }`
-- **POST** `/api/v1/admin/users/{user_id}/adjust-rating` — Body: `AdjustUserRatingRequestDto` → Data: `{ "user_id": 1, "delta": -75, "new_rating": 1525 }`
-- **POST** `/api/v1/admin/users/{user_id}/set-rating` — Body: `SetUserRatingRequestDto` → Data: `{ "user_id": 1, "new_rating": 1800 }`
-- **POST** `/api/v1/admin/users/{user_id}/grant-role` — Body: `GrantRoleRequestDto` → Data: `{ "user_id": 1, "role": "pro_user" }`
-- **POST** `/api/v1/admin/users/{user_id}/revoke-role` — Body: `RevokeRoleRequestDto` → Data: `{ "user_id": 1, "role": "pro_user" }`
+- **POST** `/api/v1/admin/users/{user_id}/delete`  
+  **Use Case:** G. Admin - 23. Quản lý User  
+  **Chức năng:** Xóa một user khỏi hệ thống  
+  **Data:** `{ "deleted": true }`
+
+- **POST** `/api/v1/admin/users/{user_id}/adjust-rating`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý rating user)  
+  **Chức năng:** Điều chỉnh rating của user (tăng/giảm delta)  
+  **Body:** `AdjustUserRatingRequestDto` → **Data:** `{ "user_id": 1, "delta": -75, "new_rating": 1525 }`
+
+- **POST** `/api/v1/admin/users/{user_id}/set-rating`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý rating user)  
+  **Chức năng:** Đặt rating tuyệt đối cho user  
+  **Body:** `SetUserRatingRequestDto` → **Data:** `{ "user_id": 1, "new_rating": 1800 }`
+
+- **POST** `/api/v1/admin/users/{user_id}/grant-role`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý role)  
+  **Chức năng:** Cấp role cho user (ví dụ: pro_user, tester)  
+  **Body:** `GrantRoleRequestDto` → **Data:** `{ "user_id": 1, "role": "pro_user" }`
+
+- **POST** `/api/v1/admin/users/{user_id}/revoke-role`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý role)  
+  **Chức năng:** Thu hồi role của user  
+  **Body:** `RevokeRoleRequestDto` → **Data:** `{ "user_id": 1, "role": "pro_user" }`
 
 **Contest Management**
-- **POST** `/api/v1/admin/contests/{contest_id}/set-unrated` — Data: `{ "contest_id": 201, "rated": false }`
+- **POST** `/api/v1/admin/contests/{contest_id}/set-unrated`  
+  **Use Case:** G. Admin - 24. Quản lý Contest (đặt unrated)  
+  **Chức năng:** Đánh dấu contest là không tính rating  
+  **Data:** `{ "contest_id": 201, "rated": false }`
 
 **RBAC Directory**
-- **POST** `/api/v1/admin/roles/search` — Body: `PageRequestDto<object>` → Data: `PageResult<RoleDto>`
-- **POST** `/api/v1/admin/permissions/search` — Body: `PageRequestDto<object>` → Data: `PageResult<PermissionDto>`
+- **POST** `/api/v1/admin/roles/search`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý role)  
+  **Chức năng:** Xem danh sách tất cả các role trong hệ thống  
+  **Body:** `PageRequestDto<object>` → **Data:** `PageResult<RoleDto>`
+
+- **POST** `/api/v1/admin/permissions/search`  
+  **Use Case:** G. Admin - 23. Quản lý User (quản lý role)  
+  **Chức năng:** Xem danh sách tất cả các permission trong hệ thống  
+  **Body:** `PageRequestDto<object>` → **Data:** `PageResult<PermissionDto>`
 
 ---
 
