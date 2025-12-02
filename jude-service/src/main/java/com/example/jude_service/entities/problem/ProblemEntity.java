@@ -22,7 +22,7 @@ public class ProblemEntity {
     @Id
     private String problemId;
 
-    private String contestId;
+    private Long contestId;
 
     @NotNull
     private String title;
@@ -60,11 +60,11 @@ public class ProblemEntity {
     private String outputType = "stdout"; //stdout
     // 2 trường inputType và outputType cần xem xét thêm vì có thể gán mặc định là stdin/stdout, nhưng cần xem xét thêm đối với các ngôn ngữ như java, python, javascript
 
-    private String authorId;
+    private Long authorId;
     private List<TestcaseEntity> testcaseEntities;
 
-    private String createdBy;
-    private String lastModifiedBy;
+    private Long createdBy;
+    private Long lastModifiedBy;
 
     @CreatedDate
     private LocalDateTime createdAt;

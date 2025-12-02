@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import java.sql.SQLException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,7 +37,7 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(SQLException.class)
     public ResponseEntity<CommonResponse<Object>> handleGlobalException(Exception ex, WebRequest request) {
         CommonResponse<Object> response = CommonResponse.fail(
                 ErrorCode.INTERNAL_SERVER_ERROR

@@ -80,52 +80,43 @@ CREATE TABLE contest (
     author BIGINT,
     rated BOOLEAN DEFAULT FALSE,
     visibility ENUM('public','private') DEFAULT 'private',
-    group_id BIGINT,
-    FOREIGN KEY (author) REFERENCES user_details(user_id),
-    FOREIGN KEY (group_id) REFERENCES `group`(group_id)
+    group_id BIGINT
 );
 
 -- 9. submission_result
 CREATE TABLE submission_result (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT,
     contest_id BIGINT,
     result ENUM('SKIPPED','PENDING','AC','WA','TLE','MLE','CE'),
     submission_id VARCHAR(64),
     status ENUM('IN_CONTEST','PRACTICE'),
-    created_at DATETIME,
-    PRIMARY KEY (user_id, contest_id, submission_id),
-    FOREIGN KEY (user_id) REFERENCES user_details(user_id),
-    FOREIGN KEY (contest_id) REFERENCES contest(contest_id)
+    created_at DATETIME
 );
 
 -- 10. contest_problem
 CREATE TABLE contest_problem (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     contest_id BIGINT,
-    problem_id VARCHAR(64),
-    PRIMARY KEY (contest_id, problem_id),
-    FOREIGN KEY (contest_id) REFERENCES contest(contest_id)
+    problem_id VARCHAR(64)
 );
 
 -- 11. contest_registration
 CREATE TABLE contest_registration (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     contest_id BIGINT,
     user_id BIGINT,
-    registered_at DATETIME,
-    PRIMARY KEY (contest_id, user_id),
-    FOREIGN KEY (contest_id) REFERENCES contest(contest_id),
-    FOREIGN KEY (user_id) REFERENCES user_details(user_id)
+    registered_at DATETIME
 );
 
 -- 12. contest_participants
 CREATE TABLE contest_participants (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     contest_id BIGINT,
     user_id BIGINT,
     penalty INT,
     total_score INT,
-    ranking INT,
-    PRIMARY KEY (contest_id, user_id),
-    FOREIGN KEY (contest_id) REFERENCES contest(contest_id),
-    FOREIGN KEY (user_id) REFERENCES user_details(user_id)
+    ranking INT
 );
 
 -- 13. contest_testers
@@ -156,10 +147,7 @@ CREATE TABLE contest_invitation (
     contest_id BIGINT,
     inviter_id BIGINT,
     invitee_id BIGINT,
-    status ENUM('ACCEPTED','DECLINED','PENDING','EXPIRED'),
-    FOREIGN KEY (contest_id) REFERENCES contest(contest_id),
-    FOREIGN KEY (inviter_id) REFERENCES user_details(user_id),
-    FOREIGN KEY (invitee_id) REFERENCES user_details(user_id)
+    status ENUM('ACCEPTED','DECLINED','PENDING','EXPIRED')
 );
 
 -- 16. comment

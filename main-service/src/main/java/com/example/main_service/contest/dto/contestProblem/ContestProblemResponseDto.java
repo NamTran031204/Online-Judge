@@ -1,4 +1,4 @@
-package com.example.main_service.contest.model;
+package com.example.main_service.contest.dto.contestProblem;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,17 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "contest_problem")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContestProblemEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ContestProblemResponseDto {
 
     @Column(name = "contest_id")
     private Long contestId;

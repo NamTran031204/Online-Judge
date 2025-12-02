@@ -4,9 +4,12 @@ import com.example.main_service.contest.dto.PageRequestDto;
 import com.example.main_service.contest.dto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
 import com.example.main_service.contest.enums.ContestStatus;
+import com.example.main_service.contest.enums.ContestType;
+import com.example.main_service.contest.enums.ContestVisibility;
 import com.example.main_service.contest.exceptions.ErrorCode;
 import com.example.main_service.contest.exceptions.specException.ContestBusinessException;
 import com.example.main_service.contest.model.ContestEntity;
+import com.example.main_service.contest.dto.contestProblem.ContestProblemResponseDto;
 import com.example.main_service.contest.repo.ContestRepo;
 import com.example.main_service.contest.service.ContestService;
 import com.example.main_service.contest.specification.ContestSpec;
@@ -20,7 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -34,6 +37,13 @@ public class ContestServiceImpl implements ContestService {
     public ContestCreateUpdateResponseDto createContest(ContestCreateUpdateRequestDto input) {
         contestCreateUpdateValidate(input, "create");
 
+        if (input.getContestType() == null) {
+            input.setContestType(ContestType.DRAFT);
+        }
+        if (input.getVisibility() == null) {
+            input.setVisibility(ContestVisibility.PUBLIC);
+        }
+
         ContestEntity entity = ContestEntity.builder()
                 .title(input.getTitle())
                 .description(input.getDescription())
@@ -41,7 +51,7 @@ public class ContestServiceImpl implements ContestService {
                 .duration(input.getDuration())
                 .contestStatus(ContestStatus.UPCOMING)
                 .contestType(input.getContestType())
-                .author(Long.getLong("1")) // TODO: lay ra author tu UserDetail cua Security
+                .author(1L) // TODO: lay ra author tu UserDetail cua Security
                 .rated(input.getRated())
                 .visibility(input.getVisibility())
                 .groupId(input.getGroupId())
@@ -61,6 +71,8 @@ public class ContestServiceImpl implements ContestService {
         contestCreateUpdateValidate(input, "update");
         ContestEntity contest = contestRepo.findById(contestId)
                 .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        validateUpdatePermission(contest);
 
         if (StringUtils.isNotNullOrBlank(input.getTitle()))
             contest.setTitle(input.getTitle());
@@ -105,14 +117,28 @@ public class ContestServiceImpl implements ContestService {
                 if (filter.getContestType() != null) {
                     spec.and(ContestSpec.hasContestType(filter.getContestType()));
                 }
-                if (filter.getVisibility() != null) {
-                    spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
-                }
+
+                // groupId va authorId anh huong den Visibility
                 if (filter.getGroupId() != null) {
                     spec.and(ContestSpec.hasGroupId(filter.getGroupId()));
                 }
                 if (filter.getAuthorId() != null) {
                     spec.and(ContestSpec.hasAuthorId(filter.getAuthorId()));
+                }
+
+                /**
+                 * TODO: neu da phat trien GROUP, request nay can validate get contest by visibility
+                 */
+                if (filter.getVisibility() == null) {
+                    if (filter.getAuthorId() != null) {
+                        Long userId = 1L; // TODO: lay ra userId tu UserDetail
+                        if (!userId.equals(filter.getAuthorId())) {
+                            spec.and(ContestSpec.hasVisibility(ContestVisibility.PUBLIC));
+                        }
+                    }
+                    // neu dap ung dieu kien: hoac la author, hoac la nguoi tham gia, thi co the xem tat ca contest PUBLIC/PRIVATE
+                } else {
+                    spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
                 }
             }
 
@@ -126,10 +152,26 @@ public class ContestServiceImpl implements ContestService {
         }
     }
 
+    /**
+     * TODO: neu da phat trien GROUP, request nay can validate get contest by visibility
+     * TODO: lay ra userId tu UserDetail
+     */
     @Override
     public ContestDetailDto getById(Long contestId) {
         ContestEntity contest = contestRepo.findById(contestId)
                 .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        if (contest.getVisibility().equals(ContestVisibility.PRIVATE)) {
+            Long userId = 1L;
+            boolean ok = true;
+            if (!contest.getAuthor().equals(userId)) {
+                ok = false;
+            }
+            // validate group
+            if (!ok) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+            }
+        }
 
         ContestSummaryDto contestSummaryDto = ContestSummaryDto.builder()
                 .contestId(contest.getContestId())
@@ -164,26 +206,31 @@ public class ContestServiceImpl implements ContestService {
     }
 
     private void contestCreateUpdateValidate(ContestCreateUpdateRequestDto input, String type) {
-        if (!input.getStartTime().isEqual(null)) {
+        if (input.getStartTime() != null) {
             if (input.getStartTime().isBefore(LocalDateTime.now())) {
                 throw new ContestBusinessException(ErrorCode.CONTEST_INVALID_START_TIME);
             }
         } else {
-            if (type == "create") throw new ContestBusinessException(ErrorCode.CONTEST_INVALID_START_TIME, "Start time cannot be null");
+            if (Objects.equals(type, "create")) throw new ContestBusinessException(ErrorCode.CONTEST_INVALID_START_TIME, "Start time cannot be null");
         }
 
         boolean ok = true;
-        if (type == "create") {
+        if (Objects.equals(type, "create")) {
             if (input.getDuration() == null) ok = false;
-            if (StringUtils.isNotNullOrBlank(input.getTitle())) ok = false;
-            if (StringUtils.isNotNullOrBlank(input.getDescription())) ok = false;
-            if (input.getContestType() == null) ok = false;
+            if (!StringUtils.isNotNullOrBlank(input.getTitle())) ok = false;
+            if (!StringUtils.isNotNullOrBlank(input.getDescription())) ok = false;
             if (input.getRated() == null) ok = false;
-            if (input.getVisibility() == null) ok = false;
-            if (input.getGroupId() == null) ok = false;
         }
         if (!ok) {
             throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR);
+        }
+    }
+
+    private void validateUpdatePermission(ContestEntity contestEntity) {
+        Long userId = 1L; // TODO: lay ra userId tu UserDetail cua Security
+
+        if (!contestEntity.getAuthor().equals(userId)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
         }
     }
 }

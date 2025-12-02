@@ -7,12 +7,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="proto" />
       </profile>
       <profile name="Annotation profile for main-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
+        <processorPath>
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="main-service" />
@@ -20,9 +20,8 @@
       <profile name="Annotation profile for online-judge" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        <processorPath>
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="jude-service" />
       </profile>
@@ -30,6 +29,7 @@
     <bytecodeTargetLevel>
       <module name="comment" target="17" />
       <module name="common" target="23" />
+      <module name="common-proto" target="17" />
       <module name="contest" target="17" />
       <module name="gateway" target="17" />
       <module name="group" target="17" />
@@ -41,12 +41,14 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="comment" options="-parameters" />
+      <module name="common-proto" options="-parameters" />
       <module name="contest" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="group" options="-parameters" />
       <module name="jude-service" options="-parameters" />
       <module name="main-service" options="-parameters" />
       <module name="problem" options="-parameters" />
+      <module name="proto" options="-parameters" />
       <module name="submission" options="-parameters" />
       <module name="user" options="-parameters" />
     </option>

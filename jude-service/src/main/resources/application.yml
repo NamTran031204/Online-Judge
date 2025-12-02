@@ -4,6 +4,10 @@ api:
 server:
   port: 5000
 
+grpc:
+  server:
+    port: 9090
+
 docker:
   docker-file-path: "src/main/resources/docker"
 

@@ -4,13 +4,18 @@ import com.example.main_service.contest.enums.ContestStatus;
 import com.example.main_service.contest.enums.ContestType;
 import com.example.main_service.contest.enums.ContestVisibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ContestSummaryDto {
     @JsonProperty("contest_id")
     private Long contestId;

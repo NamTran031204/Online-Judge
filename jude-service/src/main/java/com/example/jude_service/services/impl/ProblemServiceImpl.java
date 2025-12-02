@@ -94,7 +94,7 @@ public class ProblemServiceImpl implements ProblemService {
         String searchTerm = input.getFilter();
 
         /**
-         * TODO: tối ưu tìm kiếm
+         * TODO: lam tim kiem that chinh xac
          */
         Query query = new Query();
         query.addCriteria(
@@ -158,7 +158,7 @@ public class ProblemServiceImpl implements ProblemService {
                     validateTestcaseEntities(input.getTestcaseEntities())
             );
         }
-        if (!StringUtils.isNullOrEmpty(input.getUserId())) {
+        if (input.getUserId() != null) {
             if (!input.getUserId().equals(entity.getAuthorId())){
                 throw new ProblemBusinessException(ErrorCode.UNAUTHORIZED, "ban khong co quyen sua");
             }

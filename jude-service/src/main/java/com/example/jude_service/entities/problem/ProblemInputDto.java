@@ -30,5 +30,5 @@ public class ProblemInputDto {
 
     private List<TestcaseEntity> testcaseEntities;
 
-    private String userId;
+    private Long userId;
 }
