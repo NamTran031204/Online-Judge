@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/contest")
+@RequestMapping("${api.prefix}/contest")
 @RequiredArgsConstructor
 public class ContestController {
     private final ContestService contestService;
