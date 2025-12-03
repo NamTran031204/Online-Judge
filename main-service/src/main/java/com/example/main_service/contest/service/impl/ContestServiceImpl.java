@@ -44,6 +44,10 @@ public class ContestServiceImpl implements ContestService {
             input.setVisibility(ContestVisibility.PUBLIC);
         }
 
+        if (input.getContestType().equals(ContestType.GYM)) {
+            input.setRated(0L);
+        }
+
         ContestEntity entity = ContestEntity.builder()
                 .title(input.getTitle())
                 .description(input.getDescription())

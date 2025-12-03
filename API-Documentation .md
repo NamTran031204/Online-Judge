@@ -306,6 +306,8 @@
 ---
 
 ### 3.3 Contests
+
+#### 3.3.1. completed
 **Search Contests**
 - **POST** `/api/v1/contests/search`  
   **Use Case:** B. Contest Management - 2. CRUD Contest  
@@ -333,11 +335,7 @@
 **Delete Contest**
 - **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
 
-**Set Draft Status**
-- **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
-
-**Make Official**
-- **POST** `/api/v1/contest/{contest_id}/make-official` _(bot/admin)_ — Body: `ContestMakeOfficialRequestDto` → Data: `{ "contest_id": 201, "contest_type": "Official", "rated": true }`
+#### 3.3.2. dang phat trien
 
 **Register User**
 - **POST** `/api/v1/contest/{contest_id}/register`  
@@ -357,24 +355,6 @@
   **Chức năng:** Xem danh sách người tham gia contest  
   **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
 
-**Invite Tester**
-- **POST** `/api/v1/contest/{contest_id}/invite-tester` _(permission: `contest:invite`)_  
-  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
-  **Chức năng:** Mời tester vào Draft Contest để đánh giá  
-  **Body:** `InviteTesterRequestDto` → **Data:** `ContestInvitationDto`
-
-**Search Invitations**
-- **POST** `/api/v1/contest/{contest_id}/invitations/search`  
-  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
-  **Chức năng:** Xem danh sách lời mời tester cho contest  
-  **Body:** `PageRequestDto<ContestInvitationFilterDto>` → **Data:** `PageResult<ContestInvitationDto>`
-
-**Submit Feedback**
-- **POST** `/api/v1/contest/{contest_id}/feedback` _(permission: `contest:tester_comment`)_  
-  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
-  **Chức năng:** Tester gửi feedback (like/comment) cho problem trong contest  
-  **Body:** `{ "problem_id": "...", "like": true, "comment": "..." }` → **Data:** `{ "contest_id": 201, "problem_id": "prob-xyz", "user_id": 124, "like": true, "comment_id": 7001 }`
-
 **Search Rankings**
 - **POST** `/api/v1/contest/{contest_id}/rankings/search`  
   **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
@@ -392,6 +372,40 @@
   **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
   **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
   **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
+
+**Promote to Gym**
+- **POST** `/api/v1/contest/{contest_id}/promote-to-gym`  
+  **Use Case:** B. Contest Management - 5. Add Draft Contest vào Gym  
+  **Chức năng:** Chuyển Draft Contest sang dạng Gym (public, không tính rating)  
+  **Body:** `PromoteDraftToGymRequestDto`  
+  → **Data:** `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
+
+
+#### 3.3.3. tam dung phat trien
+
+**Set Draft Status**
+- **POST** `/api/v1/contest/{contest_id}/submit-draft` — Data: `{ "contest_id": 201, "submitted": true }`
+
+**Make Official**
+- **POST** `/api/v1/contest/{contest_id}/make-official` _(bot/admin)_ — Body: `ContestMakeOfficialRequestDto` → Data: `{ "contest_id": 201, "contest_type": "Official", "rated": true }`
+
+**Invite Tester**
+- **POST** `/api/v1/contest/{contest_id}/invite-tester` _(permission: `contest:invite`)_  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Mời tester vào Draft Contest để đánh giá  
+  **Body:** `InviteTesterRequestDto` → **Data:** `ContestInvitationDto`
+
+**Submit Feedback**
+- **POST** `/api/v1/contest/{contest_id}/feedback` _(permission: `contest:tester_comment`)_  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Tester gửi feedback (like/comment) cho problem trong contest  
+  **Body:** `{ "problem_id": "...", "like": true, "comment": "..." }` → **Data:** `{ "contest_id": 201, "problem_id": "prob-xyz", "user_id": 124, "like": true, "comment_id": 7001 }`
+
+**Search Invitations**
+- **POST** `/api/v1/contest/{contest_id}/invitations/search`  
+  **Use Case:** B. Contest Management - 7. Author mời Tester vào Draft Contest  
+  **Chức năng:** Xem danh sách lời mời tester cho contest  
+  **Body:** `PageRequestDto<ContestInvitationFilterDto>` → **Data:** `PageResult<ContestInvitationDto>`
 
 **Set Draft Status**
 - **POST** `/api/v1/contest/{contest_id}/submit-draft`  
@@ -412,13 +426,6 @@
   **Chức năng:** Tạo contest trực tiếp trong group  
   **Body:** `CreateGroupContestRequestDto`  
   → **Data:** `{ "contest_id": 350, "group_id": 42, "status": "Created" }`
-
-**Promote to Gym**
-- **POST** `/api/v1/contest/{contest_id}/promote-to-gym`  
-  **Use Case:** B. Contest Management - 5. Add Draft Contest vào Gym  
-  **Chức năng:** Chuyển Draft Contest sang dạng Gym (public, không tính rating)  
-  **Body:** `PromoteDraftToGymRequestDto`  
-  → **Data:** `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
 
 ---
 
