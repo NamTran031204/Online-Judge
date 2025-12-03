@@ -31,6 +31,12 @@ public class ContestServiceImpl implements ContestService {
 
     private final ContestRepo contestRepo;
 
+    /**
+     * TODO: chinh sua lai logic tao contest visibility/type vi: hien tai van dang cho tao contest OFFICIAL de test
+     *
+     * @param input
+     * @return
+     */
     @Override
     @Transactional(rollbackOn = Exception.class)
     public ContestCreateUpdateResponseDto createContest(ContestCreateUpdateRequestDto input) {
@@ -40,12 +46,19 @@ public class ContestServiceImpl implements ContestService {
             input.setContestType(ContestType.DRAFT);
         }
         if (input.getVisibility() == null) {
-            input.setVisibility(ContestVisibility.PUBLIC);
+            input.setVisibility(ContestVisibility.PRIVATE);
         }
 
-        if (input.getContestType().equals(ContestType.GYM)) {
-            input.setRated(0L);
+        if (input.getContestType() == null) {
+            if (input.getContestType() == ContestType.OFFICIAL && input.getVisibility() == ContestVisibility.PRIVATE) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR, "Khong duoc tao contest OFFICIAL nhung PRIVATE do chinh sach he thong");
+            }
+        } else {
+            if (input.getContestType().equals(ContestType.GYM)) {
+                input.setRated(0L);
+            }
         }
+
 
         ContestEntity entity = ContestEntity.builder()
                 .title(input.getTitle())
