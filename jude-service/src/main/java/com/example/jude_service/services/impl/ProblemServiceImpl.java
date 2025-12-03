@@ -63,7 +63,10 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(PageRequestDto<ProblemInputDto> input) {
-        Query query = filter(input);
+        Query query = new Query();
+        if (input.getFilter() != null) {
+            query = filter(input);
+        }
         PageResult<ProblemEntity> result = queryByFilter(query, input.getPageRequest());
         return CommonResponse.success(result);
     }
