@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.example.proto.submission";
+option java_outer_classname = "SubmissionProto";
+
+package submission;
+
+// ==================== Common Messages ====================
+
+message PageRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string sortBy = 3;
+  string sortDirection = 4;
+}
+
+message PageResult {
+  int32 page = 1;
+  int32 size = 2;
+  int64 totalElements = 3;
+  int32 totalPages = 4;
+}
+
+// ==================== Judge Result Messages ====================
+
+message TestCaseResult {
+  string testcaseId = 1;
+  string status = 2;
+  int64 executionTime = 3;
+  int64 memoryUsed = 4;
+  string actualOutput = 5;
+  string expectedOutput = 6;
+  int32 score = 7;
+  string errorMessage = 8;
+}
+
+message CompileResult {
+  bool success = 1;
+  string errorMessage = 2;
+  string compiledFilePath = 3;
+}
+
+message JudgeResult {
+  string status = 1;
+  int32 totalScore = 2;
+  int32 maxScore = 3;
+  int64 totalExecutionTime = 4;
+  int64 maxMemoryUsed = 5;
+  repeated TestCaseResult testCaseResults = 6;
+  CompileResult compileResult = 7;
+}
+
+// ==================== Submission Result Messages ====================
+
+message SubmissionResult {
+  string status = 1;
+  int32 totalScore = 2;
+  int32 maxScore = 3;
+  int64 totalExecutionTime = 4;
+  int64 maxMemoryUsed = 5;
+  repeated TestCaseResult testCaseResults = 6;
+  string compileError = 7;
+}
+
+// ==================== Submission Messages ====================
+
+message SubmissionInput {
+  string problemId = 1;
+  string userId = 2;
+  string contestId = 3;
+  string language = 4;
+  string sourceCode = 5;
+}
+
+message Submission {
+  string id = 1;
+  string problemId = 2;
+  string userId = 3;
+  string contestId = 4;
+  string language = 5;
+  string sourceCode = 6;
+  string status = 7;
+  SubmissionResult result = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
+
+// ==================== Request Messages ====================
+
+message SubmitRequest {
+  SubmissionInput input = 1;
+}
+
+message GetSubmissionPageRequest {
+  PageRequest pageRequest = 1;
+  SubmissionInput filter = 2;
+}
+
+message GetSubmissionByIdRequest {
+  string submissionId = 1;
+}
+
+message DeleteSubmissionByIdRequest {
+  string submissionId = 1;
+}
+
+message DeleteSubmissionByProblemRequest {
+  string problemId = 1;
+}
+
+message DeleteSubmissionByUserRequest {
+  string userId = 1;
+}
+
+// ==================== Response Messages ====================
+
+message SubmissionResponse {
+  int32 code = 1;
+  string message = 2;
+  Submission data = 3;
+}
+
+message SubmissionPageResponse {
+  int32 code = 1;
+  string message = 2;
+  repeated Submission data = 3;
+  PageResult pageResult = 4;
+}
+
+// ==================== Service ====================
+
+service SubmissionService {
+  rpc Submit(SubmitRequest) returns (SubmissionResponse);
+  rpc GetSubmissionPage(GetSubmissionPageRequest) returns (SubmissionPageResponse);
+  rpc GetSubmissionById(GetSubmissionByIdRequest) returns (SubmissionResponse);
+  rpc DeleteSubmissionById(DeleteSubmissionByIdRequest) returns (SubmissionResponse);
+  rpc DeleteSubmissionByProblem(DeleteSubmissionByProblemRequest) returns (SubmissionResponse);
+  rpc DeleteSubmissionByUser(DeleteSubmissionByUserRequest) returns (SubmissionResponse);
+}

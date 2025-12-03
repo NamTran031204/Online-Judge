@@ -1,4 +1,4 @@
-package com.example.main_service.contest.dto;
+package com.example.main_service.sharedAttribute.commonDto;
 
 import ch.qos.logback.core.util.StringUtil;
 import com.example.main_service.contest.exceptions.ErrorCode;

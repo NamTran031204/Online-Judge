@@ -1,4 +1,4 @@
-package com.example.main_service.contest.dto;
+package com.example.main_service.sharedAttribute.commonDto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

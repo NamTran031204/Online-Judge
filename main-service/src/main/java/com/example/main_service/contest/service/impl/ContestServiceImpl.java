@@ -1,15 +1,14 @@
 package com.example.main_service.contest.service.impl;
 
-import com.example.main_service.contest.dto.PageRequestDto;
-import com.example.main_service.contest.dto.PageResult;
+import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
+import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
-import com.example.main_service.contest.enums.ContestStatus;
-import com.example.main_service.contest.enums.ContestType;
-import com.example.main_service.contest.enums.ContestVisibility;
+import com.example.main_service.sharedAttribute.enums.ContestStatus;
+import com.example.main_service.sharedAttribute.enums.ContestType;
+import com.example.main_service.sharedAttribute.enums.ContestVisibility;
 import com.example.main_service.contest.exceptions.ErrorCode;
 import com.example.main_service.contest.exceptions.specException.ContestBusinessException;
 import com.example.main_service.contest.model.ContestEntity;
-import com.example.main_service.contest.dto.contestProblem.ContestProblemResponseDto;
 import com.example.main_service.contest.repo.ContestRepo;
 import com.example.main_service.contest.service.ContestService;
 import com.example.main_service.contest.specification.ContestSpec;

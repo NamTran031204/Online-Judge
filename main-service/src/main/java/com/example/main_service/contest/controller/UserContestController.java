@@ -1,6 +1,6 @@
 package com.example.main_service.contest.controller;
 
-import com.example.main_service.contest.dto.CommonResponse;
+import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.contest.dto.userContest.ContestRegistrationResponseDto;
 import com.example.main_service.contest.service.UserContestService;
 import lombok.RequiredArgsConstructor;

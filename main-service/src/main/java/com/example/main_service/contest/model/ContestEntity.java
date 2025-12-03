@@ -1,8 +1,8 @@
 package com.example.main_service.contest.model;
 
-import com.example.main_service.contest.enums.ContestStatus;
-import com.example.main_service.contest.enums.ContestType;
-import com.example.main_service.contest.enums.ContestVisibility;
+import com.example.main_service.sharedAttribute.enums.ContestStatus;
+import com.example.main_service.sharedAttribute.enums.ContestType;
+import com.example.main_service.sharedAttribute.enums.ContestVisibility;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
