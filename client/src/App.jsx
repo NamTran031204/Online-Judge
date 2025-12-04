@@ -1,63 +1,31 @@
 import { useState } from 'react'
 import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Layout from "./layout/layout"
 
 function App() {
   // const [count, setCount] = useState(0)
 
   return (
-    <RouterRoutes>
-      <Route
-        path="/dashboard"
-        element={
-          <Dashboard />
-        }
-      />
-      <Route
-        path="/contest"
-        element={
-          <Contest />
-        }
-      />
-      <Route
-        path="/problem"
-        element={
-          <Problem />
-        }
-      />
-      <Route
-        path="/submission"
-        element={
-          <Submission />
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <Register />
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <Login />
-        }
-      />
-      {/* <Route
-        path="/profile"
-        element={
-          <BaseLayout>
-            <div>Hello</div>
-          </BaseLayout>
-        }
-      /> */}
-      <Route
-        path="/admin"
-        element={
-          <Admin />
-        }
-      />
-      <Route path="*" element={<div>404</div>} />
-    </RouterRoutes>
+     <BrowserRouter>
+      <Routes>
+
+        {/* Layout chung */}
+        <Route path="/" element={<Layout />}>
+          {/* <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="contests" element={<Contests />} />
+          <Route path="problems" element={<Problems />} />
+          <Route path="submissions" element={<Submissions />} />
+          <Route path="classes" element={<Classes />} />
+          <Route path="settings" element={<Settings />} /> */}
+                  <Route path="*" element={<h1>404 - Not Found</h1>} />
+        </Route>
+
+        {/* 404 */}
+
+      </Routes>
+    </BrowserRouter>
   )
 }
 
