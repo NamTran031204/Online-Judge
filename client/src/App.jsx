@@ -1,32 +1,58 @@
-import { useState } from 'react'
-import './App.css'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Layout from "./layout/layout"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import PublicLayout from "./layout/public-layout";
+import AuthLayout from "./layout/auth-layout";
+import MainLayout from "./layout/main-layout";
+
+import ProtectedRoute from "./routes/protected-route";
+import GuestRoute from "./routes/guest-route";
+
+import Home from "./pages/home";
+// import Login from "./pages/login";
+// import Dashboard from "./pages/Dashboard";
 
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
-     <BrowserRouter>
+    <BrowserRouter>
       <Routes>
 
-        {/* Layout chung */}
-        <Route path="/" element={<Layout />}>
-          {/* <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="contests" element={<Contests />} />
-          <Route path="problems" element={<Problems />} />
-          <Route path="submissions" element={<Submissions />} />
-          <Route path="classes" element={<Classes />} />
-          <Route path="settings" element={<Settings />} /> */}
-                  <Route path="*" element={<h1>404 - Not Found</h1>} />
+        {/* HOME PUBLIC */}
+        <Route
+          element={
+            <GuestRoute>
+              <PublicLayout />
+            </GuestRoute>
+          }
+        >
+          <Route path="/" element={<Home />} />
         </Route>
 
-        {/* 404 */}
+        {/* LOGIN - REGISTER */}
+        <Route
+          element={
+            <GuestRoute>
+              <AuthLayout />
+            </GuestRoute>
+          }
+        >
+          <Route path="/login" element={<Login />} />
+        </Route>
+
+        {/* AUTHENTICATED */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* <Route path="/" element={<Dashboard />} /> */}
+          <Route path="*" element={<h1>404 - Not Found</h1>} />
+        </Route>
 
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
