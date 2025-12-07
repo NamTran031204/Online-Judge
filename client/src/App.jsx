@@ -9,6 +9,7 @@ import GuestRoute from "./routes/guest-route";
 
 import Home from "./pages/home";
 import Login from "./pages/login";
+import Register from "./pages/register";
 // import Dashboard from "./pages/Dashboard";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           }
         >
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
 
         {/* AUTHENTICATED */}
