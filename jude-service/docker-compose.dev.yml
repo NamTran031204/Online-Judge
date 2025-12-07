@@ -43,7 +43,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin123456
-      MONGO_INITDB_DATABASE: judge-service
+      MONGO_INITDB_DATABASE: judge-service  
     volumes:
       - mongodb_data:/data/db
     networks:
