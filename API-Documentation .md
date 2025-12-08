@@ -197,9 +197,9 @@
 - **ContestSummaryDto**: `{ contest_id, title, description, start_time, duration, contest_status, contest_type, author_id, rated, visibility, group_id }`
 - **ContestDetailDto**: `ContestSummaryDto & { problems: [ { problem_id } ] }`
 - **ContestFilterDto**: `{ rated?, contest_status?, contest_type?, visibility?, group_id?, author_id? }`
-- **ContestRegistrationDto**: `{ contest_id, user_id, registered_at }`
+- **ContestRegistrationDto**: `{ contest_id, user_id, user_name, registered_at }`
 - **ContestRegistrationFilterDto**: `{ user_id? }`
-- **ContestParticipantDto**: `{ contest_id, user_id, penalty, total_score, rank }`
+- **ContestParticipantDto**: `{ contest_id, user_id, user_name, penalty, total_score, rank }`
 - **ContestParticipantFilterDto**: `{ user_id? }`
 - **ContestInvitationDto**: `{ invite_id, contest_id, inviter_id, invitee_id, status, created_at, responded_at }`
 - **ContestInvitationFilterDto**: `{ status?, invitee_id? }`
@@ -335,8 +335,6 @@
 **Delete Contest**
 - **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
 
-#### 3.3.2. dang phat trien
-
 **Register User**
 - **POST** `/api/v1/contest/{contest_id}/register`  
   **Use Case:** B. Contest Management - 8. User đăng ký tham gia Contest  
@@ -348,6 +346,8 @@
   **Use Case:** B. Contest Management - 8. User đăng ký tham gia Contest  
   **Chức năng:** Xem danh sách người đã đăng ký tham gia contest  
   **Body:** `PageRequestDto<ContestRegistrationFilterDto>` → **Data:** `PageResult<ContestRegistrationDto>`
+
+#### 3.3.2. dang phat trien
 
 **Search Participants**
 - **POST** `/api/v1/contest/{contest_id}/participants/search`  
