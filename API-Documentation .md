@@ -347,31 +347,11 @@
   **Chức năng:** Xem danh sách người đã đăng ký tham gia contest  
   **Body:** `PageRequestDto<ContestRegistrationFilterDto>` → **Data:** `PageResult<ContestRegistrationDto>`
 
-#### 3.3.2. dang phat trien
-
 **Search Participants**
 - **POST** `/api/v1/contest/{contest_id}/participants/search`  
   **Use Case:** B. Contest Management - 9. Vào Contest (Contest đang chạy)  
   **Chức năng:** Xem danh sách người tham gia contest  
   **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
-
-**Search Rankings**
-- **POST** `/api/v1/contest/{contest_id}/rankings/search`  
-  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
-  **Chức năng:** Xem bảng xếp hạng của contest với phân trang  
-  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
-
-**Calculate Rating**
-- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_  
-  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
-  **Chức năng:** Tính toán và cập nhật rating cho user sau khi contest kết thúc  
-  **Body:** `ContestRatingCalcRequestDto` → **Data:** `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
-
-**Open Solutions**
-- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_  
-  **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
-  **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
-  **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
 
 **Promote to Gym**
 - **POST** `/api/v1/contest/{contest_id}/promote-to-gym`  
@@ -380,6 +360,25 @@
   **Body:** `PromoteDraftToGymRequestDto`  
   → **Data:** `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
 
+#### 3.3.2. dang phat trien
+
+(Nguyen lam) **Search Rankings**
+- **POST** `/api/v1/contest/{contest_id}/rankings/search`  
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Xem bảng xếp hạng của contest với phân trang  
+  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
+
+(Nguyen lam) **Calculate Rating**
+- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_  
+  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
+  **Chức năng:** Tính toán và cập nhật rating cho user sau khi contest kết thúc  
+  **Body:** `ContestRatingCalcRequestDto` → **Data:** `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
+
+(Nguyen lam) **Open Solutions**
+- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_  
+  **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
+  **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
+  **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
 
 #### 3.3.3. tam dung phat trien
 

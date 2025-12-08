@@ -28,5 +28,5 @@ public class ContestParticipantsEntity {
     @Column(name = "total_score")
     private Integer totalScore;
 
-    private Integer rank;
+    private Integer ranking;
 }

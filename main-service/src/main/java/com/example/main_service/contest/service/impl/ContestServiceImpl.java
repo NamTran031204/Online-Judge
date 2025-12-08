@@ -1,5 +1,6 @@
 package com.example.main_service.contest.service.impl;
 
+import com.example.main_service.contest.service.StatusChangeService;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
@@ -30,6 +31,7 @@ import java.util.Objects;
 public class ContestServiceImpl implements ContestService {
 
     private final ContestRepo contestRepo;
+    private final StatusChangeService statusChangeService;
 
     /**
      * TODO: chinh sua lai logic tao contest visibility/type vi: hien tai van dang cho tao contest OFFICIAL de test
@@ -44,6 +46,18 @@ public class ContestServiceImpl implements ContestService {
 
         if (input.getContestType() == null) {
             input.setContestType(ContestType.DRAFT);
+        } else {
+            if (input.getContestType() == ContestType.DRAFT) {
+                if (input.getVisibility() == ContestVisibility.PUBLIC) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong duoc tao contest Draft - Public");
+                }
+                input.setVisibility(ContestVisibility.PRIVATE);
+            } else if (input.getContestType() == ContestType.OFFICIAL) {
+                if (input.getVisibility() == ContestVisibility.PRIVATE) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Contest Official bat buoc PUBLIC");
+                }
+                input.setVisibility(ContestVisibility.PUBLIC);
+            }
         }
         if (input.getVisibility() == null) {
             input.setVisibility(ContestVisibility.PRIVATE);
@@ -99,13 +113,13 @@ public class ContestServiceImpl implements ContestService {
         if (input.getDuration() != null)
             contest.setDuration(input.getDuration());
         if (input.getContestType() != null)
-            contest.setContestType(input.getContestType());
+            contest.setContestType(statusChangeService.changeContestType(input.getContestType(), contest));
         if (input.getGroupId() != null)
             contest.setGroupId(input.getGroupId());
         if (input.getRated() != null)
             contest.setRated(input.getRated());
         if (input.getVisibility() != null)
-            contest.setVisibility(input.getVisibility());
+            contest.setVisibility(statusChangeService.changeContestVisibility(input.getVisibility(), contest));
 
         contestRepo.save(contest);
         return ContestCreateUpdateResponseDto.builder()
@@ -219,6 +233,39 @@ public class ContestServiceImpl implements ContestService {
     public void deleteContest(Long contestId) {
         if (contestId == null) throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
         contestRepo.deleteById(contestId);
+    }
+
+    @Override
+    public PromoteDraftToGymResponseDto promoteDraft(Long contestId, PromoteDraftToGymRequestDto input) {
+        // check draft and private?
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        if (!contest.getContestType().equals(ContestType.DRAFT)) {
+            return PromoteDraftToGymResponseDto.builder()
+                    .contestId(contestId)
+                    .newType(contest.getContestType())
+                    .approved(false)
+                    .visibility(contest.getVisibility())
+                    .message("Contest cannot be change Type")
+                    .build();
+        }
+
+        if (contest.getVisibility().equals(ContestVisibility.PUBLIC)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "Contest face Error");
+        }
+
+        contest.setContestType(ContestType.GYM);
+        contest.setVisibility(ContestVisibility.PUBLIC);
+        contestRepo.save(contest);
+
+        return PromoteDraftToGymResponseDto.builder()
+                .contestId(contestId)
+                .newType(contest.getContestType())
+                .approved(true)
+                .visibility(contest.getVisibility())
+                .message("Contest is now public in Gym")
+                .build();
     }
 
     private void contestCreateUpdateValidate(ContestCreateUpdateRequestDto input, String type) {

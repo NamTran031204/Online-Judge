@@ -77,23 +77,37 @@ public class StatusChangeServiceImpl implements StatusChangeService {
     }
 
     /**
-     *
+     * doi thi cu doi binh thuong thoi
      * @param status
      * @param contest
      * @return
      */
     @Override
     public ContestStatus changeContestStatus(ContestStatus status, ContestEntity contest) {
-        return null;
+
+        return status;
     }
 
+    /**
+     * TODO: implement nghiep vu cho change ContestType: Draft <-> Gym <-> Official
+     * @param type
+     * @param contest
+     * @return
+     */
     @Override
     public ContestType changeContestType(ContestType type, ContestEntity contest) {
-        return null;
+
+        return type;
     }
 
+    /**
+     * TODO: implement nghiep vu cho change InviteStatus
+     * @param status
+     * @param contest
+     * @return
+     */
     @Override
     public InviteStatus changeInviteStatus(InviteStatus status, ContestEntity contest) {
-        return null;
+        return status;
     }
 }

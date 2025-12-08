@@ -11,4 +11,5 @@ public interface ContestService {
     PageResult<ContestEntity> search(PageRequestDto<ContestFilterDto> input);
     ContestDetailDto getById(Long contestId);
     void deleteContest(Long contestId);
+    PromoteDraftToGymResponseDto promoteDraft(Long contestId, PromoteDraftToGymRequestDto input);
 }
