@@ -123,7 +123,7 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
     @Override
     public void getProblemByContest(GetProblemByContestRequest request, StreamObserver<ProblemPageResponse> responseObserver) {
         try {
-            PageRequestDto<String> pageRequest = new PageRequestDto<>();
+            PageRequestDto<Long> pageRequest = new PageRequestDto<>();
             pageRequest.setMaxResultCount(request.getPageRequest().getSize());
             pageRequest.setSkipCount(request.getPageRequest().getPage() * request.getPageRequest().getSize());
             pageRequest.setSorting(request.getPageRequest().getSortBy());
@@ -259,7 +259,7 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         if (entity.getProblemId() != null) builder.setId(entity.getProblemId());
         if (entity.getTitle() != null) builder.setTitle(entity.getTitle());
         if (entity.getDescription() != null) builder.setDescription(entity.getDescription());
-        if (entity.getContestId() != null) builder.setContestId(String.valueOf(entity.getContestId()));
+        if (entity.getContestId() != null) builder.setContestId(Long.valueOf(entity.getContestId()));
         if (entity.getLevel() != null) builder.setLevel(entity.getLevel().name());
         if (entity.getTimeLimit() != null) builder.setTimeLimit(entity.getTimeLimit().intValue());
         if (entity.getMemoryLimit() != null) builder.setMemoryLimit(entity.getMemoryLimit().intValue());

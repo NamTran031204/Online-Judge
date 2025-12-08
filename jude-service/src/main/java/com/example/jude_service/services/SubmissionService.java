@@ -13,5 +13,5 @@ public interface SubmissionService {
     CommonResponse<SubmissionEntity> getById(@PathVariable("submissionId") String submissionId);
     CommonResponse<SubmissionEntity> deleteById(@PathVariable("submissionId") String submissionId);
     CommonResponse<SubmissionEntity> deleteByProblem(@PathVariable("problemId") String problemId);
-    CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") String userId);
+    CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") Long userId);
 }

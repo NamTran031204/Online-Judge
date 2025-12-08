@@ -1,7 +1,7 @@
 package com.example.main_service.contest.service.impl;
 
-import com.example.main_service.contest.exceptions.ErrorCode;
-import com.example.main_service.contest.exceptions.specException.ContestBusinessException;
+import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
+import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
 import com.example.main_service.contest.model.ContestEntity;
 import com.example.main_service.contest.repo.ContestParticipantsRepo;
 import com.example.main_service.contest.service.StatusChangeService;

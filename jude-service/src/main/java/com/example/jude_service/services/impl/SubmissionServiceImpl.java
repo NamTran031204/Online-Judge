@@ -5,11 +5,9 @@ import com.example.jude_service.entities.PageRequestDto;
 import com.example.jude_service.entities.PageResult;
 import com.example.jude_service.entities.judge.JudgeResult;
 import com.example.jude_service.entities.judge.TestCaseResult;
-import com.example.jude_service.entities.problem.ProblemEntity;
 import com.example.jude_service.entities.submission.SubmissionEntity;
 import com.example.jude_service.entities.submission.SubmissionInputDto;
 import com.example.jude_service.entities.submission.SubmissionResultEntity;
-import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.exceptions.specException.SubmissionBusinessException;
@@ -26,11 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -143,11 +137,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public CommonResponse<SubmissionEntity> deleteByUser(String userId) {
-
-        /**
-         * TODO: Validate userId co ton tai
-         */
+    public CommonResponse<SubmissionEntity> deleteByUser(Long userId) {
         submissionRepo.deleteByUserId(userId);
         return CommonResponse.success();
     }
@@ -166,13 +156,13 @@ public class SubmissionServiceImpl implements SubmissionService {
             );
         }
 
-        if (StringUtils.isNullOrEmpty(request.getUserId())) {
+        if (request.getUserId() != null) {
             query.addCriteria(
                     Criteria.where("userId").is(request.getUserId())
             );
         }
 
-        if (StringUtils.isNullOrEmpty(request.getContestId())) {
+        if (request.getContestId() != null) {
             query.addCriteria(
                     Criteria.where("contestId").is(request.getContestId())
             );

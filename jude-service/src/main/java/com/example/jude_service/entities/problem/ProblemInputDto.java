@@ -11,7 +11,7 @@ import java.util.List;
 public class ProblemInputDto {
 
     private String title;
-    private String contestId;
+    private Long contestId;
     private String description;
     private List<String> tags;
     private List<String> imageUrls; // tam thoi phong an :))

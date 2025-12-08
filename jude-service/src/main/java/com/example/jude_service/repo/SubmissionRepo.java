@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubmissionRepo extends MongoRepository<SubmissionEntity, String> {
     void deleteByProblemId(String problemId);
-    void deleteByUserId(String userId);
+    void deleteByUserId(Long userId);
 }

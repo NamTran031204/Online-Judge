@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.Set;
+
 public interface ContestRegistrationRepo extends JpaRepository<ContestRegistrationEntity, Long> {
 
     //Page<ContestRegistrationEntity> findByContestIdAndUserId(Long contestId, Long userId, Pageable pageable);
@@ -33,5 +36,8 @@ public interface ContestRegistrationRepo extends JpaRepository<ContestRegistrati
     Page<ContestRegistrationProjection> findByContestId(@Param("contestId") Long contestId, Pageable pageable);
 
     Boolean existsByContestIdAndUserId(Long contestId, Long userId);
+
+    @Query("SELECT cr.contestId FROM ContestRegistrationEntity cr WHERE cr.userId = :userId AND cr.contestId IN :contestIds")
+    Set<Long> findContestIdsByUserIdAndContestIdIn(@Param("userId") Long userId, @Param("contestIds") Collection<Long> contestIds);
 }
 

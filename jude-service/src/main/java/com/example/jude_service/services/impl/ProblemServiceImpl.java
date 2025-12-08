@@ -57,6 +57,7 @@ public class ProblemServiceImpl implements ProblemService {
                 .testcaseEntities(input.getTestcaseEntities())
                 .createdBy(input.getUserId())
                 .lastModifiedBy(input.getUserId())
+                .contestId(input.getContestId())
                 .build());
         return CommonResponse.success(entity);
     }
@@ -79,8 +80,8 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public CommonResponse<PageResult<ProblemEntity>> getByContest(PageRequestDto<String> input) {
-        String contestId = input.getFilter();
+    public CommonResponse<PageResult<ProblemEntity>> getByContest(PageRequestDto<Long> input) {
+        Long contestId = input.getFilter();
 
         Query query = new Query();
         query.addCriteria(
@@ -174,12 +175,11 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<ProblemEntity> deleteProblem(String problemId) {
-        if (problemRepo.existsById(problemId)) {
-            submissionService.deleteByProblem(problemId);
-            problemRepo.deleteById(problemId);
-            return CommonResponse.success();
-        }
-        return CommonResponse.fail(ErrorCode.PROBLEM_NOT_FOUND);
+        ProblemEntity problem = problemRepo.findById(problemId)
+                .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
+        submissionService.deleteById(problemId);
+        problemRepo.delete(problem);
+        return CommonResponse.success(problem);
     }
 
     void validateBeforeInsertProblem(ProblemInputDto input) {

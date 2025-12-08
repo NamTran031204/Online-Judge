@@ -39,7 +39,7 @@ public class ProblemApiResource {
     }
 
     @PostMapping(value = "/get-by-contest")
-    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<String> input) {
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<Long> input) {
         return problemService.getByContest(input);
     }
 

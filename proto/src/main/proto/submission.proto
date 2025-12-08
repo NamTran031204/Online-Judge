@@ -67,8 +67,8 @@ message SubmissionResult {
 
 message SubmissionInput {
   string problemId = 1;
-  string userId = 2;
-  string contestId = 3;
+  int64 userId = 2;
+  int64 contestId = 3;
   string language = 4;
   string sourceCode = 5;
 }
@@ -76,8 +76,8 @@ message SubmissionInput {
 message Submission {
   string id = 1;
   string problemId = 2;
-  string userId = 3;
-  string contestId = 4;
+  int64 userId = 3;
+  int64 contestId = 4;
   string language = 5;
   string sourceCode = 6;
   string status = 7;
@@ -110,7 +110,7 @@ message DeleteSubmissionByProblemRequest {
 }
 
 message DeleteSubmissionByUserRequest {
-  string userId = 1;
+  int64 userId = 1;
 }
 
 // ==================== Response Messages ====================

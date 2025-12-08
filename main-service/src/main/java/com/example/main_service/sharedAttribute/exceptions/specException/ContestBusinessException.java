@@ -1,6 +1,6 @@
-package com.example.main_service.contest.exceptions.specException;
+package com.example.main_service.sharedAttribute.exceptions.specException;
 
-import com.example.main_service.contest.exceptions.ErrorCode;
+import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
 import lombok.Getter;
 
 @Getter

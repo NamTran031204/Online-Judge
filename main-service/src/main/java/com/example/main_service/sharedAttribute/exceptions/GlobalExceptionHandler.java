@@ -1,7 +1,7 @@
-package com.example.main_service.contest.exceptions;
+package com.example.main_service.sharedAttribute.exceptions;
 
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
-import com.example.main_service.contest.exceptions.specException.ContestBusinessException;
+import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

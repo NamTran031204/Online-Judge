@@ -1,4 +1,4 @@
-package com.example.main_service.contest.exceptions;
+package com.example.main_service.sharedAttribute.exceptions;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,8 @@ public enum ErrorCode {
 
     CONTEST_PROBLEM_ERROR("4401", "CONTEST PROBLEM ERROR", HttpStatus.BAD_REQUEST),
     CONTEST_PROBLEM_NOT_FOUND("4402", "CONTEST PROBLEM NOT FOUND", HttpStatus.BAD_REQUEST),
+
+    PROBLEM_GRPC_ERROR("4500", "PROBLEM GRPC ERROR", HttpStatus.BAD_REQUEST),
 
     DOCKER_ERROR("5001", "Docker container error", HttpStatus.INTERNAL_SERVER_ERROR),
     DOCKER_BUILD_FAILED("5002", "Failed to build Docker image", HttpStatus.INTERNAL_SERVER_ERROR),
