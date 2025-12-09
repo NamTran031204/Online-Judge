@@ -34,6 +34,8 @@ public enum ErrorCode {
     FILE_NOT_FOUND("5101", "File not found", HttpStatus.NOT_FOUND),
     FILE_READ_ERROR("5102", "Failed to read file", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    MONGO_ERROR("5201", "Mongo error", HttpStatus.INTERNAL_SERVER_ERROR),
+
     INTERNAL_SERVER_ERROR("500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;

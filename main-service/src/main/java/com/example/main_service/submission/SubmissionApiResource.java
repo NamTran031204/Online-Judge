@@ -43,7 +43,7 @@ public class SubmissionApiResource {
     }
 
     @DeleteMapping("/by-user/{userId}")
-    public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") String userId) {
+    public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") Long userId) {
         return submissionGrpcClient.deleteByUser(userId);
     }
 }
