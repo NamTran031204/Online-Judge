@@ -1,0 +1,212 @@
+/* ============================================
+   CONTAINER — giống Problem
+============================================ */
+.contest-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #222;
+}
+
+.contest-container h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* ============================================
+   SEARCH BOX — giống Problem
+============================================ */
+.search-box input {
+  width: 260px;
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+/* ============================================
+   CONTEST TABLE — giống problem-table
+============================================ */
+.contest-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.contest-table th {
+  background: #f2f5ff;
+  padding: 12px;
+  border-bottom: 2px solid #dbe3ff;
+  font-weight: 600;
+  text-align: left;
+}
+
+.contest-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.contest-table tr:hover {
+  background: #f7faff;
+}
+
+/* ============================================
+   BUTTONS — đồng bộ với Problem
+============================================ */
+button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+/* Primary (View, Create, Edit) */
+.primary-btn, .contest-table button {
+  background: #428bff;
+  color: white;
+}
+
+.primary-btn:hover,
+.contest-table button:hover {
+  background: #2c76ff;
+}
+
+/* Danger buttons */
+.danger-btn {
+  background: #ff4d4d;
+  color: white;
+}
+
+.danger-btn:hover {
+  background: #e63939;
+}
+
+.danger-btn.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* ============================================
+   PAGINATION — giống problem.css
+============================================ */
+.contest-pagination-box {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.page-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.page-btn.active {
+  background: #2c76ff;
+  color: white;
+  border-color: #2c76ff;
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ============================================
+   DETAIL PAGE — đồng bộ tone màu
+============================================ */
+.detail-card h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.detail-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.detail-card li {
+  padding: 10px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Add problem input */
+.add-problem-box {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.add-problem-box input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+    background: #fff;
+  color: #111;
+}
+
+/* ============================================
+   FORM PAGE — giống Problem
+============================================ */
+.contest-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
+  display: block;
+}
+
+.contest-form input,
+.contest-form select,
+.contest-form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  margin-top: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.contest-form textarea {
+  height: 90px;
+  resize: vertical;
+}
+
+.contest-form button {
+  margin-top: 20px;
+}
+
+.contest-list-action-btn-box {
+  display: flex;
+  justify-content: space-between;
+    margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+}
