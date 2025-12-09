@@ -21,8 +21,8 @@ public class SubmissionEntity {
     private String submissionId;
 
     private String problemId;
-    private String contestId;
-    private String userId;
+    private Long contestId;
+    private Long userId;
     private String sourceCode; // hiện tại vẫn lưu string trong csdl, sau thì lưu url source code thong qua tai len tai MinIO
     private LanguageType language;
 

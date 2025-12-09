@@ -66,4 +66,12 @@ public class ContestController {
         return CommonResponse.success();
     }
 
+    @PostMapping("{contestId}/promote-to-gym")
+    public CommonResponse<PromoteDraftToGymResponseDto> promoteDraftToGym(
+            @PathVariable("contestId") Long contestId,
+            @RequestBody PromoteDraftToGymRequestDto input
+    ) {
+        return CommonResponse.success(contestService.promoteDraft(contestId, input));
+    }
+
 }

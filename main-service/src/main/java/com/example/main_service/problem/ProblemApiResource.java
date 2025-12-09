@@ -17,37 +17,37 @@ public class ProblemApiResource {
 
     private final ProblemGrpcClient problemGrpcClient;
 
-    @PostMapping(value = "/add-problem")
+    @PostMapping(value = "")
     public CommonResponse<ProblemEntity> addProblem(@RequestBody ProblemInputDto input) {
         return problemGrpcClient.addProblem(input);
     }
 
-    @PostMapping(value = "/get-page")
+    @PostMapping(value = "/search")
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto<ProblemInputDto> input) {
         return problemGrpcClient.getProblemPage(input);
     }
 
-    @GetMapping(value = "/get-by-id/{problemId}")
+    @GetMapping(value = "/{problemId}")
     public CommonResponse<ProblemEntity> getProblemById(@PathVariable("problemId") String problemId) {
         return problemGrpcClient.getProblemById(problemId);
     }
 
-    @PostMapping(value = "/update/{problemId}")
+    @PostMapping(value = "/{problemId}/edit")
     public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input, @PathVariable("problemId") String problemId) {
         return problemGrpcClient.updateProblem(input, problemId);
     }
 
-    @PostMapping(value = "/get-by-contest")
-    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<String> input) {
+    @PostMapping(value = "/by-contest")
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<Long> input) {
         return problemGrpcClient.getByContest(input);
     }
 
-    @PostMapping(value = "/searching")
+    @PostMapping(value = "/search-text")
     public CommonResponse<PageResult<ProblemEntity>> searchProblem(@RequestBody PageRequestDto<String> input) {
         return problemGrpcClient.searching(input);
     }
 
-    @DeleteMapping(value = "/delete/{problemId}")
+    @DeleteMapping(value = "/{problemId}")
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable("problemId") String problemId) {
         return problemGrpcClient.deleteProblem(problemId);
     }

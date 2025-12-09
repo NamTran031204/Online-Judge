@@ -1,5 +1,6 @@
 package com.example.main_service.submission;
 
+import com.example.main_service.contest.repo.SubmissionResultRepo;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
@@ -10,6 +11,7 @@ import com.example.main_service.submission.dto.SubmissionInputDto;
 import com.example.main_service.submission.dto.SubmissionResultEntity;
 import com.example.proto.submission.*;
 import io.grpc.StatusRuntimeException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SubmissionGrpcClient {
+
+    private final SubmissionResultRepo submissionResultRepo;
 
     @GrpcClient("jude-service")
     private SubmissionServiceGrpc.SubmissionServiceBlockingStub submissionServiceStub;
@@ -31,6 +36,10 @@ public class SubmissionGrpcClient {
                     .build();
 
             SubmissionResponse response = submissionServiceStub.submit(request);
+            if (response.getCode() == 200) {
+                var responseData = response.getData();
+                // TODO: luu submissionResultDto
+            }
             return convertToCommonResponse(response);
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
@@ -97,7 +106,7 @@ public class SubmissionGrpcClient {
         }
     }
 
-    public CommonResponse<SubmissionEntity> deleteByUser(String userId) {
+    public CommonResponse<SubmissionEntity> deleteByUser(Long userId) {
         try {
             DeleteSubmissionByUserRequest request = DeleteSubmissionByUserRequest.newBuilder()
                     .setUserId(userId)

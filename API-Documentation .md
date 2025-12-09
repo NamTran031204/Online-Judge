@@ -197,9 +197,9 @@
 - **ContestSummaryDto**: `{ contest_id, title, description, start_time, duration, contest_status, contest_type, author_id, rated, visibility, group_id }`
 - **ContestDetailDto**: `ContestSummaryDto & { problems: [ { problem_id } ] }`
 - **ContestFilterDto**: `{ rated?, contest_status?, contest_type?, visibility?, group_id?, author_id? }`
-- **ContestRegistrationDto**: `{ contest_id, user_id, registered_at }`
+- **ContestRegistrationDto**: `{ contest_id, user_id, user_name, registered_at }`
 - **ContestRegistrationFilterDto**: `{ user_id? }`
-- **ContestParticipantDto**: `{ contest_id, user_id, penalty, total_score, rank }`
+- **ContestParticipantDto**: `{ contest_id, user_id, user_name, penalty, total_score, rank }`
 - **ContestParticipantFilterDto**: `{ user_id? }`
 - **ContestInvitationDto**: `{ invite_id, contest_id, inviter_id, invitee_id, status, created_at, responded_at }`
 - **ContestInvitationFilterDto**: `{ status?, invitee_id? }`
@@ -335,8 +335,6 @@
 **Delete Contest**
 - **DELETE** `/api/v1/contest/{contest_id}` _(permission: `contest:edit`)_ — Data: `{}`
 
-#### 3.3.2. dang phat trien
-
 **Register User**
 - **POST** `/api/v1/contest/{contest_id}/register`  
   **Use Case:** B. Contest Management - 8. User đăng ký tham gia Contest  
@@ -355,24 +353,6 @@
   **Chức năng:** Xem danh sách người tham gia contest  
   **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
 
-**Search Rankings**
-- **POST** `/api/v1/contest/{contest_id}/rankings/search`  
-  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
-  **Chức năng:** Xem bảng xếp hạng của contest với phân trang  
-  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
-
-**Calculate Rating**
-- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_  
-  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
-  **Chức năng:** Tính toán và cập nhật rating cho user sau khi contest kết thúc  
-  **Body:** `ContestRatingCalcRequestDto` → **Data:** `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
-
-**Open Solutions**
-- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_  
-  **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
-  **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
-  **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
-
 **Promote to Gym**
 - **POST** `/api/v1/contest/{contest_id}/promote-to-gym`  
   **Use Case:** B. Contest Management - 5. Add Draft Contest vào Gym  
@@ -380,6 +360,25 @@
   **Body:** `PromoteDraftToGymRequestDto`  
   → **Data:** `{ "contest_id": 201, "new_type": "Gym", "visibility": "PUBLIC", "approved": true, "message": "Contest is now public in Gym" }`
 
+#### 3.3.2. dang phat trien
+
+(Nguyen lam) **Search Rankings**
+- **POST** `/api/v1/contest/{contest_id}/rankings/search`  
+  **Use Case:** E. Dashboard - 18. Xem Dashboard Contest theo trang  
+  **Chức năng:** Xem bảng xếp hạng của contest với phân trang  
+  **Body:** `PageRequestDto<ContestParticipantFilterDto>` → **Data:** `PageResult<ContestParticipantDto>`
+
+(Nguyen lam) **Calculate Rating**
+- **POST** `/api/v1/contest/{contest_id}/calculate-rating` _(permission: `contest:rate`)_  
+  **Use Case:** B. Contest Management - 10. Tính Rating sau khi kết thúc Contest  
+  **Chức năng:** Tính toán và cập nhật rating cho user sau khi contest kết thúc  
+  **Body:** `ContestRatingCalcRequestDto` → **Data:** `{ "contest_id": 201, "updated": true, "affected_users": 320 }`
+
+(Nguyen lam) **Open Solutions**
+- **POST** `/api/v1/contest/{contest_id}/open-solutions` _(permission: `contest:edit`)_  
+  **Use Case:** B. Contest Management - 11. Mở lời giải cho Problem sau Contest  
+  **Chức năng:** Công khai lời giải của các problem sau khi contest kết thúc  
+  **Body:** `OpenSolutionsRequestDto` → **Data:** `{ "contest_id": 201, "solutions_opened": true, "problems": ["p1","p2","..."] }`
 
 #### 3.3.3. tam dung phat trien
 

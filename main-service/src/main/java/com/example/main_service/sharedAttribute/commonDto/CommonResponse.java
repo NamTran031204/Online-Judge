@@ -1,7 +1,7 @@
 package com.example.main_service.sharedAttribute.commonDto;
 
 import ch.qos.logback.core.util.StringUtil;
-import com.example.main_service.contest.exceptions.ErrorCode;
+import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -17,32 +17,32 @@ public class SubmissionApiResource {
 
     private final SubmissionGrpcClient submissionGrpcClient;
 
-    @PostMapping("/submit")
+    @PostMapping("")
     public CommonResponse<SubmissionEntity> submit(@RequestBody SubmissionInputDto input) {
         return submissionGrpcClient.submit(input);
     }
 
-    @PostMapping("/get-page")
+    @PostMapping("/search")
     public CommonResponse<PageResult<SubmissionEntity>> getPage(PageRequestDto<SubmissionInputDto> pageRequest) {
         return submissionGrpcClient.getPage(pageRequest);
     }
 
-    @GetMapping("/get-by-id/{submissionId}")
+    @GetMapping("/{submissionId}")
     public CommonResponse<SubmissionEntity> getById(@PathVariable("submissionId") String submissionId) {
         return submissionGrpcClient.getById(submissionId);
     }
 
-    @DeleteMapping("/delete-by-id/{submissionId}")
+    @DeleteMapping("/{submissionId}")
     public CommonResponse<SubmissionEntity> deleteById(@PathVariable("submissionId") String submissionId) {
         return submissionGrpcClient.deleteById(submissionId);
     }
 
-    @DeleteMapping("/delete-by-problem/{problemId}")
+    @DeleteMapping("/by-problem/{problemId}")
     public CommonResponse<SubmissionEntity> deleteByProblem(@PathVariable("problemId") String problemId) {
         return submissionGrpcClient.deleteByProblem(problemId);
     }
 
-    @DeleteMapping("/delete-by-user/{userId}")
+    @DeleteMapping("/by-user/{userId}")
     public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") String userId) {
         return submissionGrpcClient.deleteByUser(userId);
     }

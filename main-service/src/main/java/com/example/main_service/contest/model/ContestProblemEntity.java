@@ -7,12 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "contest_participants")
+@Table(name = "contest_problem")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContestParticipantsEntity {
+public class ContestProblemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +20,6 @@ public class ContestParticipantsEntity {
     @Column(name = "contest_id")
     private Long contestId;
 
-    @Column(name = "user_id")
-    private Long userId;
-
-    private Integer penalty;
-
-    @Column(name = "total_score")
-    private Integer totalScore;
-
-    private Integer ranking;
+    @Column(name = "problem_id")
+    private String problemId;
 }
