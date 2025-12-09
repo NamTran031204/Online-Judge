@@ -15,11 +15,14 @@ import com.example.proto.ValidateAndCloneProblemResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ContestProblemServiceImpl implements ContestProblemService {
+    private static final Logger log = LoggerFactory.getLogger(ContestProblemServiceImpl.class);
     private final ContestRepo contestRepo;
     private final ContestProblemRepo contestProblemRepo;
     private final ProblemGrpcClient problemGrpcClient;
@@ -51,7 +54,8 @@ public class ContestProblemServiceImpl implements ContestProblemService {
         try {
             grpcResponse = problemServiceStub.validateAndCloneProblem(grpcRequest);
         } catch (Exception e) {
-            throw new ContestBusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            log.error("[GRPC Client Catch Exception]: ", e);
+            throw new ContestBusinessException(ErrorCode.INTERNAL_SERVER_ERROR, e.getCause().toString());
         }
         if (!grpcResponse.getSuccess()){
             throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR);

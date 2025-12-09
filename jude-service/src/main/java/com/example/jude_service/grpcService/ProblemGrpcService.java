@@ -10,17 +10,21 @@ import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.enums.ProblemLevel;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
+import com.example.jude_service.exceptions.specException.SubmissionBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
 import com.example.jude_service.services.ProblemService;
 import com.example.proto.*;
+import com.example.proto.submission.SubmissionResponse;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.stream.Collectors;
 
 @GrpcService
 @RequiredArgsConstructor
+@Slf4j
 public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBase {
 
     private final ProblemRepo problemRepo;
@@ -65,7 +69,32 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (ProblemBusinessException e) {
-            responseObserver.onError(e);
+            var response = ValidateAndCloneProblemResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage(e.getMessage())
+                    .setErrorCode(e.getErrorCode().getCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ValidateAndCloneProblemResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage(e.getMessage())
+                    .setErrorCode(e.getErrorCode().getCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            var response = ValidateAndCloneProblemResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage(e.getMessage())
+                    .setErrorCode(ErrorCode.INTERNAL_SERVER_ERROR.getCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -77,8 +106,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemResponse response = convertToProblemResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        }  catch (ProblemBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -90,8 +141,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemPageResponse response = convertToProblemPageResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -102,8 +175,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemResponse response = convertToProblemResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -115,8 +210,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemResponse response = convertToProblemResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -133,8 +250,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemPageResponse response = convertToProblemPageResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -151,8 +290,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemPageResponse response = convertToProblemPageResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemPageResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
@@ -163,8 +324,30 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemResponse response = convertToProblemResponse(result);
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ProblemBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SubmissionBusinessException e) {
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(Integer.parseInt(e.getErrorCode().getCode()))
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
+            var response = ProblemResponse.newBuilder()
+                    .setMessage(e.getMessage())
+                    .setCode(e.hashCode())
+                    .build();
+            log.error("[GRPC Service Error]", e);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
     }
 
