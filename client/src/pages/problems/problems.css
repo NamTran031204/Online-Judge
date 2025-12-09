@@ -1,0 +1,329 @@
+/* ============================================
+   GLOBAL LAYOUT
+============================================ */
+.problem-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #222;
+}
+
+.problem-container h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.problem-table td,
+.problem-table th {
+  text-align: left;
+  vertical-align: middle;
+  padding: 10px 14px;
+}
+
+
+/* ============================================
+   TAGS & RATING
+============================================ */
+.problem-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.tag-list {
+  display: flex;
+  gap: 8px;
+}
+
+.tag {
+  background: #e7f0ff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #2c76ff;
+  font-weight: 500;
+  border: 1px solid #cfe0ff;
+}
+
+.rating {
+  background: #fff3e0;
+  color: #d67b00;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid #ffe0b2;
+}
+
+/* ============================================
+   PROBLEM CARD
+============================================ */
+.problem-card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.problem-card h3 {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.statement {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* ============================================
+   SAMPLE / TEST CASE
+============================================ */
+.example-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #ffffff;
+  border-left: 4px solid #2c76ff;
+  border: 1px solid #dce6ff;
+}
+
+.example-box b {
+  font-weight: 600;
+}
+
+.example-box pre {
+  background: #f4f6ff;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 4px;
+  border: 1px solid #d0d8ff;
+}
+
+/* ============================================
+   CODE EDITOR
+============================================ */
+.editor-section {
+  margin-top: 35px;
+}
+
+.editor-section h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.editor-label {
+  margin-top: 10px;
+  display: block;
+  font-weight: 500;
+}
+
+.editor-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 14px;
+}
+
+.code-editor {
+  width: 100%;
+  height: 250px;
+  margin-top: 15px;
+  padding: 12px;
+  font-family: monospace;
+  background: #1e1e1e;
+  color: #e6e6e6;
+  border-radius: 6px;
+  border: 1px solid #333;
+  font-size: 14px;
+  line-height: 1.4;
+  outline: none;
+}
+
+/* ============================================
+   BUTTONS
+============================================ */
+.editor-btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.run-problem-btn,
+.submit-problem-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.run-problem-btn {
+  background: #428bff;
+  color: white;
+}
+
+.run-problem-btn:hover {
+  background: #2c76ff;
+}
+
+.submit-problem-btn {
+  background: #21c36f;
+  color: white;
+}
+
+.submit-problem-btn:hover {
+  background: #1ea85e;
+}
+
+/* ============================================
+   RUN RESULT BOX
+============================================ */
+.run-result {
+  margin-top: 25px;
+  padding: 18px;
+  border-radius: 6px;
+  background: #f9fbff;
+  border: 1px solid #cfe0ff;
+}
+
+.run-result h3 {
+  margin-bottom: 10px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 15px;
+}
+
+.result-block {
+  margin-top: 12px;
+}
+
+.result-block pre {
+  background: #eef3ff;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #cfe0ff;
+}
+
+.result-status.accepted {
+  color: #1ea85e;
+  font-weight: 700;
+}
+
+/* ============================================
+   DELETE BUTTON (TOP RIGHT)
+============================================ */
+.delete-btn {
+  background: #ff4d4d;
+  border: none;
+  padding: 6px 14px;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #e63939;
+}
+
+/* ============================================
+   PROBLEM LIST PAGE
+============================================ */
+.problem-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.problem-table th {
+  background: #f2f5ff;
+  padding: 12px;
+  border-bottom: 2px solid #dbe3ff;
+  font-weight: 600;
+}
+
+.problem-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.problem-table tr:hover {
+  background: #f7faff;
+}
+
+/* Difficulty colors */
+.tag-easy {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.tag-medium {
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+.tag-hard {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.problem-tag {
+  background: #eef3ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #2c76ff;
+  font-size: 12px;
+}
+
+/* Pagination */
+.pagination-box {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.page-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.page-btn.active {
+  background: #2c76ff;
+  color: white;
+  border-color: #2c76ff;
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  color: #111;
+}
