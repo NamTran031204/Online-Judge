@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 export default function GuestRoute({ children }) {
   const user = useSelector((state) => state.user);
 
-  if (user.isLogin) return <Navigate to="/" replace />;
+  if (user.isLogin) return <Navigate to="/contests" replace />;
 
   return children;
 }

@@ -8,6 +8,8 @@
 .main-body {
   display: flex;
   flex: 1;
+  overflow: auto;
+  padding-top: var(--header-height);
 }
 
 .main-content {

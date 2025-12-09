@@ -10,6 +10,12 @@ import GuestRoute from "./routes/guest-route";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register";
+import ContestList from "./pages/contest/contest-list";
+import ContestDetail from "./pages/contest/contest-detail";
+import ContestForm from "./pages/contest/contest-form";
+import ProblemList from "./pages/problems/problem-list";
+import ProblemDetail from "./pages/problems/problem-detail";
+import Profile from "./pages/profile/profile"
 // import Dashboard from "./pages/Dashboard";
 
 function App() {
@@ -48,7 +54,26 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* <Route path="/" element={<Dashboard />} /> */}
+          {/* <Route path="/" element={<Home />} /> */}
+          {/* LIST CONTESTS */}
+          <Route path="/contests" element={<ContestList />} />
+
+          {/* CREATE CONTEST */}
+          <Route path="/contests/create" element={<ContestForm />} />
+
+          {/* CONTEST DETAIL */}
+          <Route path="/contest/:contest_id" element={<ContestDetail />} />
+
+          {/* UPDATE CONTEST */}
+          <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} />
+
+           {/* PROBLEMS */}
+          <Route path="/problems" element={<ProblemList />} />
+          <Route path="/problem/:problem_id" element={<ProblemDetail />} />
+          
+          {/* PROBLEMS */}
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Route>
 
