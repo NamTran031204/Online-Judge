@@ -8,17 +8,21 @@ const initialState = {
   error: null,
 };
 
+/* ============================================
+   LOGIN
+============================================ */
 export const loginUser = createAsyncThunk(
   "user/loginUser",
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ user_name, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/auth/login",
-        { username, password, expiresInMins: 30 },
-        { withCredentials: true }
+      const res = await axios.post(
+        "http://localhost:3001/api/v1/auth/login",
+        { user_name, password }
       );
 
-      return response.data;
+      // API trả về: { isSuccessful, data: { access_token, refresh_token } }
+      return res.data.data;
+
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Login failed!"
@@ -27,18 +31,21 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-//  REGISTER
+/* ============================================
+   REGISTER
+============================================ */
 export const registerUser = createAsyncThunk(
   "user/registerUser",
-  async ({ username, password, email }, { rejectWithValue }) => {
+  async ({ user_name, email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/auth/register",
-        { username, password, email },
-        { withCredentials: true }
+      const res = await axios.post(
+        "http://localhost:3001/api/v1/auth/register",
+        { user_name, email, password }
       );
 
-      return response.data;
+      // API trả về: { data: { user_id, user_name, email } }
+      return res.data.data;
+
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Register failed!"
@@ -47,21 +54,14 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+
+/* ============================================
+   SLICE
+============================================ */
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload;
-      state.isLogin = true;
-      state.error = null;
-    },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-    },
     clearError: (state) => {
       state.error = null;
     },
@@ -70,6 +70,7 @@ const userSlice = createSlice({
       state.isLogin = false;
       state.error = null;
       state.loading = false;
+
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     },
@@ -77,40 +78,41 @@ const userSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // Loading...
+
+      /* ===== LOGIN ===== */
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
         state.isLogin = true;
 
-        // Lưu token
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
+        // action.payload = data returned from API
+        localStorage.setItem("accessToken", action.payload.access_token);
+        localStorage.setItem("refreshToken", action.payload.refresh_token);
       })
-
-      // Login fail
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // REGISTER
+      /* ===== REGISTER ===== */
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-
-        state.user = action.payload.user;
         state.isLogin = true;
 
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
+        // action.payload = { user_id, user_name, email }
+        state.user = action.payload;
+
+        // 🔥 API register không trả token 
+        // Tạm để token trống hoặc tạo token giả
+        localStorage.setItem("accessToken", "mock-register-token");
+        localStorage.setItem("refreshToken", "mock-register-refresh");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -119,5 +121,6 @@ const userSlice = createSlice({
   }
 });
 
-export const { setUser, setLoading, setError, clearError, clearUser } = userSlice.actions;
+
+export const { clearError, clearUser } = userSlice.actions;
 export default userSlice.reducer;
