@@ -1,5 +1,5 @@
 .header {
-  position: fixed;        /* 🔥 Luôn cố định */
+  position: fixed;       
   top: 0;
   left: 0;
   right: 0;
@@ -41,6 +41,7 @@
 .notification-icon {
   font-size: 20px;
   cursor: pointer;
+  margin-right: 20px;
 }
 
 .user-avatar .avatar {

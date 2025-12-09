@@ -13,7 +13,7 @@ export default function Header() {
         <div className="menu-toggle">
           <img
             className="menu-icon"
-            src="/assets/menu-icon.png"
+            src="src/assets/menu-icon.png"
             alt="menu icon"
             onClick={() => console.log("toggle sidebar")}
           />
@@ -30,9 +30,15 @@ export default function Header() {
         {/* Đã đăng nhập */}
         {user.isLogin ? (
           <>
-            <span className="notification-icon">🔔</span>
+            <span className="notification-icon">
+              <img 
+                src="src/assets/ringing.png" 
+                width={30}
+                height={30}
+              />
+            </span>
             <div className="user-avatar">
-              <img src="/assets/avatar.png" alt="user-avatar" className="avatar" />
+              <img src="src/assets/user.png" alt="user-avatar" className="avatar" />
             </div>
           </>
         ) : (
