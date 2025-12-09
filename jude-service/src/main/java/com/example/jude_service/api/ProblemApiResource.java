@@ -52,8 +52,4 @@ public class ProblemApiResource {
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable("problemId") String problemId) {
         return problemService.deleteProblem(problemId);
     }
-
-
-//    @PostMapping("")
-
 }
