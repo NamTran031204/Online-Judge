@@ -27,6 +27,9 @@ public class SubmissionResultEntity {
     @Column(name = "contest_id")
     private Long contestId;
 
+    @Column(name = "problem_id")
+    private String problemId;
+
     @Enumerated(EnumType.STRING)
     private Result result;
 

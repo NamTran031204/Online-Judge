@@ -88,6 +88,7 @@ CREATE TABLE submission_result (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT,
     contest_id BIGINT,
+    problem_id VARCHAR(64);
     result ENUM('SKIPPED','PENDING','AC','WA','TLE','MLE','CE'),
     submission_id VARCHAR(64),
     status ENUM('IN_CONTEST','PRACTICE'),
@@ -98,7 +99,8 @@ CREATE TABLE submission_result (
 CREATE TABLE contest_problem (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     contest_id BIGINT,
-    problem_id VARCHAR(64)
+    problem_id VARCHAR(64),
+    score INT
 );
 
 -- 11. contest_registration

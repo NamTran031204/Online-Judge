@@ -26,6 +26,8 @@ public enum ErrorCode {
 
     PROBLEM_GRPC_ERROR("4500", "PROBLEM GRPC ERROR", HttpStatus.BAD_REQUEST),
 
+    SUBMISSION_RESULT_NOT_FOUND("4501", "SUBMISSION RESULT NOT FOUND", HttpStatus.BAD_REQUEST),
+
     DOCKER_ERROR("5001", "Docker container error", HttpStatus.INTERNAL_SERVER_ERROR),
     DOCKER_BUILD_FAILED("5002", "Failed to build Docker image", HttpStatus.INTERNAL_SERVER_ERROR),
 

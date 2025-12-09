@@ -40,12 +40,32 @@ public class ProblemGrpcClient {
 
     public CommonResponse<ProblemEntity> addProblem(ProblemInputDto input) {
         try {
+            if (input.getUserId() == null) {
+                input.setUserId(0L); // TODO: lay ra userId tu Spring Security
+            }
+
+            if (input.getContestId() != null) {
+                if (!contestRepo.existsByContestIdAndAuthor(input.getContestId(), input.getUserId())) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+                }
+            }
+
             AddProblemRequest request = AddProblemRequest.newBuilder()
                     .setInput(convertToProtoInput(input))
                     .build();
 
             ProblemResponse response = problemServiceStub.addProblem(request);
-            return convertToCommonResponse(response);
+            CommonResponse<ProblemEntity> commonResponse = convertToCommonResponse(response);
+
+            if (input.getContestId() != null) {
+                contestProblemRepo.save(ContestProblemEntity.builder()
+                                .contestId(input.getContestId())
+                                .problemId(commonResponse.getData().getProblemId())
+                                .score(commonResponse.getData().getScore())
+                        .build());
+            }
+
+            return commonResponse;
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
             return CommonResponse.fail(null, e.getStatus().getDescription());
@@ -89,11 +109,16 @@ public class ProblemGrpcClient {
         }
     }
 
+    // api nay co the toi uu hon voi viec chi truy van vao db 1 lan thay vi 2 bang cach dung join query
+    // nhma t d lam vi dang can lam cai khac :)
+    // TODO: toi uu truy van db
     public CommonResponse<ProblemEntity> updateProblem(ProblemInputDto input, String problemId) {
-        Long contestAuthor = contestProblemRepo.findByProblemId(problemId).orElse(null);
+        Long contestAuthor = contestProblemRepo.findContestAuthorByProblemId(problemId).orElse(null);
         Long userId = 0L; // TODO: lay ra userId tu Spring Security
+        ContestProblemEntity currentContest = new ContestProblemEntity();
         if (contestAuthor != null){
             if (!userId.equals(contestAuthor)) throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+            currentContest = contestProblemRepo.findByProblemId(problemId).orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR));
         }
         try {
             UpdateProblemRequest request = UpdateProblemRequest.newBuilder()
@@ -102,7 +127,19 @@ public class ProblemGrpcClient {
                     .build();
 
             ProblemResponse response = problemServiceStub.updateProblem(request);
-            return convertToCommonResponse(response);
+            CommonResponse<ProblemEntity> commonResponse = convertToCommonResponse(response);
+
+            if (contestAuthor != null && currentContest.getContestId() != null){
+                if (!Objects.equals(currentContest.getContestId(), input.getContestId())) {
+                    currentContest.setContestId(input.getContestId());
+                }
+                if (input.getScore() != null) {
+                    currentContest.setScore(input.getScore());
+                }
+                contestProblemRepo.save(currentContest);
+            }
+
+            return commonResponse;
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
             return CommonResponse.fail(null, e.getStatus().getDescription());

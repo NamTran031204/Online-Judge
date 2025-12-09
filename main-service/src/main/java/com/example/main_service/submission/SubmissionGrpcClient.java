@@ -1,11 +1,15 @@
 package com.example.main_service.submission;
 
-import com.example.main_service.contest.repo.SubmissionResultRepo;
+import com.example.main_service.contest.model.ContestEntity;
+import com.example.main_service.contest.repo.*;
+import com.example.main_service.contest.repo.projections.ContestStatusAndProblemProjection;
+import com.example.main_service.contest.repo.projections.SubmissionDeleteValidationCheckProjection;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
-import com.example.main_service.sharedAttribute.enums.LanguageType;
-import com.example.main_service.sharedAttribute.enums.ResponseStatus;
+import com.example.main_service.sharedAttribute.enums.*;
+import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
+import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
 import com.example.main_service.submission.dto.SubmissionEntity;
 import com.example.main_service.submission.dto.SubmissionInputDto;
 import com.example.main_service.submission.dto.SubmissionResultEntity;
@@ -25,22 +29,51 @@ import java.util.stream.Collectors;
 public class SubmissionGrpcClient {
 
     private final SubmissionResultRepo submissionResultRepo;
+    private final ContestRegistrationRepo contestRegistrationRepo;
+    private final ContestParticipantsRepo contestParticipantsRepo;
+    private final ContestProblemRepo contestProblemRepo;
+    private final ContestRepo contestRepo;
 
     @GrpcClient("jude-service")
     private SubmissionServiceGrpc.SubmissionServiceBlockingStub submissionServiceStub;
 
     public CommonResponse<SubmissionEntity> submit(SubmissionInputDto input) {
         try {
+            // validate
+            // TODO: lay ra userId tu Spring Security thay the cho 0L
+            input.setUserId(input.getUserId()==null ? 0L : input.getUserId());
+            ContestStatusAndProblemProjection projection = contestProblemRepo.findStatusAndUserId(input.getProblemId(), input.getContestId())
+                    .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_NOT_FOUND));
+
+            if (projection.getContestStatus().equals(ContestStatus.UPCOMING)) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+            }
+
             SubmitRequest request = SubmitRequest.newBuilder()
                     .setInput(convertToProtoInput(input))
                     .build();
 
             SubmissionResponse response = submissionServiceStub.submit(request);
-            if (response.getCode() == 200) {
-                var responseData = response.getData();
-                // TODO: luu submissionResultDto
+            CommonResponse<SubmissionEntity> result = convertToCommonResponse(response);
+
+            SubmissionEntity data = result.getData();
+            com.example.main_service.contest.model.SubmissionResultEntity newSubmit = com.example.main_service.contest.model.SubmissionResultEntity.builder()
+                    .userId(data.getUserId())
+                    .contestId(data.getContestId())
+                    .submissionId(data.getSubmissionId())
+                    .problemId(data.getProblemId())
+                    .status(projection.getContestStatus() == ContestStatus.FINISHED? SubmissionStatus.PRACTISE: SubmissionStatus.IN_CONTEST)
+                    .build();
+            for (var r: data.getResult()) {
+                if (!r.getStatus().equals(ResponseStatus.AC)) {
+                    newSubmit.setResult(Result.PARTIAL);
+                    break;
+                }
+                newSubmit.setResult(Result.AC);
             }
-            return convertToCommonResponse(response);
+            submissionResultRepo.save(newSubmit);
+
+            return result;
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
             return CommonResponse.fail(null, e.getStatus().getDescription());
@@ -78,13 +111,27 @@ public class SubmissionGrpcClient {
         }
     }
 
+    /**
+     * Vi xoa lien quan den diem, nen can cau hinh tru diem khi xoa submission
+     */
+
     public CommonResponse<SubmissionEntity> deleteById(String submissionId) {
         try {
+            // TODO: lay userId tu Spring Security
+            Long userId = 0L;
+            var validate = submissionResultRepo.findValidationCheckBySubmissionId(submissionId)
+                    .orElseThrow(() -> new ContestBusinessException(ErrorCode.NOT_FOUND));
+            if (!validate.getUserId().equals(userId)) {
+                throw new ContestBusinessException(ErrorCode.FORBIDDEN);
+            }
+
             DeleteSubmissionByIdRequest request = DeleteSubmissionByIdRequest.newBuilder()
                     .setSubmissionId(submissionId)
                     .build();
 
             SubmissionResponse response = submissionServiceStub.deleteSubmissionById(request);
+
+
             return convertToCommonResponse(response);
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
@@ -198,5 +245,14 @@ public class SubmissionGrpcClient {
                 .time((float) proto.getExecutionTime())
                 .memory((float) proto.getMemoryUsed())
                 .build();
+    }
+
+    /**
+     * check: contest co phai official khong? neu co -> kiem tra thanh tich co AC khong...
+     * TODO: kiem tra ky logic xoa diem cua user khi xoa submission, vi no lien quan den bang userRating, dashboard
+     * @param input
+     */
+    private void deleteUserScoreConstrain(SubmissionDeleteValidationCheckProjection input) {
+
     }
 }

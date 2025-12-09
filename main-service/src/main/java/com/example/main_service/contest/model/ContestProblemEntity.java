@@ -22,4 +22,7 @@ public class ContestProblemEntity {
 
     @Column(name = "problem_id")
     private String problemId;
+
+    @Column(name = "score")
+    private Integer score;
 }
