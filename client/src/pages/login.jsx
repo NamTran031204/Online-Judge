@@ -18,12 +18,14 @@ export default function Login() {
     password: "",
   });
 
+  const [showPass, setShowPass] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = await dispatch(
       loginUser({
-        username: form.usernameOrEmail,
+        user_name: form.usernameOrEmail,
         password: form.password,
       })
     );
@@ -37,13 +39,13 @@ export default function Login() {
     <div className="login-wrapper">
       <div className="login-container">
 
-        {/* FLOATING HEADER */}
+        {/* Floating Header */}
         <div className="login-floating-header">
           <h2>Welcome back</h2>
           <p>Please sign in to your account</p>
         </div>
 
-        {/* MAIN CARD */}
+        {/* Form */}
         <form className="login-card" onSubmit={handleSubmit}>
           {error && <div className="login-error">{error}</div>}
 
@@ -57,15 +59,27 @@ export default function Login() {
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
-            required
-          />
+          {/* PASSWORD + SHOW PASS */}
+            <input
+              type={showPass ? "text" : "password"}
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+              required
+            />
+
+          <div className="show-pass-row">
+            <label className="show-password" htmlFor="showPassLogin">Show password?</label>
+            <input
+              type="checkbox"
+              id="showPassLogin"
+              checked={showPass}
+              onChange={() => setShowPass(!showPass)}
+            />
+            
+          </div>
 
           <button className="btn-submit" disabled={loading}>
             {loading ? "Signing in..." : "SIGN IN"}

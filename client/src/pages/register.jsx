@@ -14,17 +14,19 @@ export default function Register() {
   }, []);
 
   const [form, setForm] = useState({
-    username: "",
+    user_name: "",
     email: "",
     password: "",
   });
+
+  const [showPass, setShowPass] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = await dispatch(
       registerUser({
-        username: form.username.trim(),
+        user_name: form.user_name.trim(),
         email: form.email.trim(),
         password: form.password,
       })
@@ -39,23 +41,22 @@ export default function Register() {
     <div className="register-wrapper">
       <div className="register-container">
 
-        {/* FLOATING HEADER */}
+        {/* Header */}
         <div className="register-floating-header">
           <h2>Join us today</h2>
           <p>Enter your email and password to register</p>
         </div>
 
-        {/* FORM CARD */}
+        {/* Card */}
         <form className="register-card" onSubmit={handleSubmit}>
-
           {error && <div className="register-error">{error}</div>}
 
           <input
             type="text"
             placeholder="Username"
-            value={form.username}
+            value={form.user_name}
             onChange={(e) =>
-              setForm({ ...form, username: e.target.value })
+              setForm({ ...form, user_name: e.target.value })
             }
             required
           />
@@ -70,8 +71,9 @@ export default function Register() {
             required
           />
 
+          {/* PASSWORD + SHOW PASSWORD */}
           <input
-            type="password"
+            type={showPass ? "text" : "password"}
             placeholder="Password"
             value={form.password}
             onChange={(e) =>
@@ -79,6 +81,17 @@ export default function Register() {
             }
             required
           />
+
+          <div className="show-pass-row">
+            <label className="show-password" htmlFor="showPassRegister">Show password?</label>
+            <input
+              type="checkbox"
+              id="showPassRegister"
+              checked={showPass}
+              onChange={() => setShowPass(!showPass)}
+            />
+            
+          </div>
 
           <button className="register-btn" disabled={loading}>
             {loading ? "Signing up..." : "SIGN UP"}
