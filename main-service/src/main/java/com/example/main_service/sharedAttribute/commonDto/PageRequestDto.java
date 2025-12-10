@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import com.example.main_service.contest.utils.StringUtils;
+import com.example.main_service.sharedAttribute.utils.StringUtils;
 
 @Data
 @AllArgsConstructor

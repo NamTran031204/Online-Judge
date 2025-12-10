@@ -1,4 +1,4 @@
-package com.example.main_service.contest.utils;
+package com.example.main_service.sharedAttribute.utils;
 
 import java.text.Normalizer;
 import java.util.regex.Pattern;

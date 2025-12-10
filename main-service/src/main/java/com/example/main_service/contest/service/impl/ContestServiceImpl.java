@@ -13,7 +13,7 @@ import com.example.main_service.contest.model.ContestEntity;
 import com.example.main_service.contest.repo.ContestRepo;
 import com.example.main_service.contest.service.ContestService;
 import com.example.main_service.contest.specification.ContestSpec;
-import com.example.main_service.contest.utils.StringUtils;
+import com.example.main_service.sharedAttribute.utils.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

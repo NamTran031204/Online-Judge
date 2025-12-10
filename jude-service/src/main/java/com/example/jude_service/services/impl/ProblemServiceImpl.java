@@ -211,7 +211,7 @@ public class ProblemServiceImpl implements ProblemService {
         Query query = new Query();
         ProblemInputDto term = input.getFilter();
 
-        if (!term.getTags().isEmpty()) {
+        if (term.getTags() != null) {
             query.addCriteria(
                     Criteria.where("tags").in(term.getTags())
             );

@@ -1,7 +1,7 @@
 package com.example.jude_service.entities;
 
-import ch.qos.logback.core.util.StringUtil;
 import com.example.jude_service.exceptions.ErrorCode;
+import com.example.jude_service.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +36,7 @@ public class CommonResponse<TResult> implements Serializable {
     }
 
     public static <T> CommonResponse<T> success(T data, String message, String code) {
-        if (StringUtil.isNullOrEmpty(code)) {
+        if (StringUtils.isNullOrEmpty(code)) {
             code = ErrorCode.SUCCESS.getCode();
         }
         return result(true, data, code, message);
@@ -54,7 +54,7 @@ public class CommonResponse<TResult> implements Serializable {
         if (errorCode == null) {
             errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         }
-        if (StringUtil.isNullOrEmpty(message)) {
+        if (StringUtils.isNullOrEmpty(message)) {
             message = ErrorCode.INTERNAL_SERVER_ERROR.getMessage();
         }
         return result(false, null, errorCode.getCode(), message);
