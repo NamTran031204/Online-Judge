@@ -1,56 +1,43 @@
 package com.example.main_service.user.controller;
 
-import com.example.main_service.rbac.RbacService;
-import com.example.main_service.rbac.model.PermissionEntity;
-import com.example.main_service.rbac.model.RoleEntity;
+import com.example.main_service.rbac.PermissionService;
+import com.example.main_service.rbac.RoleService;
 import com.example.main_service.rbac.repo.PermissionRepo;
 import com.example.main_service.rbac.repo.RoleRepo;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.user.dto.PermissionDto;
 import com.example.main_service.user.dto.RoleDto;
+import com.example.main_service.user.dto.UserDetailDto;
+import com.example.main_service.user.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @AllArgsConstructor
 public class UserController {
 
-    private final RoleRepo roleRepo;
-    private final PermissionRepo permRepo;
-    private final RbacService rbacService;
+    private final UserService userService;
+    private final RoleService roleService;
+    private final PermissionService permissionService;
 
-    @PostMapping("/roles/search")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'user:delete', 'System', -1)")
+    @PostMapping("/admin/roles/search")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'rbac', 'System', 0)")
     public PageResult<RoleDto> searchRoles(@RequestBody PageRequestDto<Object> request) {
-        Pageable pageable = request.getPageRequest();
-        Page<RoleEntity> page = roleRepo.findAll(pageable);
-        List<RoleDto> roles = page.getContent().stream()
-                .map(r -> new RoleDto(r.getRoleId(), r.getRoleName()))
-                .collect(Collectors.toList());
-
-        return new PageResult<>(page.getTotalElements(), roles);
+        return roleService.searchRoles(request.getPageRequest());
     }
 
-    @PostMapping("/permissions/search")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'user:delete', 'System', -1)")
+    @PostMapping("/admin/permissions/search")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'rbac', 'System', 0)")
     public PageResult<PermissionDto> searchPermissions(@RequestBody PageRequestDto<Object> request) {
-        Pageable pageable = request.getPageRequest();
-
-        Page<PermissionEntity> page = permRepo.findAll(pageable);
-
-        List<PermissionDto> perms = page.getContent().stream()
-                .map(p -> new PermissionDto(p.getPermissionId(), p.getPermissionName()))
-                .collect(Collectors.toList());
-
-        return new PageResult<>(page.getTotalElements(), perms);
+        return permissionService.searchPermissions(request.getPageRequest());
     }
 
+    @GetMapping("/user/{user_name}")
+    public UserDetailDto getUserProfile(@PathVariable("user_name") String username) {
+        return userService.getUserDetail(username);
+    }
 }

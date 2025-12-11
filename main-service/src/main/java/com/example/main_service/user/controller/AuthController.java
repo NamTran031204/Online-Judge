@@ -1,12 +1,16 @@
 package com.example.main_service.user.controller;
 
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
+import com.example.main_service.sharedAttribute.exceptions.specException.InvalidRefreshTokenException;
 import com.example.main_service.user.dto.*;
 import com.example.main_service.user.service.AuthService;
 import com.example.main_service.user.service.TokenService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// to do : handle exception
+// access token có dễ bị lộ k ? (hiện tại đang đặt full niềm tin vào access token (chứa user id))
+
+// to do : handle exception ở login/register (chặn kí tự lạ blah blah)
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -20,7 +24,6 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
-    // ------------------ REGISTER ------------------
     @PostMapping("/register")
     public CommonResponse<RegisterResponse> register(@RequestBody RegisterRequest req) {
         Long userId = authService.register(req);
@@ -30,7 +33,6 @@ public class AuthController {
         return CommonResponse.success(response);
     }
 
-    // ------------------ LOGIN ------------------
     @PostMapping("/login")
     public CommonResponse<LoginResponse> login(@RequestBody LoginRequest req,
                                @RequestHeader(value = "X-Forwarded-For", required = false) String ip,
@@ -47,14 +49,13 @@ public class AuthController {
         return CommonResponse.success(loginResponse);
     }
 
-    // ------------------ REFRESH ACCESS TOKEN ------------------
     @PostMapping("/refresh")
-    public CommonResponse<RefreshResponse> refresh(@RequestBody RefreshRequest req) {
+    public ResponseEntity<CommonResponse<RefreshResponse>> refresh(@RequestBody RefreshRequest req) {
 
         Long userId = tokenService.validateRefreshToken(req.getRefreshToken());
 
         if (userId == null) {
-            throw new RuntimeException("Invalid or expired refresh token");
+            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
         }
 
         String newAccessToken = tokenService.newAccessToken(userId);
@@ -64,10 +65,9 @@ public class AuthController {
                 tokenService.getAccessTokenExpiry()
         );
 
-        return CommonResponse.success(res);
+        return ResponseEntity.ok(CommonResponse.success(res));
     }
 
-    // ------------------ LOGOUT ------------------
     @PostMapping("/logout")
     public CommonResponse<String> logout(@RequestBody RefreshRequest req) {
         tokenService.revokeRefreshToken(req.getRefreshToken());

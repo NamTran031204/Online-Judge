@@ -16,7 +16,8 @@ public class ContestInvitationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long inviteId;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "contest_id")
     private Long contestId;

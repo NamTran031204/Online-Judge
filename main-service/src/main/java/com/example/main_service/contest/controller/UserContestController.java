@@ -9,6 +9,7 @@ import com.example.main_service.contest.service.UserContestService;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +25,7 @@ public class UserContestController {
     }
 
     @PostMapping("{contestId}/registrations/search")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:view', 'Contest', #contestId)")
     public CommonResponse<PageResult<ContestRegistrationResponseDto>> getAllRegistration(
             @PathVariable("contestId") Long contestId,
             PageRequestDto<ContestRegistrationFilterDto> pageRequestDto
@@ -31,6 +33,7 @@ public class UserContestController {
         return CommonResponse.success(userContestService.getRegistration(contestId, pageRequestDto));
     }
 
+    // làm dashboard thì hãn làm cái này
     @PostMapping("{contestId}/participants/search")
     public CommonResponse<PageResult<ContestParticipantResponseDto>> getAllParticipants(
             @PathVariable("contestId") Long contestId,

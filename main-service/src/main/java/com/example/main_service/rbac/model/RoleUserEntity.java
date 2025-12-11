@@ -17,7 +17,7 @@ public class RoleUserEntity {
     private Long userId;
 
     @Column(name = "scope_id")
-    private Long scopeId;
+    private String scopeId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "scope_type", nullable = false)

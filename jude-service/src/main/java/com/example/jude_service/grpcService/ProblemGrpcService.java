@@ -13,6 +13,7 @@ import com.example.jude_service.exceptions.specException.ProblemBusinessExceptio
 import com.example.jude_service.repo.ProblemRepo;
 import com.example.jude_service.services.ProblemService;
 import com.example.proto.*;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -65,7 +66,19 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (ProblemBusinessException e) {
-            responseObserver.onError(e);
+            // handle riêng problem not found (đang hơi lỏ)
+            if (e.getErrorCode() == ErrorCode.PROBLEM_NOT_FOUND) {
+                responseObserver.onError(
+                        Status.NOT_FOUND
+                                .withDescription("Problem not found: " + request.getProblemId())
+                                .asRuntimeException()
+                );
+                return;
+            }
+
+            responseObserver.onError(
+                    Status.FAILED_PRECONDITION.withDescription(e.getMessage()).asRuntimeException()
+            );
         }
     }
 

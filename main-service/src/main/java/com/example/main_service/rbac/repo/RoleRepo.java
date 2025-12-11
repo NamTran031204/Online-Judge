@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface RoleRepo extends JpaRepository<RoleEntity, Integer> {
 
-    @Query("SELECT r.roleName FROM RoleEntity r WHERE r.roleId IN :ids")
-    List<String> findRoleNamesByIds(List<Integer> ids);
+    @Query("SELECT r.roleId FROM RoleEntity r WHERE r.roleName = :name")
+    Integer findRoleIdByName(String name);
 }

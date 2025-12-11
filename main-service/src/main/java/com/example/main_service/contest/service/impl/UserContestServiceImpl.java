@@ -4,6 +4,7 @@ import com.example.main_service.contest.dto.userContest.ContestParticipantFilter
 import com.example.main_service.contest.dto.userContest.ContestParticipantResponseDto;
 import com.example.main_service.contest.dto.userContest.ContestRegistrationFilterDto;
 import com.example.main_service.contest.dto.userContest.ContestRegistrationResponseDto;
+import com.example.main_service.rbac.RoleService;
 import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
 import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
 import com.example.main_service.contest.model.ContestEntity;
@@ -25,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -33,12 +36,8 @@ public class UserContestServiceImpl implements UserContestService {
     private final ContestRepo contestRepo;
     private final ContestRegistrationRepo contestRegistrationRepo;
     private final ContestParticipantsRepo contestParticipantsRepo;
+    private final RoleService roleService;   // thêm vào để check role
 
-    /**
-     * save registration dong thoi save participant phuc vu tinh diem
-     * @param contestId
-     * @return
-     */
     @Override
     public ContestRegistrationResponseDto registerUser(Long contestId) {
 
@@ -46,12 +45,24 @@ public class UserContestServiceImpl implements UserContestService {
                 .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
 
         // TODO: lay ra userId tu UserDetail
-        Long userId = 1L;
+        Long userId = getUserIdFromToken();
+        if (userId == null || userId == 0)
+            throw new ContestBusinessException(ErrorCode.USER_NOT_FOUND);
 
-        // neu user co role User thi khong duoc dang ky tham gia contest draft tru khi la author
-        if (contest.getContestType().equals(ContestType.DRAFT) && userId == 2L) {
-            if (!contest.getAuthor().equals(userId))
+        if (contest.isExpired()) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
+        }
+        boolean isSpecial = roleService.hasSpecialContestRole(userId,contestId); // theo scope
+
+        //draft contest chỉ tester và admin động vào
+        if (!isSpecial && contest.getContestType().equals(ContestType.DRAFT)) {
                 throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+        }
+        if(isSpecial && (contest.getContestType().equals(ContestType.GYM) || contest.getContestType().equals(ContestType.OFFICIAL)) ) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+        }
+        if (contestRegistrationRepo.existsByContestIdAndUserId(contestId, userId)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ALREADY_REGISTERED);
         }
 
         ContestRegistrationEntity entity = contestRegistrationRepo.save(ContestRegistrationEntity.builder()
@@ -75,9 +86,6 @@ public class UserContestServiceImpl implements UserContestService {
 
     @Override
     public PageResult<ContestRegistrationResponseDto> getRegistration(Long contestId, PageRequestDto<ContestRegistrationFilterDto> input) {
-        // TODO: lay ra userId tu Spring Security
-        Long execUserId = 1L;
-        checkValidateExecUser(execUserId, contestId);
 
         Page<ContestRegistrationProjection> data;
         if (input.getFilter() != null) {
@@ -107,8 +115,8 @@ public class UserContestServiceImpl implements UserContestService {
     @Override
     public PageResult<ContestParticipantResponseDto> getParticipants(Long contestId, PageRequestDto<ContestParticipantFilterDto> input) {
         //TODO: lay ra userId tu Spring Sec
-        Long execUserId = 1L;
-        checkValidateExecUser(execUserId, contestId);
+        Long execUserId = getUserIdFromToken();
+        checkUserInContest(execUserId, contestId);
 
         Page<ContestParticipantProjection> data;
 
@@ -135,10 +143,9 @@ public class UserContestServiceImpl implements UserContestService {
         return result;
     }
 
-    void checkValidateExecUser(Long execUserId, Long contestId) {
-        if (contestRepo.existsByAuthor(execUserId)) {
-            return;
-        }
+    void checkUserInContest(Long execUserId, Long contestId) {
+        boolean isSpecial = roleService.hasSpecialContestRole(execUserId, contestId);
+        if (isSpecial) return;
         if (!contestRegistrationRepo.existsByContestIdAndUserId(contestId, execUserId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
         }

@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -90,11 +92,6 @@ public class ProblemGrpcClient {
     }
 
     public CommonResponse<ProblemEntity> updateProblem(ProblemInputDto input, String problemId) {
-        Long contestAuthor = contestProblemRepo.findByProblemId(problemId).orElse(null);
-        Long userId = 0L; // TODO: lay ra userId tu Spring Security
-        if (contestAuthor != null){
-            if (!userId.equals(contestAuthor)) throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
-        }
         try {
             UpdateProblemRequest request = UpdateProblemRequest.newBuilder()
                     .setProblemId(problemId)
@@ -154,10 +151,10 @@ public class ProblemGrpcClient {
                     .build();
 
             ProblemResponse response = problemServiceStub.deleteProblem(request);
-            if (response.getCode() == 200) {
-                Long contestId = response.getData().getContestId();
-                contestProblemRepo.findByContestIdAndProblemId(contestId, problemId).ifPresent(contestProblemRepo::delete);
-            }
+//            if (response.getCode() == 200) { // tạm thời chưa cần thiết vì contest_problem tạo bản copy của problem
+//                Long contestId = response.getData().getContestId();
+//                contestProblemRepo.findByContestIdAndProblemId(contestId, problemId).ifPresent(contestProblemRepo::delete);
+//            }
             return convertToCommonResponse(response);
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);

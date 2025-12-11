@@ -1,6 +1,7 @@
 package com.example.main_service.contest.service.impl;
 
 import com.example.main_service.contest.service.StatusChangeService;
+import com.example.main_service.rbac.RbacService;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
@@ -18,12 +19,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 
 @Service
 @Transactional
@@ -32,7 +36,7 @@ public class ContestServiceImpl implements ContestService {
 
     private final ContestRepo contestRepo;
     private final StatusChangeService statusChangeService;
-
+    private final RbacService rbacService;
     /**
      * TODO: chinh sua lai logic tao contest visibility/type vi: hien tai van dang cho tao contest OFFICIAL de test
      *
@@ -73,6 +77,8 @@ public class ContestServiceImpl implements ContestService {
             }
         }
 
+        Long userId = getUserIdFromToken();
+        if(userId==0) throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong biet author la ai");
 
         ContestEntity entity = ContestEntity.builder()
                 .title(input.getTitle())
@@ -81,13 +87,14 @@ public class ContestServiceImpl implements ContestService {
                 .duration(input.getDuration())
                 .contestStatus(ContestStatus.UPCOMING)
                 .contestType(input.getContestType())
-                .author(1L) // TODO: lay ra author tu UserDetail cua Security
+                .author(userId) // TODO: lay ra author tu UserDetail cua Security //done
                 .rated(input.getRated())
                 .visibility(input.getVisibility())
                 .groupId(input.getGroupId())
                 .build();
 
         ContestEntity savedEntity = contestRepo.save(entity);
+        rbacService.assignRole(userId,"Author","Contest", String.valueOf(savedEntity.getContestId()));
 
         ContestCreateUpdateResponseDto responseDto = new ContestCreateUpdateResponseDto();
         responseDto.setContestId(savedEntity.getContestId());
@@ -290,8 +297,9 @@ public class ContestServiceImpl implements ContestService {
     }
 
     private void validateUpdatePermission(ContestEntity contestEntity) {
-        Long userId = 1L; // TODO: lay ra userId tu UserDetail cua Security
-
+        Long userId = getUserIdFromToken(); // TODO: lay ra userId tu UserDetail cua Security // done
+        System.out.println("userId=" + userId);
+        if(userId==0) throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong biet author la ai");
         if (!contestEntity.getAuthor().equals(userId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
         }

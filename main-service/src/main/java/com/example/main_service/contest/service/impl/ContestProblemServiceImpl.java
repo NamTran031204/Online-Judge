@@ -12,10 +12,14 @@ import com.example.main_service.problem.ProblemGrpcClient;
 import com.example.proto.ProblemServiceGrpc;
 import com.example.proto.ValidateAndCloneProblemRequest;
 import com.example.proto.ValidateAndCloneProblemResponse;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+
+import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 
 @Service
 @RequiredArgsConstructor
@@ -45,13 +49,26 @@ public class ContestProblemServiceImpl implements ContestProblemService {
         ValidateAndCloneProblemRequest grpcRequest = ValidateAndCloneProblemRequest.newBuilder()
                 .setProblemId(problemId)
                 .setContestId(contestId)
-                .setUserId(0L)
+                .setUserId(getUserIdFromToken()) // check lại user id
                 .build();
         ValidateAndCloneProblemResponse grpcResponse;
-        try {
+        try { // handle exception của grpc ở đây cho nó trẩ về chuẩn hơn
             grpcResponse = problemServiceStub.validateAndCloneProblem(grpcRequest);
-        } catch (Exception e) {
-            throw new ContestBusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+        } catch (StatusRuntimeException e) {
+            switch (e.getStatus().getCode()) {
+
+                case NOT_FOUND:
+                    throw new ContestBusinessException(ErrorCode.PROBLEM_NOT_FOUND,
+                            e.getStatus().getDescription());
+
+                case FAILED_PRECONDITION:
+                    throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR,
+                            e.getStatus().getDescription());
+
+                default:
+                    throw new ContestBusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
+
         }
         if (!grpcResponse.getSuccess()){
             throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR);

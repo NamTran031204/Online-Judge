@@ -10,11 +10,11 @@ import java.util.Optional;
 public interface ContestProblemRepo extends JpaRepository<ContestProblemEntity, Long> {
     Optional<ContestProblemEntity> findByContestIdAndProblemId(Long contestId, String problemId);
 
-    @Query("""
-        SELECT c.author
-        FROM contest_problem cp
-        JOIN contest c ON cp.contest_id = c.contest_id
-        WHERE cp.problem_id = :problemId
-    """)
+    @Query(value = """
+                SELECT c.author
+                FROM contest_problem cp
+                JOIN contest c ON cp.contest_id = c.contest_id
+                WHERE cp.problem_id = :problemId
+            """,nativeQuery = true)
     Optional<Long> findByProblemId(@Param("problemId") String problemId);
 }

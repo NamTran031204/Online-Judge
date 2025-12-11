@@ -17,7 +17,7 @@ public class SubmissionApiResource {
 
     private final SubmissionGrpcClient submissionGrpcClient;
 
-    @PostMapping("")
+    @PostMapping("/submit")
     public CommonResponse<SubmissionEntity> submit(@RequestBody SubmissionInputDto input) {
         return submissionGrpcClient.submit(input);
     }
@@ -43,7 +43,7 @@ public class SubmissionApiResource {
     }
 
     @DeleteMapping("/by-user/{userId}")
-    public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") String userId) {
+    public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") Long userId) {
         return submissionGrpcClient.deleteByUser(userId);
     }
 }

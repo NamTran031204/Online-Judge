@@ -27,15 +27,25 @@ public class TokenService {
 
     public Long validateRefreshToken(String token) {
         try {
-            return Jwts.parser()
-                    .setSigningKey("refresh-secret-key".getBytes())
+            Long userId = Jwts.parser()
+                    .setSigningKey(refreshProvider.getSecretKey())
                     .parseClaimsJws(token)
                     .getBody()
                     .get("userId", Long.class);
 
+            RefreshTokenEntity entity = refreshTokenRepo.findByRefreshToken(token)
+                    .orElse(null);
+
+            if (entity == null) return null;
+            if (entity.isRevoked()) return null;
+            if (entity.getExpiredAt().isBefore(LocalDateTime.now())) return null;
+
+            return userId;
+
         } catch (Exception e) {
             return null;
         }
+
     }
 
     public String newAccessToken(Long userId) {

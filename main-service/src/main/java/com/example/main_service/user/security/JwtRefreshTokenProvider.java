@@ -26,4 +26,7 @@ public class JwtRefreshTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
+    public SecretKey getSecretKey() {
+        return this.key;
+    }
 }

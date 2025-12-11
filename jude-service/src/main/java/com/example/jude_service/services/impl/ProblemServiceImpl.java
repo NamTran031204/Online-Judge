@@ -177,7 +177,7 @@ public class ProblemServiceImpl implements ProblemService {
     public CommonResponse<ProblemEntity> deleteProblem(String problemId) {
         ProblemEntity problem = problemRepo.findById(problemId)
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
-        submissionService.deleteById(problemId);
+        //submissionService.deleteById(problemId); xóa mềm
         problemRepo.delete(problem);
         return CommonResponse.success(problem);
     }

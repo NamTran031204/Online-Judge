@@ -2,13 +2,18 @@ package com.example.main_service.problem;
 
 import com.example.main_service.problem.dto.ProblemEntity;
 import com.example.main_service.problem.dto.ProblemInputDto;
+import com.example.main_service.rbac.RbacService;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
+
+// cần handle exception ngay lập tức
 @RestController
 @RequestMapping("${api.prefix}/problem")
 @RequiredArgsConstructor
@@ -16,38 +21,71 @@ import org.springframework.web.bind.annotation.*;
 public class ProblemApiResource {
 
     private final ProblemGrpcClient problemGrpcClient;
+    private final RbacService rbacService;
 
-    @PostMapping(value = "")
+    @PostMapping(value = "/add-problem")
     public CommonResponse<ProblemEntity> addProblem(@RequestBody ProblemInputDto input) {
-        return problemGrpcClient.addProblem(input);
+        Long userId = getUserIdFromToken();
+        if (userId == 0L) {
+            throw new IllegalStateException("User not authenticated");
+        }
+        input.setUserId(userId);
+        CommonResponse<ProblemEntity> response =  problemGrpcClient.addProblem(input);
+
+        ProblemEntity problem = response.getData();
+        if (problem == null) {
+            throw new IllegalStateException("GRPC returned null ProblemEntity");
+        }
+
+        String problemId = problem.getProblemId(); 
+        if (problemId == null) {
+            throw new IllegalStateException("ProblemId is null");
+        }
+
+        rbacService.assignRole(
+                userId,
+                "Author",
+                "Problem",
+                problemId
+        );
+        return response;
     }
 
+    // chỉ search problem nằm trong bảng contest problem (đã kết thúc, public)
     @PostMapping(value = "/search")
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto<ProblemInputDto> input) {
         return problemGrpcClient.getProblemPage(input);
     }
 
-    @GetMapping(value = "/{problemId}")
+    @GetMapping(value = "/get-by-id/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:view', 'Problem', #problemId)")
     public CommonResponse<ProblemEntity> getProblemById(@PathVariable("problemId") String problemId) {
         return problemGrpcClient.getProblemById(problemId);
     }
 
-    @PostMapping(value = "/{problemId}/edit")
+    @PostMapping(value = "/update/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'Problem', #problemId)")
     public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input, @PathVariable("problemId") String problemId) {
+        Long userId = getUserIdFromToken();
+        input.setUserId(userId);
         return problemGrpcClient.updateProblem(input, problemId);
     }
 
+    // tạm coi là official contest
     @PostMapping(value = "/by-contest")
     public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<Long> input) {
         return problemGrpcClient.getByContest(input);
     }
 
+    // search problem trong bảng problem contest (đã kết thúc, public)
     @PostMapping(value = "/search-text")
     public CommonResponse<PageResult<ProblemEntity>> searchProblem(@RequestBody PageRequestDto<String> input) {
         return problemGrpcClient.searching(input);
     }
 
-    @DeleteMapping(value = "/{problemId}")
+    // bug
+    @DeleteMapping(value = "/delete/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'Problem', #problemId)")
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable("problemId") String problemId) {
         return problemGrpcClient.deleteProblem(problemId);
     }
