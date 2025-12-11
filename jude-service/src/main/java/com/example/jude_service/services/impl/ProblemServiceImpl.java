@@ -211,7 +211,7 @@ public class ProblemServiceImpl implements ProblemService {
         Query query = new Query();
         ProblemInputDto term = input.getFilter();
 
-        if (term.getTags() != null) {
+        if (term.getTags() != null && !term.getTags().isEmpty()) {
             query.addCriteria(
                     Criteria.where("tags").in(term.getTags())
             );
@@ -223,7 +223,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
 
         // can xem xet them, vi dang ra yeu cau chi la mot loai thoi
-        if (term.getSupportedLanguage() != null) {
+        if (term.getSupportedLanguage() != null && !term.getSupportedLanguage().isEmpty()) {
             LanguageType language = term.getSupportedLanguage().getFirst();
             query.addCriteria(
                     Criteria.where("supportedLanguage").is(language)
