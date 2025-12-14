@@ -1,8 +1,7 @@
 // src/redux/problems/problems-list-slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 //  SEARCH PROBLEMS (filter + paging)
 export const searchProblems = createAsyncThunk(
@@ -16,7 +15,7 @@ export const searchProblems = createAsyncThunk(
         filter,
       };
 
-      const res = await axios.post(`${BASE_URL}/problems/search`, body);
+      const res = await axios.post(`${SERVER_URL}/problems/search`, body);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Search failed");
@@ -36,7 +35,7 @@ export const searchProblemsByText = createAsyncThunk(
         filter: keyword
       };
 
-      const res = await axios.post(`${BASE_URL}/problems/search-text`, body);
+      const res = await axios.post(`${SERVER_URL}/problems/search-text`, body);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Search text failed");
@@ -59,7 +58,7 @@ export const getProblemsByContest = createAsyncThunk(
       };
 
       const res = await axios.post(
-        `${BASE_URL}/problems/by-contest`,
+        `${SERVER_URL}/problems/by-contest`,
         body
       );
 
@@ -78,7 +77,7 @@ export const createProblem = createAsyncThunk(
   "problemsList/createProblem",
   async (body, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/problems`, body);
+      const res = await axios.post(`${SERVER_URL}/problems`, body);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Create failed");

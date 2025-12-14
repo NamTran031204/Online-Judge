@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* =======================================================
    SEARCH CONTESTS
@@ -17,7 +17,7 @@ export const fetchContests = createAsyncThunk(
         filter: search ? { title: search } : {}
       };
 
-      const res = await axios.post(`${API}/contests/search`, body);
+      const res = await axios.post(`${SERVER_URL}/contests/search`, body);
       return res.data.data; // PageResult<ContestSummaryDto>
 
     } catch (err) {
@@ -33,7 +33,7 @@ export const createContest = createAsyncThunk(
   "contests/createContest",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${API}/contests`, data);
+      const res = await axios.post(`${SERVER_URL}/contests`, data);
       return res.data.data; // { contest_id }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Create contest failed");

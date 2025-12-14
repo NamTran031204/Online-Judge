@@ -1,15 +1,14 @@
 // src/redux/problems/problem-slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 //  GET PROBLEM DETAIL
 export const getProblemDetail = createAsyncThunk(
   "problem/getDetail",
   async (problem_id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/problem/${problem_id}`);
+      const res = await axios.get(`${SERVER_URL}/problem/${problem_id}`);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Cannot load detail");
@@ -23,7 +22,7 @@ export const updateProblem = createAsyncThunk(
   async ({ problem_id, body }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/problem/${problem_id}/edit`,
+        `${SERVER_URL}/problem/${problem_id}/edit`,
         body
       );
       return res.data;
@@ -38,7 +37,7 @@ export const deleteProblem = createAsyncThunk(
   "problem/delete",
   async (problem_id, { rejectWithValue }) => {
     try {
-      const res = await axios.delete(`${BASE_URL}/problem/${problem_id}`);
+      const res = await axios.delete(`${SERVER_URL}/problem/${problem_id}`);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Delete failed");

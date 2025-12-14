@@ -20,7 +20,19 @@ export default function Sidebar() {
         </li>
 
         <li>
-          <Link to="/group">Groups</Link>
+          <Link to="/groups">Groups</Link>
+        </li>
+
+        <li>
+          <Link to="/comments">Comments</Link>
+        </li>
+
+         <li>
+          <Link to="/ratings">Rating</Link>
+        </li>
+
+         <li>
+          <Link to="/submissions">Submissions</Link>
         </li>
 
         <li>

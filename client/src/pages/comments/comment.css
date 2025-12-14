@@ -1,0 +1,160 @@
+.comment-container {
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.comment-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.new-comment-btn {
+  background: #007bff;
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.new-comment-btn:hover {
+  background: #0056b3;
+}
+
+/* TABLE */
+.comment-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.comment-table th {
+  background: #f0f2f5;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.comment-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+/* Hover row */
+.comment-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* Delete button */
+.delete-btn {
+  background: #ff4d4f;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #d9363e;
+}
+
+/* ============================
+  NEW COMMENT
+=============================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  color: #333;
+  padding: 20px;
+  width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #222;
+}
+
+.modal textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+  padding: 10px;
+   background-color: white !important; 
+  color: #333 !important;
+  border: 1px solid #ddd; 
+  border-radius: 4px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal textarea:focus {
+  border-color: #007bff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.modal-actions button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.modal-actions button[type="button"] { 
+  background: #f0f2f5;
+  color: #444;
+}
+
+.modal-actions button[type="button"]:hover {
+  background: #e0e2e5;
+}
+
+.modal-actions button.btn-primary {
+  background: #007bff; 
+  color: #fff; 
+  font-weight: 600;
+}
+
+.modal-actions button.btn-primary:hover {
+  background: #0056b3; 
+}

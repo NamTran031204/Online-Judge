@@ -18,6 +18,15 @@ import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
 // import Dashboard from "./pages/Dashboard";
+import CommentList from "./pages/comments/comment-list";
+import SubmissionList from "./pages/submissions/submission-list";
+import SubmissionDetail from "./pages/submissions/submission-detail";
+import SubmissionCreate from "./pages/submissions/submission-create";
+import GroupList from "./pages/groups/group-list";
+import GroupDetail from "./pages/groups/group-detail";
+import GroupCreate from "./pages/groups/group-create";
+import RatingList from "./pages/ratings/rating-list"
+
 
 function App() {
   return (
@@ -74,8 +83,24 @@ function App() {
           <Route path="/problems/create" element={<ProblemForm />} />
           <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} />
           
-          {/* PROBLEMS */}
+          {/* Profile */}
           <Route path="/profile" element={<Profile />} />
+
+          {/* COMMENTS */}
+          <Route path="/comments" element={<CommentList />} />
+
+          {/* SUBMISSIONS */}
+          <Route path="/submissions" element={<SubmissionList />} />
+          <Route path="/submission/:submission_id" element={<SubmissionDetail />} />
+          <Route path="/submission/create" element={<SubmissionCreate />} />
+
+          {/* GROUPS */}
+          <Route path="/groups" element={<GroupList />} />
+          <Route path="/group/:group_id" element={<GroupDetail />} />
+          <Route path="/group/create" element={<GroupCreate />} />
+          
+          {/* RATING */}
+          <Route path="/ratings" element={<RatingList />} />
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Route>

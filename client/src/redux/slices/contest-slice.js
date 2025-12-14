@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { SERVER_URL } from "../../config/config.js";
 
-const API = "http://localhost:3001/api/v1";
 
 /* FETCH DETAIL */
 export const fetchContestDetail = createAsyncThunk(
   "contest/fetchDetail",
   async (contest_id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${API}/contest/${contest_id}`);
+      const res = await axios.get(`${SERVER_URL}/contest/${contest_id}`);
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Fetch detail failed");
@@ -21,7 +21,7 @@ export const updateContest = createAsyncThunk(
   "contest/updateContest",
   async ({ contest_id, data }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${API}/contest/${contest_id}/edit`, data);
+      const res = await axios.post(`${SERVER_URL}/contest/${contest_id}/edit`, data);
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Update failed");
@@ -34,7 +34,7 @@ export const addContestProblem = createAsyncThunk(
   "contest/addProblem",
   async ({ contest_id, problem_id }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${API}/contest/${contest_id}/problems`, {
+      const res = await axios.post(`${SERVER_URL}/contest/${contest_id}/problems`, {
         problem_id,
       });
       return res.data.data;
@@ -49,7 +49,7 @@ export const removeContestProblem = createAsyncThunk(
   "contest/removeProblem",
   async ({ contest_id, problem_id }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API}/contest/${contest_id}/problem/${problem_id}`);
+      await axios.delete(`${SERVER_URL}/contest/${contest_id}/problem/${problem_id}`);
       return { contest_id, problem_id };
     } catch (err) {
       return rejectWithValue(
@@ -66,7 +66,7 @@ export const deleteContest = createAsyncThunk(
   "contest/deleteContest",
   async (contest_id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API}/contest/${contest_id}`);
+      await axios.delete(`${SERVER_URL}/contest/${contest_id}`);
       return contest_id;
     } catch (err) {
       return rejectWithValue(

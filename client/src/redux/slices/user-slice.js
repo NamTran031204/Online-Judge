@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "axios";
 import { User } from "../../types/user";
+import { SERVER_URL } from "../../config/config.js";
 
-const BASE_URL = "http://localhost:3001/api/v1";
 
 const initialState = {
   user: null,
@@ -16,7 +16,7 @@ export const loginUser = createAsyncThunk(
   "user/loginUser",
   async ({ user_name, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/login`,
+      const res = await axios.post(`${SERVER_URL}/auth/login`,
         { user_name, password }
       );
 
@@ -36,7 +36,7 @@ export const registerUser = createAsyncThunk(
   "user/registerUser",
   async ({ user_name, email, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/register`,
+      const res = await axios.post(`${SERVER_URL}/auth/register`,
         { user_name, email, password }
       );
 
@@ -51,14 +51,12 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-/* 
-   REFRESH-TOKEN
- */
+/*  REFRESH-TOKEN */
 export const refreshToken = createAsyncThunk(
   "user/refreshToken",
   async ({ refresh_token }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/refresh`,
+      const res = await axios.post(`${SERVER_URL}/auth/refresh`,
         { refresh_token }
       );
 
@@ -77,7 +75,7 @@ export const refreshToken = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
   "user/logout",
   async () => {
-    await axios.post(`${BASE_URL}/auth/logout`);
+    await axios.post(`${SERVER_URL}/auth/logout`);
   }
 );
 
