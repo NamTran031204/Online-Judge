@@ -49,7 +49,7 @@ export default function GroupList() {
 
   useEffect(() => {
     dispatch(searchGroups({ search, page, size: limit }));
-  }, [search, page]);
+  }, [dispatch, search, page]);
 
   const groupsToDisplay = fetchedGroups.length > 0 || loading 
     ? fetchedGroups 
@@ -89,7 +89,7 @@ export default function GroupList() {
             <th>ID</th>
             <th>Name</th>
             <th>Owner</th>
-            <th>Actions</th>
+            <th style={{ textAlign: "right" }}>Actions</th> 
           </tr>
         </thead>
 
@@ -101,18 +101,18 @@ export default function GroupList() {
               <td>{g.owner_id}</td>
               <td className="action-cell"> 
                 <Link to={`/group/${g.group_id}`}>
-                  <button className="primary-btn small">View</button>
+                  <button className="primary-btn small-btn">View</button>
                 </Link>
                 
                 <button 
-                    className="primary-btn small" 
+                    className="success-btn small-btn" 
                     onClick={() => openInviteModal(g)}
                 >
                     Invite
                 </button>
                 
                 <button 
-                    className="primary-btn small" 
+                    className="success-btn small-btn"
                     onClick={() => openInvitationsModal(g)}
                 >
                     Invitations
@@ -129,7 +129,6 @@ export default function GroupList() {
         </tbody>
       </table>
 
-      {/* Action + Pagination */}
       <div className="group-list-action-btn-box">
         {groupsToDisplay.length > 0 && (
           <div className="group-pagination-box">
