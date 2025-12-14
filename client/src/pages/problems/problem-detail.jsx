@@ -34,7 +34,7 @@ export default function ProblemDetail() {
 
   return (
     <div className="problem-container">
-      <h2>
+      <h2 className="problem-title">
         {p.problem_id}. {p.title}
       </h2>
 
@@ -49,7 +49,7 @@ export default function ProblemDetail() {
         <span className="rating">Rating: {p.rating}</span>
       </div>
 
-      {/* ------------------ PROBLEM DESCRIPTION ------------------ */}
+      {/*  PROBLEM DESCRIPTION  */}
       <div className="problem-card">
         <h3>Description</h3>
         <pre className="statement">{p.description}</pre>
@@ -82,7 +82,7 @@ export default function ProblemDetail() {
         <pre className="statement">{p.tutorial}</pre>
       </div>
 
-      {/* ------------------ CODE EDITOR SECTION ------------------ */}
+      {/*  CODE EDITOR SECTION  */}
       <div className="editor-section">
         <h3>Write Your Solution</h3>
 
@@ -99,13 +99,13 @@ export default function ProblemDetail() {
           placeholder="// Write your code here..."
         ></textarea>
 
-        <div className="editor-btn-row">
-          <button className="run-problem-btn" onClick={handleRun}>Run</button>
-          <button className="submit-problem-btn">Submit</button>
+        <div className="action-cell">
+          <button className="view-btn" onClick={handleRun}>Run</button>
+          <button className="create-btn">Submit</button>
         </div>
       </div>
 
-      {/* ------------------ RUN RESULT SECTION ------------------ */}
+      {/*  RUN RESULT SECTION  */}
       {runResult && (
         <div className="run-result">
           <h3>Run Result</h3>

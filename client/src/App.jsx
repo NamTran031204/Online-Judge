@@ -16,6 +16,7 @@ import ContestForm from "./pages/contest/contest-form";
 import ProblemList from "./pages/problems/problem-list";
 import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
+import ProblemForm from "./pages/problems/problem-form";
 // import Dashboard from "./pages/Dashboard";
 
 function App() {
@@ -70,6 +71,8 @@ function App() {
            {/* PROBLEMS */}
           <Route path="/problems" element={<ProblemList />} />
           <Route path="/problem/:problem_id" element={<ProblemDetail />} />
+          <Route path="/problems/create" element={<ProblemForm />} />
+          <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} />
           
           {/* PROBLEMS */}
           <Route path="/profile" element={<Profile />} />

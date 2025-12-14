@@ -1,6 +1,4 @@
-/* ============================================
-   GLOBAL LAYOUT
-============================================ */
+/* GLOBAL LAYOUT */
 .problem-container {
   max-width: 1200px;
   margin: 40px auto;
@@ -12,22 +10,12 @@
   color: #222;
 }
 
-.problem-container h2 {
+.problem-title {
   margin-bottom: 10px;
   font-weight: 600;
 }
 
-.problem-table td,
-.problem-table th {
-  text-align: left;
-  vertical-align: middle;
-  padding: 10px 14px;
-}
-
-
-/* ============================================
-   TAGS & RATING
-============================================ */
+/* TAGS & RATING */
 .problem-info {
   display: flex;
   justify-content: space-between;
@@ -59,9 +47,7 @@
   border: 1px solid #ffe0b2;
 }
 
-/* ============================================
-   PROBLEM CARD
-============================================ */
+/*  PROBLEM CARD */
 .problem-card {
   margin-top: 20px;
   padding: 20px;
@@ -86,9 +72,7 @@
   line-height: 1.5;
 }
 
-/* ============================================
-   SAMPLE / TEST CASE
-============================================ */
+/* SAMPLE / TEST CASE */
 .example-box {
   margin-top: 12px;
   padding: 12px;
@@ -111,9 +95,7 @@
   border: 1px solid #d0d8ff;
 }
 
-/* ============================================
-   CODE EDITOR
-============================================ */
+/* CODE EDITOR */
 .editor-section {
   margin-top: 35px;
 }
@@ -154,47 +136,7 @@
   outline: none;
 }
 
-/* ============================================
-   BUTTONS
-============================================ */
-.editor-btn-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.run-problem-btn,
-.submit-problem-btn {
-  padding: 10px 20px;
-  font-size: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.run-problem-btn {
-  background: #428bff;
-  color: white;
-}
-
-.run-problem-btn:hover {
-  background: #2c76ff;
-}
-
-.submit-problem-btn {
-  background: #21c36f;
-  color: white;
-}
-
-.submit-problem-btn:hover {
-  background: #1ea85e;
-}
-
-/* ============================================
-   RUN RESULT BOX
-============================================ */
+/* RUN RESULT BOX */
 .run-result {
   margin-top: 25px;
   padding: 18px;
@@ -230,9 +172,7 @@
   font-weight: 700;
 }
 
-/* ============================================
-   DELETE BUTTON (TOP RIGHT)
-============================================ */
+/* DELETE BUTTON (TOP RIGHT) */
 .delete-btn {
   background: #ff4d4d;
   border: none;
@@ -248,9 +188,7 @@
   background: #e63939;
 }
 
-/* ============================================
-   PROBLEM LIST PAGE
-============================================ */
+/* PROBLEM LIST PAGE */
 .problem-table {
   width: 100%;
   border-collapse: collapse;
@@ -300,30 +238,143 @@
   font-size: 12px;
 }
 
-/* Pagination */
-.pagination-box {
-  margin-top: 20px;
-  display: flex;
-  gap: 8px;
+/* 
+   PROBLEM FORM
+ */
+
+.problem-card {
+  margin-top: 24px;
+  padding: 24px 28px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
 }
 
-.page-btn {
-  padding: 8px 14px;
+.problem-card h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* FORM ELEMENTS */
+
+.problem-card label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.problem-card input,
+.problem-card textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
   border-radius: 6px;
   border: 1px solid #bbb;
   background: #fff;
-  cursor: pointer;
-  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+      color: #111;
 }
 
-.page-btn.active {
+.problem-card textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.problem-card input:focus,
+.problem-card textarea:focus {
+  outline: none;
+  border-color: #2c76ff;
+  box-shadow: 0 0 0 2px rgba(44, 118, 255, 0.15);
+}
+
+/*   SAMPLE TEST BOX */
+
+.problem-card h3 {
+  margin-top: 26px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.example-box {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f9fbff;
+  border-radius: 6px;
+  border: 1px solid #dce6ff;
+  border-left: 4px solid #2c76ff;
+}
+
+.example-box label {
+  margin-top: 0;
+  font-size: 13px;
+  color: #444;
+}
+
+.example-box textarea {
+  background: #ffffff;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* ADD / REMOVE BUTTONS */
+
+.problem-card button[type="button"] {
+  margin-top: 10px;
+  background: #eef3ff;
+  border: 1px solid #cfe0ff;
+  color: #2c76ff;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.problem-card button[type="button"]:hover {
+  background: #e1e9ff;
+}
+
+.delete-btn {
+  margin-top: 8px;
+  background: #ffecec !important;
+  border: 1px solid #ffb3b3 !important;
+  color: #d63031 !important;
+}
+
+.delete-btn:hover {
+  background: #ffd6d6 !important;
+}
+
+/*   SUBMIT BUTTON */
+
+.submit-problem-btn {
+  margin-top: 22px;
   background: #2c76ff;
   color: white;
-  border-color: #2c76ff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.page-btn.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-  color: #111;
+.submit-problem-btn:hover {
+  background: #1f5fd6;
+}
+
+/*   RESPONSIVE */
+
+@media (max-width: 768px) {
+  .problem-card {
+    padding: 20px;
+  }
 }

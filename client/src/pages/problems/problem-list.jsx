@@ -27,7 +27,7 @@ export default function ProblemList() {
 
   return (
     <div className="problem-container">
-      <h2>Problem Set</h2>
+      <h2 className="problem-title">Problem Set</h2>
 
       {/* Search Box */}
       <div className="search-box">
@@ -43,12 +43,11 @@ export default function ProblemList() {
       </div>
 
       {/* Table */}
-      <table className="problem-table">
+      <table className="list-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Title</th>
-            {/* <th>Difficulty</th> */}
             <th>Tags</th>
             <th></th>
           </tr>
@@ -66,9 +65,6 @@ export default function ProblemList() {
               <tr key={p.problem_id}>
                 <td>{p.problem_id}</td>
                 <td>{p.title}</td>
-                {/* <td className={`tag-${p.difficulty?.toLowerCase()}`}>
-                  {p.difficulty}
-                </td> */}
                 <td>
                   {p.tags?.map((t) => (
                     <span key={t} className="problem-tag">
@@ -76,8 +72,14 @@ export default function ProblemList() {
                     </span>
                   ))}
                 </td>
-                <td>
-                  <Link to={`/problem/${p.problem_id}`}>Solve →</Link>
+                <td className="action-cell">
+                  <Link to={`/problem/${p.problem_id}`}>
+                    <button className="view-btn">Solve</button>
+                  </Link>
+
+                  <Link to={`/problem/edit/${p.problem_id}`}>
+                    <button className="edit-btn">Edit</button>
+                  </Link>
                 </td>
               </tr>
             ))
@@ -85,31 +87,37 @@ export default function ProblemList() {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="pagination-box">
-        <button
-          className={`page-btn ${page === 1 ? "disabled" : ""}`}
-          onClick={() => page > 1 && setPage(page - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({ length: totalPages }, (_, i) => (
+      <div className="list-table-btn-box">
+        {/* Pagination */}
+        <div className="pagination-box">
           <button
-            key={i}
-            className={`page-btn ${page === i + 1 ? "active" : ""}`}
-            onClick={() => setPage(i + 1)}
+            className={`page-btn ${page === 1 ? "disabled" : ""}`}
+            onClick={() => page > 1 && setPage(page - 1)}
           >
-            {i + 1}
+            Prev
           </button>
-        ))}
 
-        <button
-          className={`page-btn ${page === totalPages ? "disabled" : ""}`}
-          onClick={() => page < totalPages && setPage(page + 1)}
-        >
-          Next
-        </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              className={`page-btn ${page === i + 1 ? "active" : ""}`}
+              onClick={() => setPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            className={`page-btn ${page === totalPages ? "disabled" : ""}`}
+            onClick={() => page < totalPages && setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+
+        <Link to="/problems/create">
+          <button className="create-btn">Create Problem</button>
+        </Link>
       </div>
     </div>
   );
