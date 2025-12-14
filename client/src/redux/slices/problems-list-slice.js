@@ -4,18 +4,16 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3001/api/v1";
 
-// ----------------------------
 //  SEARCH PROBLEMS (filter + paging)
-// ----------------------------
 export const searchProblems = createAsyncThunk(
   "problemsList/searchProblems",
-  async ({ search = "", page = 1, size = 10 }, { rejectWithValue }) => {
+  async ({ filter = {}, page = 1, size = 10 }, { rejectWithValue }) => {
     try {
       const body = {
         maxResultCount: size,
         skipCount: (page - 1) * size,
         sorting: "created_at desc",
-        filter: search,
+        filter,
       };
 
       const res = await axios.post(`${BASE_URL}/problems/search`, body);
@@ -27,9 +25,7 @@ export const searchProblems = createAsyncThunk(
 );
 
 
-// ----------------------------
 //  SEARCH PROBLEMS BY KEYWORD
-// ----------------------------
 export const searchProblemsByText = createAsyncThunk(
   "problemsList/searchText",
   async ({ page = 1, size = 10, keyword = "" }, { rejectWithValue }) => {
@@ -48,10 +44,36 @@ export const searchProblemsByText = createAsyncThunk(
   }
 );
 
+// GET PROBLEMS BY CONTEST
+export const getProblemsByContest = createAsyncThunk(
+  "problemsList/byContest",
+  async (
+    { contest_id, page = 1, size = 10 },
+    { rejectWithValue }
+  ) => {
+    try {
+      const body = {
+        maxResultCount: size,
+        skipCount: (page - 1) * size,
+        filter: { contest_id },
+      };
 
-// ----------------------------
+      const res = await axios.post(
+        `${BASE_URL}/problems/by-contest`,
+        body
+      );
+
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Cannot load problems by contest"
+      );
+    }
+  }
+);
+
+
 //  CREATE NEW PROBLEM
-// ----------------------------
 export const createProblem = createAsyncThunk(
   "problemsList/createProblem",
   async (body, { rejectWithValue }) => {
@@ -77,7 +99,7 @@ const problemsListSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // -------- SEARCH PROBLEMS --------
+      // SEARCH PROBLEMS
       .addCase(searchProblems.pending, (state) => {
         state.loading = true;
       })
@@ -92,7 +114,7 @@ const problemsListSlice = createSlice({
         state.error = action.payload;
       })
 
-      // -------- SEARCH TEXT --------
+      // SEARCH TEXT
       .addCase(searchProblemsByText.pending, (state) => {
         state.loading = true;
       })
@@ -106,20 +128,34 @@ const problemsListSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // PROBLEMS BY CONTEST
+      .addCase(getProblemsByContest.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getProblemsByContest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.problems = action.payload.data.data || [];
+        state.totalItems = action.payload.data.totalCount;
+        state.error = null;
+      })
+      .addCase(getProblemsByContest.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-      // -------- CREATE PROBLEM --------
+      // CREATE PROBLEM
       .addCase(createProblem.pending, (state) => {
         state.loading = true;
       })
-      .addCase(createProblem.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(createProblem.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  },
+    .addCase(createProblem.fulfilled, (state, action) => {
+      state.loading = false;
+      state.error = null;
+    })
+    .addCase(createProblem.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+},
 });
 
 export default problemsListSlice.reducer;

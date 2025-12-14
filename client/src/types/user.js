@@ -9,3 +9,15 @@ export class User {
     // this.scope = scope
   }
 }
+
+export const ROLE = {
+  ADMIN: "admin",
+  PRO_USER: "pro_user",
+  USER: "user",
+};
+
+export const PERMISSION = {
+  PROBLEM_CREATE: "problem:create",
+  PROBLEM_EDIT: "problem:edit",
+  CONTEST_CREATE: "contest:create",
+};

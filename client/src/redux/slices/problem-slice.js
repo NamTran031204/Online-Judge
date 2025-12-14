@@ -4,9 +4,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3001/api/v1";
 
-// ----------------------------
 //  GET PROBLEM DETAIL
-// ----------------------------
 export const getProblemDetail = createAsyncThunk(
   "problem/getDetail",
   async (problem_id, { rejectWithValue }) => {
@@ -19,9 +17,7 @@ export const getProblemDetail = createAsyncThunk(
   }
 );
 
-// ----------------------------
 //  UPDATE PROBLEM
-// ----------------------------
 export const updateProblem = createAsyncThunk(
   "problem/update",
   async ({ problem_id, body }, { rejectWithValue }) => {
@@ -37,9 +33,7 @@ export const updateProblem = createAsyncThunk(
   }
 );
 
-// ----------------------------
 //  DELETE PROBLEM
-// ----------------------------
 export const deleteProblem = createAsyncThunk(
   "problem/delete",
   async (problem_id, { rejectWithValue }) => {
@@ -71,7 +65,7 @@ const problemSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // ---------------- DETAIL ----------------
+      // DETAIL
       .addCase(getProblemDetail.pending, (state) => {
         state.loading = true;
         state.problem = null;
@@ -86,7 +80,7 @@ const problemSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ---------------- UPDATE ----------------
+      // UPDATE
       .addCase(updateProblem.pending, (state) => {
         state.loading = true;
       })
@@ -100,7 +94,7 @@ const problemSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ---------------- DELETE ----------------
+      // DELETE
       .addCase(deleteProblem.pending, (state) => {
         state.loading = true;
       })
