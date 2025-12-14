@@ -57,10 +57,13 @@ export default function SubmissionList() {
   };
 
   return (
-    <div className="submission-container">
-      <h2>Submissions</h2>
+    <div className="submission-container list-full-width">
+      
+      <div className="list-header-actions">
+        <h2>Submissions</h2>
+      </div>
 
-      <div className="search-box">
+      <div className="list-filter-actions"> 
         <select
           value={status}
           onChange={(e) => {
@@ -72,6 +75,12 @@ export default function SubmissionList() {
           <option value="PENDING">PENDING</option>
           <option value="DONE">DONE</option>
         </select>
+        
+        <Link to="/submission/create">
+          <button className="primary-btn">
+            Create Submission
+          </button>
+        </Link>
       </div>
 
       <table className="submission-table">
@@ -85,9 +94,8 @@ export default function SubmissionList() {
             <th width="160px">Actions</th>
           </tr>
         </thead>
-
         <tbody>
-          {loading && (
+           {loading && (
             <tr>
               <td colSpan="6" style={{ textAlign: "center" }}>
                 Loading...
@@ -133,13 +141,7 @@ export default function SubmissionList() {
         </tbody>
       </table>
 
-      <div className="list-action-btn-box">
-        <Link to="/submission/create">
-          <button className="primary-btn">
-            Create Submission
-          </button>
-        </Link>
-
+      <div className="list-action-btn-box justify-end"> 
         {totalPages > 1 && (
           <div className="list-pagination-box">
             <button

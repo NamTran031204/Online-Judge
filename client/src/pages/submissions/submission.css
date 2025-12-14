@@ -1,6 +1,10 @@
 /* ============================
-  SUBMISSION LIST
+   SUBMISSION LIST
 =============================== */
+
+.submission-container.list-full-width {
+  max-width: none; 
+}
 
 .submission-container {
   width: 100%;
@@ -10,28 +14,38 @@
   background-color: #ffffff;
 }
 
+.list-header-actions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .submission-container h2 {
-  margin-bottom: 20px;
+  margin: 0;
   font-size: 24px;
   color: #1f2937;
 }
 
-.search-box {
+.list-filter-actions {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
   margin-bottom: 20px;
-  display: flex;
-  max-width: 400px;
 }
 
-.search-box input {
-  width: 100%;
-  padding: 10px 15px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+.list-filter-actions select {
+    max-width: 250px;
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white; 
+    color: #374151
 }
 
-.search-box input:focus {
+.list-filter-actions select:focus {
   border-color: #4338ca;
   outline: none;
   box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
@@ -103,7 +117,7 @@
 
 .list-action-btn-box {
   display: flex; 
-  justify-content: space-between; 
+  justify-content: flex-end;
   align-items: center;
   margin-top: 20px;
 }
@@ -135,15 +149,6 @@
   cursor: not-allowed;
 }
 
-.delete-btn:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-}
-
-.delete-btn:active {
-  background: #b91c1c;
-  transform: translateY(0);
-}
 
 /* ============================
    SUBMISSION DETAIL
@@ -176,37 +181,97 @@
 /* ============================
    SUBMISSION CREATE
 =============================== */
-.submission-create {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
+.submission-container.submission-form-view {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    box-shadow: none; 
+    border-radius: none;
+    background: none;
 }
 
-.submission-container {
-  padding: 24px;
+
+.submission-form {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  background: none;
+  border: none;
 }
 
-.input {
-  margin-bottom: 16px;
-}
-
-.code-editor {
+.submission-form h2 {
   margin-bottom: 20px;
-  font-family: monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
 }
 
-.code-editor textarea {
-  font-family: "Fira Code", monospace;
+.submission-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 18px;
+  display: block;
+  color: #555;
+}
+
+.submission-form input,
+.submission-form select,
+.submission-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 15px;
+  background: #f9f9f9;
+  color: #000000;
+  transition: border-color 0.2s;
+}
+
+.submission-form input:focus,
+.submission-form select:focus,
+.submission-form textarea:focus {
+    border-color: #428bff;
+    outline: none;
+    box-shadow: 0 0 0 1px #428bff;
+}
+
+.submission-form textarea {
+  min-height: 300px;
+  resize: vertical;
+  font-family: "Fira Code", monospace, Consolas, "Courier New", Courier;
   font-size: 14px;
   line-height: 1.5;
 }
 
-.btn-row {
-  display: flex;
-  gap: 12px;
+.submission-form button {
+  margin-top: 30px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1976d2;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.alert {
+.submission-form button:hover:not(:disabled) {
+    background-color: #1565c0;
+}
+
+.submission-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.gc-error {
   margin-bottom: 16px;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #ffe0e0;
+  color: #cc0000;
+  font-size: 14px;
+  border: 1px solid #cc0000;
 }
-

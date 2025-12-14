@@ -54,14 +54,19 @@ const submissionsListSlice = createSlice({
     detail: null,
     loading: false,
     error: null,
+    createError: null,
   },
 
   reducers: {
+    clearCreateError: (state) => {
+        state.createError = null;
+    },
     clearSubmissions: (state) => {
       state.items = [];
       state.totalItems = 0;
       state.detail = null;
       state.error = null;
+      state.createError = null;
     },
   },
 
@@ -70,10 +75,11 @@ const submissionsListSlice = createSlice({
       /* ================= CREATE ================= */
       .addCase(createSubmission.pending, (state) => {
         state.loading = true;
+        state.createError = null;
       })
       .addCase(createSubmission.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
+        state.createError = null;
 
         if (action.payload) {
           state.items.unshift(action.payload);
@@ -82,7 +88,7 @@ const submissionsListSlice = createSlice({
       })
       .addCase(createSubmission.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.createError = action.payload; 
       })
 
       /* ================= SEARCH ================= */
@@ -97,10 +103,11 @@ const submissionsListSlice = createSlice({
       })
       .addCase(searchSubmissions.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload; 
       });
   },
 });
 
-export const { clearSubmissions } = submissionsListSlice.actions;
+// export action mới
+export const { clearSubmissions, clearCreateError } = submissionsListSlice.actions;
 export default submissionsListSlice.reducer;
