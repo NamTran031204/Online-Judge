@@ -177,7 +177,9 @@
    SUBMISSION CREATE
 =============================== */
 .submission-create {
-  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
 .submission-container {
@@ -189,16 +191,22 @@
 }
 
 .code-editor {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   font-family: monospace;
+}
+
+.code-editor textarea {
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .btn-row {
   display: flex;
   gap: 12px;
-  align-items: center;
 }
 
 .alert {
   margin-bottom: 16px;
 }
+

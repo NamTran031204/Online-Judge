@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createSubmission } from "../../redux/slices/submissions-list-slice";
-import { Box, Paper, Typography, TextField, Button, MenuItem, CircularProgress, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material"; 
 import { useNavigate } from "react-router-dom";
-import "./submission.css";
+import "./submission.css"; 
 
 const LANGS = [
-  { value: "cpp", label: "C++ (g++)" },
-  { value: "c", label: "C (gcc)" },
+  { value: "cpp", label: "C++" },
+  { value: "c", label: "C" },
   { value: "py", label: "Python 3" },
   { value: "java", label: "Java" },
 ];
@@ -21,15 +28,9 @@ export default function SubmissionCreate() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, success } = useSelector((state) => state.submissions);
+  const { loading, error } = useSelector((state) => state.submissionList);
 
-  useEffect(() => {
-    if (success?.submission_id) {
-      navigate(`/submission/${success.submission_id}`);
-    }
-  }, [success]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
@@ -38,79 +39,82 @@ export default function SubmissionCreate() {
       source_code: sourceCode,
     };
 
-    if (contestId.trim()) payload.contest_id = contestId.trim();
+    if (contestId.trim()) {
+      payload.contest_id = contestId.trim();
+    }
 
-    dispatch(createSubmission(payload));
-  };
-
-  const handleReset = () => {
-    setProblemId("");
-    setContestId("");
-    setSourceCode("");
-
-    dispatch(resetSubmissionState());
+    try {
+      const submission = await dispatch(createSubmission(payload)).unwrap();
+      navigate(`/submissions/${submission.submission_id}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <Box className="submission-create">
-      <Typography variant="h5" mb={2}>Create Submission</Typography>
+    <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}> 
+      <Typography variant="h4" gutterBottom sx={{ mb: 4 }}> 
+        Create Submission
+      </Typography>
 
-      <Paper className="submission-container">
-        {error && <Alert severity="error" className="alert">{error}</Alert>}
-        {success && <Alert severity="success" className="alert">Tạo submission thành công!</Alert>}
+      <form onSubmit={handleSubmit}>
+        <TextField
+          label="Problem ID"
+          value={problemId}
+          onChange={(e) => setProblemId(e.target.value)}
+          fullWidth
+          required
+          sx={{ mb: 3 }} 
+        />
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Problem ID"
-            value={problemId}
-            onChange={(e) => setProblemId(e.target.value)}
-            fullWidth
-            required
-            className="input"
-          />
+        {/* Contest ID */}
+        <TextField
+          label="Contest ID (optional)"
+          value={contestId}
+          onChange={(e) => setContestId(e.target.value)}
+          fullWidth
+          sx={{ mb: 3 }}
+        />
 
-          <TextField
-            label="Contest ID (optional)"
-            value={contestId}
-            onChange={(e) => setContestId(e.target.value)}
-            fullWidth
-            className="input"
-          />
+        {/* Language */}
+        <TextField
+          select
+          label="Language"
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          fullWidth
+          sx={{ mb: 3 }}
+        >
+          {LANGS.map((l) => (
+            <MenuItem key={l.value} value={l.value}>
+              {l.label}
+            </MenuItem>
+          ))}
+        </TextField>
 
-          <TextField
-            select
-            label="Language"
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-            fullWidth
-            className="input"
-          >
-            {LANGS.map((l) => (
-              <MenuItem key={l.value} value={l.value}>{l.label}</MenuItem>
-            ))}
-          </TextField>
+        {/* Source Code */}
+        <TextField
+          label="Source Code"
+          value={sourceCode}
+          onChange={(e) => setSourceCode(e.target.value)}
+          fullWidth
+          multiline
+          minRows={12}
+          required
+          sx={{ mb: 4 }}
+        />
 
-          <TextField
-            label="Source Code"
-            value={sourceCode}
-            onChange={(e) => setSourceCode(e.target.value)}
-            fullWidth
-            multiline
-            minRows={12}
-            className="code-editor"
-          />
-
-          <Box className="btn-row">
-            <Button type="submit" variant="contained" disabled={loading}>
-              {loading ? <CircularProgress size={20} /> : "Submit"}
-            </Button>
-
-            <Button variant="outlined" onClick={handleReset}>
-              Reset
-            </Button>
-          </Box>
-        </form>
-      </Paper>
+        <Button 
+          type="submit" 
+          variant="contained" 
+          disabled={loading}
+          fullWidth
+          size="large"
+          sx={{ py: 1.5 }}
+        >
+          {loading ? <CircularProgress size={20} color="inherit" /> : "Create Submission"}
+        </Button>
+      </form>
     </Box>
   );
 }

@@ -4,6 +4,7 @@ import { Box, Paper, Typography, CircularProgress } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getSubmissionDetail,
+  clearSubmissionDetail,
 } from "../../redux/slices/submission-slice";
 import "./submission.css";
 
@@ -11,38 +12,57 @@ export default function SubmissionDetail() {
   const { submission_id } = useParams();
   const dispatch = useDispatch();
 
-  const { data, loading } = useSelector((state) => state.submissionDetail);
+  const { detail, loading, error } = useSelector(
+    (state) => state.submission
+  );
 
   useEffect(() => {
-    dispatch(getSubmissionDetail(submission_id));
+    if (submission_id) {
+      dispatch(getSubmissionDetail(submission_id));
+    }
+
+    return () => {
+      dispatch(clearSubmissionDetail());
+    };
   }, [submission_id, dispatch]);
 
-  if (loading || !data)
+  if (loading)
     return (
       <Box textAlign="center" mt={4}>
         <CircularProgress />
       </Box>
     );
 
+  if (error)
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+
+  if (!detail) return null;
+
   return (
     <Box className="submission-detail-container">
       <Typography variant="h5" mb={2}>
-        Submission #{data.submission_id}
+        Submission #{detail.submission_id}
       </Typography>
 
       <Paper className="submission-detail-info">
-        <Typography><b>User:</b> {data.user_id}</Typography>
-        <Typography><b>Problem:</b> {data.problem_id}</Typography>
-        <Typography><b>Status:</b> {data.status}</Typography>
-        <Typography><b>Result:</b> {data.result}</Typography>
-        <Typography><b>Time:</b> {data.created_at}</Typography>
+        <Typography><b>User:</b> {detail.user_id}</Typography>
+        <Typography><b>Problem:</b> {detail.problem_id}</Typography>
+        <Typography><b>Status:</b> {detail.status}</Typography>
+        <Typography><b>Result:</b> {detail.result}</Typography>
+        <Typography><b>Time:</b> {detail.created_at}</Typography>
       </Paper>
 
-      {data.source_code && (
+      {detail.source_code && (
         <>
-          <Typography variant="h6" mb={1}>Source Code</Typography>
+          <Typography variant="h6" mt={2} mb={1}>
+            Source Code
+          </Typography>
           <Paper className="source-code-box">
-            <pre>{data.source_code}</pre>
+            <pre>{detail.source_code}</pre>
           </Paper>
         </>
       )}
