@@ -1,0 +1,78 @@
+.header {
+  position: fixed;       
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99; 
+  
+  height: 70px;
+  background: rgb(255, 255, 255);
+  color: rgb(167, 40, 40);
+  padding: 0 24px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: rgb(220, 47, 47);
+  text-decoration: none;
+}
+
+.header-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.menu-toggle {
+  cursor: pointer;
+}
+
+.menu-icon {
+  width: 26px;
+}
+
+.notification-icon {
+  font-size: 20px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.user-avatar .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+/* Buttons */
+.btn-login,
+.btn-register {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: rgb(98, 212, 241);
+  color: #060b1b;
+  transition: 0.2s;
+}
+
+.btn-register {
+  /* border: 2px solid rgb(159, 94, 94); */
+  background: #af2222;
+  color: rgb(255, 255, 255);
+}
+
+.btn-login:hover {
+  background: #eef2ff;
+}
+
+.btn-register:hover {
+  background: rgb(101, 47, 47);
+}

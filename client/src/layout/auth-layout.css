@@ -1,0 +1,8 @@
+.auth-layout {
+  min-height: calc(100vh - 70px);
+  background: #eef2ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
