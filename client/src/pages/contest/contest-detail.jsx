@@ -9,6 +9,9 @@ import {
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "./contest.css";
 
+import { PERMISSION } from "../../types/user";
+import { hasPermission, hasAnyPermission, hasAllPermissions } from "../../utils/permission";
+
 export default function ContestDetail() {
   const { contest_id } = useParams();
   const dispatch = useDispatch();
@@ -44,28 +47,56 @@ export default function ContestDetail() {
   };
 
   return (
-    <div className="contest-container detail-card">
-      <h2>{detail.title}</h2>
+    <div className="contest-container">
+      <h2 className="contest-title">{detail.title}</h2>
 
-      <p><b>Type:</b> {detail.contest_type}</p>
-      <p><b>Start:</b> {detail.start_time}</p>
-      <p><b>Duration:</b> {detail.duration} minutes</p>
-      <p><b>Description:</b> {detail.description}</p>
+      <p className="contest-info"><b>Type:</b> {detail.contest_type}</p>
+      <p className="contest-info"><b>Start:</b> {detail.start_time}</p>
+      <p className="contest-info"><b>Duration:</b> {detail.duration} minutes</p>
+      <p className="contest-info"><b>Description:</b> {detail.description}</p>
 
-      <h3>Problems</h3>
-      <ul>
-        {detail.problems.map((p) => (
-          <li key={p.problem_id}>
-            {p.problem_id}
-            <button
-              className="danger-btn small"
-              onClick={() => handleRemoveProblem(p.problem_id)}
-            >
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+      <p className="contest-problems-title">Problems</p>
+
+      <table className="list-table">
+        <thead>
+          <tr>
+            <th>Problem ID</th>
+            <th>Title</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {detail.problems.length === 0 && (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                No problems
+              </td>
+            </tr>
+          )}
+
+          {detail.problems.map((p) => (
+            <tr key={p.problem_id}>
+              <td>{p.problem_id}</td>
+              <td>{p.title}</td>
+              <td className="action-cell">
+                <Link to={`/problem/${p.problem_id}`}>
+                  <button className="view-btn">Solve</button>
+                </Link>
+
+                <button
+                  className="del-btn"
+                  onClick={() => handleRemoveProblem(p.problem_id)}
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+
 
       {/* Add Problem */}
       <div className="add-problem-box">
@@ -74,16 +105,16 @@ export default function ContestDetail() {
           value={newProblem}
           onChange={(e) => setNewProblem(e.target.value)}
         />
-        <button onClick={handleAddProblem}>Add Problem</button>
+        <button className="create-btn" onClick={handleAddProblem}>Add Problem</button>
       </div>
 
       {/* Edit + Delete */}
-      <div className="action-row">
+      <div className="action-cell">
         <Link to={`/contest/edit/${contest_id}`}>
-          <button>Edit Contest</button>
+          <button className="edit-btn">Edit Contest</button>
         </Link>
 
-        <button className="danger-btn" onClick={handleDelete}>
+        <button className="del-btn" onClick={handleDelete}>
           Delete Contest
         </button>
       </div>

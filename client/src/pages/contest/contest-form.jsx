@@ -50,7 +50,7 @@ export default function ContestForm() {
   return (
     <div className="contest-container">
       <form className="contest-form" onSubmit={submit}>
-        <h2>{editMode ? "Edit Contest" : "Create Contest"}</h2>
+        <h2 className="contest-title">{editMode ? "Edit Contest" : "Create Contest"}</h2>
 
         <label>Title</label>
         <input
@@ -97,7 +97,7 @@ export default function ContestForm() {
           <option value="PRIVATE">Private</option>
         </select>
 
-        <button type="submit">
+        <button className="create-btn" type="submit">
           {editMode ? "Update Contest" : "Create Contest"}
         </button>
       </form>

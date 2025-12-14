@@ -22,7 +22,7 @@ export default function ContestList() {
 
   return (
     <div className="contest-container">
-      <h2>Contest List</h2>
+      <h2 className="contest-title">Contest List</h2>
 
       <div className="search-box">
         <input
@@ -38,7 +38,7 @@ export default function ContestList() {
 
       {loading && <p>Loading...</p>}
 
-      <table className="contest-table">
+      <table className="list-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -58,7 +58,7 @@ export default function ContestList() {
               <td>{c.start_time}</td>
               <td>
                 <Link to={`/contest/${c.contest_id}`}>
-                  <button>View</button>
+                  <button className="view-btn">View</button>
                 </Link>
               </td>
             </tr>
@@ -66,40 +66,38 @@ export default function ContestList() {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="contest-list-action-btn-box">
-          <Link to="/contests/create">
-          <button className="primary-btn">Create Contest</button>
-        </Link>
-
+      <div className="list-table-btn-box">
         {/* Pagination */}
-      <div className="contest-pagination-box">
-        <button
-          className={`page-btn ${page === 1 ? "disabled" : ""}`}
-          onClick={() => page > 1 && setPage(page - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({ length: totalPages }, (_, i) => (
+        <div className="pagination-box">
           <button
-            key={i}
-            className={`page-btn ${page === i + 1 ? "active" : ""}`}
-            onClick={() => setPage(i + 1)}
+            className={`page-btn ${page === 1 ? "disabled" : ""}`}
+            onClick={() => page > 1 && setPage(page - 1)}
           >
-            {i + 1}
+            Prev
           </button>
-        ))}
 
-        <button
-          className={`page-btn ${page === totalPages ? "disabled" : ""}`}
-          onClick={() => page < totalPages && setPage(page + 1)}
-        >
-          Next
-        </button>
-      </div>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              className={`page-btn ${page === i + 1 ? "active" : ""}`}
+              onClick={() => setPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
 
-        
+          <button
+            className={`page-btn ${page === totalPages ? "disabled" : ""}`}
+            onClick={() => page < totalPages && setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+
+        {/* Create Contest Button */}
+        <Link to="/contests/create">
+          <button className="create-btn">Create Contest</button>
+        </Link>
       </div>
 
     </div>
