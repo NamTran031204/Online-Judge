@@ -3,76 +3,104 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3001/api/v1";
 
-// ================================
-// CREATE SUBMISSION
-// ================================
+/* ============================================================
+   CREATE SUBMISSION
+============================================================ */
 export const createSubmission = createAsyncThunk(
-  'submissions/createSubmission',
-  async (payload, { rejectWithValue }) => {
+  "submissions/create",
+  async (body, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/submissions`, payload);
-      return res.data;
+      const res = await axios.post(
+        `${BASE_URL}/submissions`,
+        body
+      );
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Create submission failed"
+      );
     }
   }
 );
 
-// ================================
-// SEARCH SUBMISSIONS
-// ================================
+/* ============================================================
+   SEARCH SUBMISSIONS
+============================================================ */
 export const searchSubmissions = createAsyncThunk(
-  'submissions/searchSubmissions',
-  async (payload, { rejectWithValue }) => {
+  "submissions/search",
+  async (filter, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/submissions/search`, payload);
-      return res.data;
+      const res = await axios.post(
+        `${BASE_URL}/submissions/search`,
+        filter
+      );
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Search submissions failed"
+      );
     }
   }
 );
 
-/* ================================
+/* ============================================================
    SLICE
- ================================ */
+============================================================ */
 const submissionsListSlice = createSlice({
-  name: 'submissions',
+  name: "submissions",
   initialState: {
-    items: [],
-    page: null,
+    items: ([]),
+    totalItems: 0,
     detail: null,
     loading: false,
     error: null,
   },
-  reducers: {},
-  extraReducers: (builder) => {
-    // CREATE
-    builder.addCase(createSubmission.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(createSubmission.fulfilled, (state) => {
-      state.loading = false;
-    });
-    builder.addCase(createSubmission.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
 
-    // SEARCH
-    builder.addCase(searchSubmissions.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(searchSubmissions.fulfilled, (state, action) => {
-      state.loading = false;
-      state.page = action.payload;
-      state.items = action.payload.items || [];
-    });
-    builder.addCase(searchSubmissions.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+  reducers: {
+    clearSubmissions: (state) => {
+      state.items = [];
+      state.totalItems = 0;
+      state.detail = null;
+      state.error = null;
     },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      /* ================= CREATE ================= */
+      .addCase(createSubmission.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createSubmission.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+
+        if (action.payload) {
+          state.items.unshift(action.payload);
+          state.totalItems += 1;
+        }
+      })
+      .addCase(createSubmission.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /* ================= SEARCH ================= */
+      .addCase(searchSubmissions.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(searchSubmissions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload?.data || [];
+        state.totalItems = action.payload?.totalCount || 0;
+        state.error = null;
+      })
+      .addCase(searchSubmissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
+export const { clearSubmissions } = submissionsListSlice.actions;
 export default submissionsListSlice.reducer;

@@ -3,108 +3,157 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:3001/api/v1";
 
-// ================================
-// GET SUBMISSION DETAIL
-// ================================
+/* ============================================================
+   GET SUBMISSION DETAIL
+============================================================ */
 export const getSubmissionDetail = createAsyncThunk(
-  'submissions/getSubmissionDetail',
-  async (submissionId, { rejectWithValue }) => {
+  "submission/detail",
+  async (submission_id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/submission/${submissionId}`);
-      return res.data;
+      const res = await axios.get(
+        `${BASE_URL}/submission/${submission_id}`
+      );
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Get submission detail failed"
+      );
     }
   }
 );
 
-// ================================
-// DELETE A SUBMISSION (ADMIN)
-// ================================
+/* ============================================================
+   DELETE ONE SUBMISSION (ADMIN)
+============================================================ */
 export const deleteSubmission = createAsyncThunk(
-  'submissions/deleteSubmission',
-  async (submissionId, { rejectWithValue }) => {
+  "submission/deleteOne",
+  async (submission_id, { rejectWithValue }) => {
     try {
-      const res = await axios.delete(`${BASE_URL}/submission/${submissionId}`);
-      return { submission_id: submissionId, ...res.data };
+      await axios.delete(
+        `${BASE_URL}/submission/${submission_id}`
+      );
+      return submission_id;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Delete submission failed"
+      );
     }
   }
 );
 
-// ================================
-// DELETE SUBMISSIONS BY PROBLEM (ADMIN)
-// ================================
+/* ============================================================
+   DELETE SUBMISSIONS BY PROBLEM (ADMIN)
+============================================================ */
 export const deleteSubmissionsByProblem = createAsyncThunk(
-  'submissions/deleteByProblem',
-  async (problemId, { rejectWithValue }) => {
+  "submission/deleteByProblem",
+  async (problem_id, { rejectWithValue }) => {
     try {
-      const res = await axios.delete(`${BASE_URL}/submission/by-problem/${problemId}`);
-      return { problem_id: problemId, ...res.data };
+      await axios.delete(
+        `${BASE_URL}/submission/by-problem/${problem_id}`
+      );
+      return problem_id;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Delete submissions by problem failed"
+      );
     }
   }
 );
 
-// ================================
-// DELETE SUBMISSIONS BY USER (ADMIN)
-// ================================
+/* ============================================================
+   DELETE SUBMISSIONS BY USER (ADMIN)
+============================================================ */
 export const deleteSubmissionsByUser = createAsyncThunk(
-  'submissions/deleteByUser',
-  async (userId, { rejectWithValue }) => {
+  "submission/deleteByUser",
+  async (user_id, { rejectWithValue }) => {
     try {
-      const res = await axios.delete(`${BASE_URL}/submission/by-user/${userId}`);
-      return { user_id: userId, ...res.data };
+      await axios.delete(
+        `${BASE_URL}/submission/by-user/${user_id}`
+      );
+      return user_id;
     } catch (err) {
-      return rejectWithValue(err.response?.data || 'Error');
+      return rejectWithValue(
+        err.response?.data?.message || "Delete submissions by user failed"
+      );
     }
   }
 );
 
-/* ================================
+/* ============================================================
    SLICE
- ================================ */
+============================================================ */
 const submissionSlice = createSlice({
-  name: 'submissions',
+  name: "submission",
   initialState: {
-    items: [],
-    page: null,
     detail: null,
     loading: false,
     error: null,
   },
-  reducers: {},
+
+  reducers: {
+    clearSubmissionDetail: (state) => {
+      state.detail = null;
+      state.error = null;
+    },
+  },
+
   extraReducers: (builder) => {
-    // DETAIL
-    builder.addCase(getSubmissionDetail.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(getSubmissionDetail.fulfilled, (state, action) => {
-      state.loading = false;
-      state.detail = action.payload;
-    });
-    builder.addCase(getSubmissionDetail.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+    builder
+      /* ================= DETAIL ================= */
+      .addCase(getSubmissionDetail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getSubmissionDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.detail = action.payload;
+        state.error = null;
+      })
+      .addCase(getSubmissionDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-    // DELETE ONE
-    builder.addCase(deleteSubmission.fulfilled, (state, action) => {
-      state.items = state.items.filter(s => s.submission_id !== action.payload.submission_id);
-    });
+      /* ================= DELETE ONE ================= */
+      .addCase(deleteSubmission.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteSubmission.fulfilled, (state) => {
+        state.loading = false;
+        state.detail = null;
+        state.error = null;
+      })
+      .addCase(deleteSubmission.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-    // DELETE BY PROBLEM
-    builder.addCase(deleteSubmissionsByProblem.fulfilled, (state) => {
-      // reload list nếu cần
-    });
+      /* ================= DELETE BY PROBLEM ================= */
+      .addCase(deleteSubmissionsByProblem.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteSubmissionsByProblem.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteSubmissionsByProblem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-    // DELETE BY USER
-    builder.addCase(deleteSubmissionsByUser.fulfilled, (state) => {
-      // reload list nếu cần
-    });
+      /* ================= DELETE BY USER ================= */
+      .addCase(deleteSubmissionsByUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteSubmissionsByUser.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteSubmissionsByUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
+export const { clearSubmissionDetail } = submissionSlice.actions;
 export default submissionSlice.reducer;
