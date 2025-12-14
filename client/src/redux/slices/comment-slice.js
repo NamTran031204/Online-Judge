@@ -1,8 +1,7 @@
 // commentsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* ============================================================
    DELETE COMMENT
@@ -11,7 +10,7 @@ export const deleteComment = createAsyncThunk(
   "comments/delete",
   async (comment_id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${BASE_URL}/comment/${comment_id}`);
+      await axios.delete(`${SERVER_URL}/comment/${comment_id}`);
       return comment_id;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Delete failed");

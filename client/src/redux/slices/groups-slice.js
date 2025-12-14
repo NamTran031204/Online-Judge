@@ -1,8 +1,7 @@
 // groupsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* ============================================================
    GET GROUP DETAIL
@@ -11,7 +10,7 @@ export const fetchGroupDetail = createAsyncThunk(
   "groups/detail",
   async (group_id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${BASE_URL}/group/${group_id}`);
+      const res = await axios.get(`${SERVER_URL}/group/${group_id}`);
       return res.data.data;        // GroupDetailDto
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Detail failed");
@@ -27,7 +26,7 @@ export const searchGroupMembers = createAsyncThunk(
   async ({ group_id, body }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/group/${group_id}/members/search`,
+        `${SERVER_URL}/group/${group_id}/members/search`,
         body
       );
       return res.data.data;        // PageResult<GroupMemberDto>
@@ -45,7 +44,7 @@ export const inviteGroupUser = createAsyncThunk(
   async ({ group_id, body }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/group/${group_id}/invite`,
+        `${SERVER_URL}/group/${group_id}/invite`,
         body
       );
       return res.data.data;        // GroupInvitationDto
@@ -63,7 +62,7 @@ export const searchGroupInvitations = createAsyncThunk(
   async ({ group_id, body }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/group/${group_id}/invitations/search`,
+        `${SERVER_URL}/group/${group_id}/invitations/search`,
         body
       );
       return res.data.data;        // PageResult<GroupInvitationDto>

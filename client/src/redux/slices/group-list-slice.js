@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* ============================================================
     CREATE GROUP
@@ -10,7 +9,7 @@ export const createGroup = createAsyncThunk(
   "groups/create",
   async (body, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/groups`, body);
+      const res = await axios.post(`${SERVER_URL}/groups`, body);
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Create failed");
@@ -25,7 +24,7 @@ export const searchGroups = createAsyncThunk(
   "groups/search",
   async (body, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/groups/search`, body);
+      const res = await axios.post(`${SERVER_URL}/groups/search`, body);
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Search failed");

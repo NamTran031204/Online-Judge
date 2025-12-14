@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* ============================================================
    SEARCH COMMENTS
@@ -11,7 +10,7 @@ export const searchComments = createAsyncThunk(
   async (filter, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/comments/search`,
+        `${SERVER_URL}/comments/search`,
         filter
       );
       return res.data.data; 
@@ -31,7 +30,7 @@ export const createComment = createAsyncThunk(
   async (body, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/comments`,
+        `${SERVER_URL}/comments`,
         body
       );
       return res.data.data; 

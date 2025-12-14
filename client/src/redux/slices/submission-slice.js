@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 /* ============================================================
    GET SUBMISSION DETAIL
@@ -11,7 +11,7 @@ export const getSubmissionDetail = createAsyncThunk(
   async (submission_id, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/submission/${submission_id}`
+        `${SERVER_URL}/submission/${submission_id}`
       );
       return res.data.data;
     } catch (err) {
@@ -30,7 +30,7 @@ export const deleteSubmission = createAsyncThunk(
   async (submission_id, { rejectWithValue }) => {
     try {
       await axios.delete(
-        `${BASE_URL}/submission/${submission_id}`
+        `${SERVER_URL}/submission/${submission_id}`
       );
       return submission_id;
     } catch (err) {
@@ -49,7 +49,7 @@ export const deleteSubmissionsByProblem = createAsyncThunk(
   async (problem_id, { rejectWithValue }) => {
     try {
       await axios.delete(
-        `${BASE_URL}/submission/by-problem/${problem_id}`
+        `${SERVER_URL}/submission/by-problem/${problem_id}`
       );
       return problem_id;
     } catch (err) {
@@ -68,7 +68,7 @@ export const deleteSubmissionsByUser = createAsyncThunk(
   async (user_id, { rejectWithValue }) => {
     try {
       await axios.delete(
-        `${BASE_URL}/submission/by-user/${user_id}`
+        `${SERVER_URL}/submission/by-user/${user_id}`
       );
       return user_id;
     } catch (err) {

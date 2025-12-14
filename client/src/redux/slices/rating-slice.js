@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3001/api/v1";
+import { SERVER_URL } from "../../config/config.js";
 
 export const fetchRatings = createAsyncThunk(
   "ratings/fetch",
@@ -13,7 +12,7 @@ export const fetchRatings = createAsyncThunk(
     };
 
     const res = await axios.post(
-      `${BASE_URL}/contest/${contest_id}/ratings/search`,
+      `${SERVER_URL}/contest/${contest_id}/ratings/search`,
       body
     );
 
