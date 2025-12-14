@@ -34,7 +34,12 @@
   font-size: 14px;
   background: #fff;
   color: #000;
-  margin-bottom: 12px;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #2c76ff;
+  box-shadow: 0 0 0 2px rgba(44, 118, 255, 0.15);
 }
 
 /* CONTEST TABLE */
@@ -140,19 +145,25 @@ button {
   border-radius: 6px;
   border: 1px solid #bbb;
   background: #fff;
+  color: #374151;
   cursor: pointer;
   font-weight: 500;
 }
 
 .page-btn.active {
-  background: #2c76ff;
+  background: #66CCFF;
   color: white;
-  border-color: #2c76ff;
+}
+
+.page-btn:hover {
+  background: #88CCFF;
+  color: white;
 }
 
 .page-btn.disabled {
   opacity: 0.5;
   pointer-events: none;
+  /* color: #aaa; */
 }
 
 /* Add problem input */

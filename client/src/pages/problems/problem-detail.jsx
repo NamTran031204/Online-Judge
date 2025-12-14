@@ -41,8 +41,8 @@ export default function ProblemDetail() {
       {/* Tags + Rating */}
       <div className="problem-info">
         <div className="tag-list">
-          {p.tags?.map((t, idx) => (
-            <span key={idx} className="tag">{t}</span>
+          {p.tags?.map((t) => (
+            <span key={t} className="tag">{t}</span>
           ))}
         </div>
 

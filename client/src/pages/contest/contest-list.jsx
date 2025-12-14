@@ -38,7 +38,7 @@ export default function ContestList() {
 
       {loading && <p>Loading...</p>}
 
-      <table className="list-table">
+      <table className="list-table contest-list">
         <thead>
           <tr>
             <th>ID</th>

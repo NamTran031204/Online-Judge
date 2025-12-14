@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchProblems } from "../../redux/slices/problems-list-slice";
+import { searchProblems, searchProblemsByText } from "../../redux/slices/problems-list-slice";
 import { Link } from "react-router-dom";
 import "./problems.css";
 
@@ -10,18 +10,58 @@ export default function ProblemList() {
     (state) => state.problemsList
   );
 
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");   // gõ
+  const [searchKeyword, setSearchKeyword] = useState(""); // đã search
+  const [isSearching, setIsSearching] = useState(false);
+
+  const [showFilter, setShowFilter] = useState(false);
+  const [authorId, setAuthorId] = useState("");
+  const [tags, setTags] = useState("");
+  const [draftAuthorId, setDraftAuthorId] = useState("");
+  const [draftTags, setDraftTags] = useState("");
+
+  // state filter đã apply
+  const [filter, setFilter] = useState({});
+
   const [page, setPage] = useState(1);
 
   const pageSize = 10;
 
   useEffect(() => {
-    dispatch(
-      searchProblems({
-        search, page, size: pageSize
-      })
-    );
-  }, [search, page]);
+    if (isSearching && searchKeyword) {
+      // search theo text
+      dispatch(
+        searchProblemsByText({
+          page,
+          size: pageSize,
+          keyword: searchKeyword
+        })
+      );
+    } else {
+      // list + filter 
+      // const filter = {};
+
+      // if (authorId) {
+      //   filter.author_id = Number(authorId);
+      // }
+
+      // if (tags.trim()) {
+      //   filter.tag = tags
+      //     .split(",")
+      //     .map((t) => t.trim())
+      //     .filter(Boolean);
+      // }
+
+      dispatch(
+        searchProblems({
+          page,
+          size: pageSize,
+          filter
+        })
+      );
+    }
+  }, [isSearching, searchKeyword, filter, page]);
+
 
   const totalPages = Math.ceil(totalItems / pageSize);
 
@@ -30,20 +70,123 @@ export default function ProblemList() {
       <h2 className="problem-title">Problem Set</h2>
 
       {/* Search Box */}
-      <div className="search-box">
+      <div className="search-box" style={{ display: "flex", gap: "10px" }}>
         <input
           type="text"
           placeholder="Search problem..."
-          value={search}
+          value={searchInput}
           onChange={(e) => {
-            setSearch(e.target.value);
+            setSearchInput(e.target.value);
             setPage(1);
           }}
         />
+
+        <button
+          className="view-btn"
+          disabled={!searchInput.trim()}
+          onClick={() => {
+            if (!searchInput.trim()) return;
+            setPage(1);
+            setSearchKeyword(searchInput.trim());
+            setIsSearching(true);
+          }}
+        >
+          Search
+        </button>
+
+
+        <button
+          className="edit-btn"
+          onClick={() => setShowFilter(!showFilter)}
+        >
+          Filter
+        </button>
+
+        {(isSearching || authorId || tags) && (
+          <button
+            className="del-btn"
+            onClick={() => {
+              setSearchInput("");
+              setSearchKeyword("");
+              setIsSearching(false);
+              setDraftAuthorId("");
+              setDraftTags("");
+              setFilter({});
+              setPage(1);
+            }}
+          >
+            Reset
+          </button>
+        )}
       </div>
 
+      {showFilter && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Filter Problems</h3>
+
+            <div className="modal-body">
+              <div className="modal-row">
+                <label>Author ID</label>
+                <input
+                  type="text"
+                  placeholder="author_id"
+                  value={draftAuthorId}
+                  onChange={(e) => setDraftAuthorId(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-row">
+                <label>Tags</label>
+                <input
+                  type="text"
+                  placeholder="dp, graph"
+                  value={draftTags}
+                  onChange={(e) => setDraftTags(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="create-btn"
+                onClick={() => {
+                  // setPage(1);
+                  // setShowFilter(false);
+                  const newFilter = {};
+
+                  if (draftAuthorId) {
+                    newFilter.author_id = Number(draftAuthorId);
+                  }
+
+                  if (draftTags.trim()) {
+                    newFilter.tag = draftTags
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean);
+                  }
+
+                  setPage(1);
+                  setFilter(newFilter); // 🔥 CHỈ LÚC NÀY MỚI FILTER
+                  setShowFilter(false);
+                }}
+              >
+                Apply
+              </button>
+
+              <button
+                className="del-btn"
+                onClick={() => setShowFilter(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
-      <table className="list-table">
+      <table className="list-table problem-list">
         <thead>
           <tr>
             <th>ID</th>

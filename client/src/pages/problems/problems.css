@@ -378,3 +378,52 @@
     padding: 20px;
   }
 }
+
+/* Filter modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px;
+  width: 420px;
+  border-radius: 6px;
+}
+
+.modal-body {
+  margin-top: 12px;
+}
+
+.modal-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  
+}
+
+.modal-row input {
+  padding: 6px 8px;
+  background: #fff;
+  color: #000;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+}
+
+.modal-row input:focus {
+    outline: none;
+  border-color: #2c76ff;
+  box-shadow: 0 0 0 2px rgba(44, 118, 255, 0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
