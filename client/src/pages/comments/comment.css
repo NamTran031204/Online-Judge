@@ -25,7 +25,7 @@
 }
 
 .new-comment-btn {
-    background-color: #4338ca;
+    background-color: #28a745;
     color: white;
     padding: 8px 15px;
     border: none;
@@ -33,7 +33,7 @@
     cursor: pointer;
     font-weight: 500;
     font-size: 13px;
-    transition: 0.2s;
+    transition: background-color 0.2s;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -41,7 +41,7 @@
 }
 
 .new-comment-btn:hover {
-    background-color: #3730a3;
+    background-color: #218838;
 }
 
 .comment-table {

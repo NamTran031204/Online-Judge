@@ -77,8 +77,8 @@ export default function SubmissionList() {
         </select>
         
         <Link to="/submission/create">
-          <button className="primary-btn">
-            Create Submission
+          <button className="btn create-btn">
+            New Submission
           </button>
         </Link>
       </div>
@@ -95,7 +95,7 @@ export default function SubmissionList() {
           </tr>
         </thead>
         <tbody>
-           {loading && (
+          {loading && (
             <tr>
               <td colSpan="6" style={{ textAlign: "center" }}>
                 Loading...
@@ -123,7 +123,7 @@ export default function SubmissionList() {
                 </td>
                 <td>
                   <Link to={`/submissions/${s.submission_id}`}>
-                    <button className="primary-btn small-btn">
+                    <button className="btn view-btn small-btn">
                       View
                     </button>
                   </Link>
