@@ -21,7 +21,7 @@ public class ContestSpec {
     }
 
     public<T> Specification<T> hasVisibility(ContestVisibility contestVisibility) {
-        return (root, query, cb) -> cb.equal(root.get("contestVisibility"), contestVisibility);
+        return (root, query, cb) -> cb.equal(root.get("visibility"), contestVisibility);
     }
 
     public<T> Specification<T> hasGroupId(Long groupId) {

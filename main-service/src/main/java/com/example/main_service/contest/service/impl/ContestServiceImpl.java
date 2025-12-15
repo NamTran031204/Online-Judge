@@ -1,6 +1,8 @@
 package com.example.main_service.contest.service.impl;
 
 import com.example.main_service.contest.service.StatusChangeService;
+import com.example.main_service.problem.ProblemGrpcClient;
+import com.example.main_service.problem.dto.ProblemEntity;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,6 +35,7 @@ public class ContestServiceImpl implements ContestService {
 
     private final ContestRepo contestRepo;
     private final StatusChangeService statusChangeService;
+    private final ProblemGrpcClient problemGrpcClient;
 
     /**
      * TODO: chinh sua lai logic tao contest visibility/type vi: hien tai van dang cho tao contest OFFICIAL de test
@@ -52,24 +56,34 @@ public class ContestServiceImpl implements ContestService {
                     throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong duoc tao contest Draft - Public");
                 }
                 input.setVisibility(ContestVisibility.PRIVATE);
+
+                if (input.getRated() == null) {
+                    input.setRated(0L);
+                } else if (input.getRated() < 0L) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "rating of draft contest is negative");
+                }
             } else if (input.getContestType() == ContestType.OFFICIAL) {
                 if (input.getVisibility() == ContestVisibility.PRIVATE) {
                     throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Contest Official bat buoc PUBLIC");
                 }
                 input.setVisibility(ContestVisibility.PUBLIC);
+
+                if (input.getRated() == null) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "rating of public contest is null");
+                } else if (input.getRated() <= 0L) {
+                    throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "rating of public contest is negative");
+                }
+            } else {
+                input.setRated(0L); // vi contest gym thi khong co rated
             }
         }
         if (input.getVisibility() == null) {
             input.setVisibility(ContestVisibility.PRIVATE);
         }
 
-        if (input.getContestType() == null) {
+        if (input.getContestType() != null) {
             if (input.getContestType() == ContestType.OFFICIAL && input.getVisibility() == ContestVisibility.PRIVATE) {
                 throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR, "Khong duoc tao contest OFFICIAL nhung PRIVATE do chinh sach he thong");
-            }
-        } else {
-            if (input.getContestType().equals(ContestType.GYM)) {
-                input.setRated(0L);
             }
         }
 
@@ -116,8 +130,12 @@ public class ContestServiceImpl implements ContestService {
             contest.setContestType(statusChangeService.changeContestType(input.getContestType(), contest));
         if (input.getGroupId() != null)
             contest.setGroupId(input.getGroupId());
-        if (input.getRated() != null)
+        if (input.getRated() != null) {
+            if (input.getRated() < 0L) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "rating of contest is negative");
+            }
             contest.setRated(input.getRated());
+        }
         if (input.getVisibility() != null)
             contest.setVisibility(statusChangeService.changeContestVisibility(input.getVisibility(), contest));
 
@@ -142,18 +160,18 @@ public class ContestServiceImpl implements ContestService {
                 spec = Specification.where(ContestSpec.hasRated(filter.getRated()));
 
                 if (filter.getContestStatus() != null) {
-                    spec.and(ContestSpec.hasContestStatus(filter.getContestStatus()));
+                    spec = spec.and(ContestSpec.hasContestStatus(filter.getContestStatus()));
                 }
                 if (filter.getContestType() != null) {
-                    spec.and(ContestSpec.hasContestType(filter.getContestType()));
+                    spec = spec.and(ContestSpec.hasContestType(filter.getContestType()));
                 }
 
                 // groupId va authorId anh huong den Visibility
                 if (filter.getGroupId() != null) {
-                    spec.and(ContestSpec.hasGroupId(filter.getGroupId()));
+                    spec = spec.and(ContestSpec.hasGroupId(filter.getGroupId()));
                 }
                 if (filter.getAuthorId() != null) {
-                    spec.and(ContestSpec.hasAuthorId(filter.getAuthorId()));
+                    spec = spec.and(ContestSpec.hasAuthorId(filter.getAuthorId()));
                 }
 
                 /**
@@ -163,12 +181,12 @@ public class ContestServiceImpl implements ContestService {
                     if (filter.getAuthorId() != null) {
                         Long userId = 1L; // TODO: lay ra userId tu UserDetail
                         if (!userId.equals(filter.getAuthorId())) {
-                            spec.and(ContestSpec.hasVisibility(ContestVisibility.PUBLIC));
+                            spec = spec.and(ContestSpec.hasVisibility(ContestVisibility.PUBLIC));
                         }
                     }
                     // neu dap ung dieu kien: hoac la author, hoac la nguoi tham gia, thi co the xem tat ca contest PUBLIC/PRIVATE
                 } else {
-                    spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
+                    spec = spec.and(ContestSpec.hasVisibility(filter.getVisibility()));
                 }
             }
 
@@ -216,10 +234,17 @@ public class ContestServiceImpl implements ContestService {
                 .visibility(contest.getVisibility())
                 .build();
 
-        List<Long> problemList = new ArrayList<>();
-        /**
-         * TODO: goi den judge-service de lay ra danh sach problem theo contest
-         */
+        List<String> problemList = new ArrayList<>();
+        PageRequestDto<Long> pageRequestDto = new PageRequestDto<>();
+        pageRequestDto.setFilter(contestId);
+        var res = problemGrpcClient.getByContest(pageRequestDto);
+        if (res.getIsSuccessful().equals(false)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_NOT_FOUND);
+        }
+        var data = res.getData().getData();
+        problemList = data.parallelStream()
+                .map(ProblemEntity::getProblemId)
+                .toList();
 
         ContestDetailDto response = ContestDetailDto.builder()
                 .problems(problemList)

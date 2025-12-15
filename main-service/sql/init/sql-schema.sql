@@ -75,11 +75,11 @@ CREATE TABLE contest (
     description TEXT,
     start_time DATETIME,
     duration INT,
-    contest_status ENUM('Upcoming','Running','Finished'),
-    contest_type ENUM('Draft','Gym','Official'),
+    contest_status ENUM('UPCOMING','RUNNING','FINISHED'),
+    contest_type ENUM('DRAFT','GYM','OFFICIAL'),
     author BIGINT,
     rated BOOLEAN DEFAULT FALSE,
-    visibility ENUM('public','private') DEFAULT 'private',
+    visibility ENUM('PUBLIC','PRIVATE') DEFAULT 'PRIVATE',
     group_id BIGINT
 );
 
