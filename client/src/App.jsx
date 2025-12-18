@@ -17,7 +17,7 @@ import ProblemList from "./pages/problems/problem-list";
 import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
-// import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/dashboard";
 import CommentList from "./pages/comments/comment-list";
 import SubmissionList from "./pages/submissions/submission-list";
 import SubmissionDetail from "./pages/submissions/submission-detail";
@@ -88,6 +88,9 @@ function App() {
 
           {/* COMMENTS */}
           <Route path="/comments" element={<CommentList />} />
+
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />
