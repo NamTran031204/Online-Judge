@@ -1,6 +1,7 @@
 package com.example.main_service.submission.dto;
 
 import com.example.main_service.sharedAttribute.enums.LanguageType;
+import com.example.main_service.sharedAttribute.enums.ResponseStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,4 +24,14 @@ public class SubmissionEntity {
 
     private LocalDateTime submittedAt;
     private List<SubmissionResultEntity> result;
+
+    public boolean isAllAccepted() {
+        if (result == null || result.isEmpty()) {
+            return false;
+        }
+        return result
+                .stream()
+                .allMatch(r -> r.getStatus() == ResponseStatus.AC);
+    }
+
 }

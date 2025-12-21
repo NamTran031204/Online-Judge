@@ -1,11 +1,16 @@
 package com.example.main_service.submission;
 
 import com.example.main_service.contest.repo.SubmissionResultRepo;
+import com.example.main_service.contest.service.ContestService;
+import com.example.main_service.dashboard.service.DashBoardService;
+import com.example.main_service.problem.ProblemGrpcClient;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.sharedAttribute.enums.LanguageType;
 import com.example.main_service.sharedAttribute.enums.ResponseStatus;
+import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
+import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
 import com.example.main_service.submission.dto.SubmissionEntity;
 import com.example.main_service.submission.dto.SubmissionInputDto;
 import com.example.main_service.submission.dto.SubmissionResultEntity;
@@ -16,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +32,8 @@ import java.util.stream.Collectors;
 public class SubmissionGrpcClient {
 
     private final SubmissionResultRepo submissionResultRepo;
+    private final ContestService contestService;
+    private final DashBoardService dashBoardService;
 
     @GrpcClient("jude-service")
     private SubmissionServiceGrpc.SubmissionServiceBlockingStub submissionServiceStub;
@@ -36,11 +45,32 @@ public class SubmissionGrpcClient {
                     .build();
 
             SubmissionResponse response = submissionServiceStub.submit(request);
-            if (response.getCode() == 200) {
-                var responseData = response.getData();
-                // TODO: luu submissionResultDto
+            if (response.getCode() != 200) throw(new ContestBusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
+            SubmissionEntity submission = convertToEntity(response.getData());
+
+            if (!contestService.isContestRunning(submission.getContestId())) {
+                return CommonResponse.fail(ErrorCode.CONTEST_ERROR, "Contest is not running");
             }
-            return convertToCommonResponse(response);
+
+            if (!contestService.canUserSubmit(submission.getContestId(), submission.getUserId())) {
+                return CommonResponse.fail(
+                        ErrorCode.CONTEST_ACCESS_DENY,
+                        "User has not registered for this contest"
+                );
+            }
+
+            dashBoardService.onSubmissionJudged(
+                    submission.getSubmissionId(),
+                    submission.getUserId(),
+                    submission.getContestId(),
+                    submission.getProblemId(),
+                    true,
+                    submission.getSubmittedAt()
+                            .atZone(ZoneId.systemDefault())
+                            .toEpochSecond()
+            );
+            return CommonResponse.success(submission);
+
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
             return CommonResponse.fail(null, e.getStatus().getDescription());
@@ -122,12 +152,15 @@ public class SubmissionGrpcClient {
 
     // ==================== Converter Methods ====================
 
+    private final ProblemGrpcClient problemGrpcClient;
+
     private SubmissionInput convertToProtoInput(SubmissionInputDto input) {
         SubmissionInput.Builder builder = SubmissionInput.newBuilder();
+        Long contestId = problemGrpcClient.getProblemById(input.getProblemId()).getData().getContestId();
 
         if (input.getProblemId() != null) builder.setProblemId(input.getProblemId());
         if (input.getUserId() != null) builder.setUserId(input.getUserId());
-        if (input.getContestId() != null) builder.setContestId(input.getContestId());
+        if (contestId != null) builder.setContestId(contestId);
         if (input.getLanguage() != null) builder.setLanguage(input.getLanguage().name());
         if (input.getSourceCode() != null) builder.setSourceCode(input.getSourceCode());
 
@@ -180,6 +213,7 @@ public class SubmissionGrpcClient {
                 .result(
                         proto.hasResult() ? convertToResultEntities(proto.getResult()) : null
                 )
+                .submittedAt(LocalDateTime.parse(proto.getCreatedAt()))
                 .build();
     }
 

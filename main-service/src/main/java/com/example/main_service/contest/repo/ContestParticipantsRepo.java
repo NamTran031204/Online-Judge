@@ -30,4 +30,7 @@ public interface ContestParticipantsRepo extends JpaRepository<ContestParticipan
     Page<ContestParticipantProjection> findByContestIdAndUserId(@Param("contestId") Long contestId, @Param("userId") Long userId, Pageable pageable);
 
     Boolean existsByContestIdAndUserId(Long contestId, Long userId);
+
+    Page<ContestParticipantsEntity> findByContestIdOrderByRankingAsc(Long contestId, Pageable pageable);
+
 }

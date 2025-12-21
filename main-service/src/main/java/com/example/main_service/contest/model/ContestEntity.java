@@ -49,11 +49,7 @@ public class ContestEntity {
     @Column(name = "group_id")
     private Long groupId;
 
-    public boolean isExpired() {
-        if (startTime == null || duration == null) {
-            return false; // contest chưa có thời gian thì không expired
-        }
-        LocalDateTime endTime = startTime.plusMinutes(duration);
-        return LocalDateTime.now().isAfter(endTime);
+    public LocalDateTime getEndTime() {
+        return startTime.plusSeconds(duration);
     }
 }

@@ -29,4 +29,7 @@ public class ContestParticipantsEntity {
     private Integer totalScore;
 
     private Integer ranking;
+
+    @Column(name = "solved_problem", columnDefinition = "TEXT")
+    private String solvedProblem; // JSON ARRAY of SolvedProblemDto
 }

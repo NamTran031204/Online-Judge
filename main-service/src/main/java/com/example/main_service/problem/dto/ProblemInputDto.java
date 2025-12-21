@@ -19,11 +19,11 @@ public class ProblemInputDto {
     private List<LanguageType> supportedLanguage;
 
     private String solution; // tam thoi xu ly String, sau nay la luu file
-    private String rating;
+    private Integer rating;
     private Integer score;
 
-    private Double timeLimit;
-    private Double memoryLimit;
+    private Integer timeLimit;
+    private Integer memoryLimit;
     private String inputType; //stdin
     private String outputType; //stdout
 

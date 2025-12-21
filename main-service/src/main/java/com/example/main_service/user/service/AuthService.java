@@ -6,9 +6,11 @@ import com.example.main_service.user.dto.RegisterRequest;
 import com.example.main_service.user.model.UserEntity;
 import com.example.main_service.user.repo.UserRepo;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -44,6 +46,8 @@ public class AuthService {
      * Login: trả về access token + refresh token
      */
     public LoginResponse login(LoginRequest req, String ipAddr) {
+        log.info("====Inside login====={}",req.getUserName());
+
         UserEntity user = userRepo.findByUserName(req.getUserName())
                 .orElseThrow(() -> new RuntimeException("Invalid user"));
 

@@ -6,15 +6,14 @@ import com.example.jude_service.entities.PageResult;
 import com.example.jude_service.entities.problem.ProblemEntity;
 import com.example.jude_service.entities.problem.ProblemInputDto;
 import com.example.jude_service.entities.testcase.TestcaseEntity;
-import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
-import com.example.jude_service.repo.SubmissionRepo;
 import com.example.jude_service.services.ProblemService;
 import com.example.jude_service.services.SubmissionService;
 import com.example.jude_service.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+// note : tất cả các giá trị int32 int64 double trong proto đều mặc định là 0
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProblemServiceImpl implements ProblemService {
@@ -38,6 +38,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public CommonResponse<ProblemEntity> addProblem(ProblemInputDto input) {
         validateBeforeInsertProblem(input);
+        log.info("============{}",input);
 
         ProblemEntity entity = problemRepo.save(ProblemEntity.builder()
                 .title(input.getTitle())
@@ -65,6 +66,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(PageRequestDto<ProblemInputDto> input) {
         Query query = new Query();
+        log.info("=====Inside problem service getProblemPage======{}",input);
         if (input.getFilter() != null) {
             query = filter(input);
         }
@@ -74,9 +76,9 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<ProblemEntity> getProblemById(String problemId) {
-         ProblemEntity entity = problemRepo.findById(problemId.toString())
+        ProblemEntity entity = problemRepo.findById(problemId.toString())
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
-         return CommonResponse.success(entity);
+        return CommonResponse.success(entity);
     }
 
     @Override
@@ -124,6 +126,9 @@ public class ProblemServiceImpl implements ProblemService {
         if (!StringUtils.isNullOrEmpty(input.getTitle())) {
             entity.setTitle(input.getTitle());
         }
+        if (!StringUtils.isNullOrEmpty(input.getDescription())) {
+            entity.setDescription(input.getDescription());
+        }
         if (input.getTags() != null && !input.getTags().isEmpty()) {
             entity.setTags(input.getTags());
         }
@@ -139,7 +144,7 @@ public class ProblemServiceImpl implements ProblemService {
         if (!StringUtils.isNullOrEmpty(input.getSolution())) {
             entity.setSolution(input.getSolution());
         }
-        if (!StringUtils.isNullOrEmpty(input.getRating())) {
+        if (input.getRating()!=null) {
             entity.setRating(input.getRating());
         }
         if (input.getScore() != null) {
@@ -177,7 +182,7 @@ public class ProblemServiceImpl implements ProblemService {
     public CommonResponse<ProblemEntity> deleteProblem(String problemId) {
         ProblemEntity problem = problemRepo.findById(problemId)
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
-        //submissionService.deleteById(problemId); xóa mềm
+        submissionService.deleteByProblem(problemId);
         problemRepo.delete(problem);
         return CommonResponse.success(problem);
     }
@@ -210,43 +215,106 @@ public class ProblemServiceImpl implements ProblemService {
     Query filter(PageRequestDto<ProblemInputDto> input) {
         Query query = new Query();
         ProblemInputDto term = input.getFilter();
+        log.info("======inside filter======{}", term);
 
-        if (!term.getTags().isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(term.getTitle())) {
+            query.addCriteria(
+                    Criteria.where("title").regex(term.getTitle(), "i")  // ignore-case
+            );
+        }
+
+        if (!StringUtils.isNullOrEmpty(term.getDescription())) {
+            query.addCriteria(
+                    Criteria.where("description").regex(term.getDescription(), "i")
+            );
+        }
+
+        if (term.getTags() != null && !term.getTags().isEmpty()) {
             query.addCriteria(
                     Criteria.where("tags").in(term.getTags())
             );
         }
+
+        if (term.getImageUrls() != null && !term.getImageUrls().isEmpty()) {
+            query.addCriteria(
+                    Criteria.where("imageUrls").in(term.getImageUrls())
+            );
+        }
+
         if (term.getLevel() != null) {
             query.addCriteria(
                     Criteria.where("level").is(term.getLevel())
             );
         }
 
-        // can xem xet them, vi dang ra yeu cau chi la mot loai thoi
-        if (term.getSupportedLanguage() != null) {
-            LanguageType language = term.getSupportedLanguage().getFirst();
+        if (term.getSupportedLanguage() != null && !term.getSupportedLanguage().isEmpty()) {
             query.addCriteria(
-                    Criteria.where("supportedLanguage").is(language)
+                    Criteria.where("supportedLanguage").in(term.getSupportedLanguage())
             );
         }
 
-        if (!StringUtils.isNullOrEmpty(term.getRating())) {
+        if (!StringUtils.isNullOrEmpty(term.getSolution())) {
+            query.addCriteria(
+                    Criteria.where("solution").regex(term.getSolution(), "i")
+            );
+        }
+
+        if (term.getRating() != null && term.getRating() > 0) {
             query.addCriteria(
                     Criteria.where("rating").is(term.getRating())
             );
         }
 
-        if (term.getScore() != null) {
+        if (term.getScore() != null && term.getScore() > 0) {
             query.addCriteria(
                     Criteria.where("score").is(term.getScore())
+            );
+        }
+
+        if (term.getTimeLimit() != null && term.getTimeLimit() > 0) {
+            query.addCriteria(
+                    Criteria.where("timeLimit").is(term.getTimeLimit())
+            );
+        }
+
+        if (term.getMemoryLimit() != null && term.getMemoryLimit() > 0) {
+            query.addCriteria(
+                    Criteria.where("memoryLimit").is(term.getMemoryLimit())
+            );
+        }
+
+        if (!StringUtils.isNullOrEmpty(term.getInputType())) {
+            query.addCriteria(
+                    Criteria.where("inputType").regex(term.getInputType(), "i")
+            );
+        }
+
+        if (!StringUtils.isNullOrEmpty(term.getOutputType())) {
+            query.addCriteria(
+                    Criteria.where("outputType").regex(term.getOutputType(), "i")
+            );
+        }
+
+        if (term.getContestId() != null && term.getContestId() > 0) {
+            query.addCriteria(
+                    Criteria.where("contestId").is(term.getContestId())
+            );
+        }
+
+        if (term.getUserId() != null && term.getUserId() > 0) {
+            query.addCriteria(
+                    Criteria.where("authorId").is(term.getUserId())
             );
         }
 
         return query;
     }
 
+
     PageResult<ProblemEntity> queryByFilter(Query query, PageRequest input) {
         long count = mongoTemplate.count(query, ProblemEntity.class);
+
+        log.info("Mongo Query (with pagination) = {}", query);
 
         query.with(input);
 
@@ -255,6 +323,9 @@ public class ProblemServiceImpl implements ProblemService {
         PageResult<ProblemEntity> pageResult = new PageResult<>();
         pageResult.setTotalCount(count);
         pageResult.setData(entities);
+
+        log.info("Query Result: {}", entities);
+
         return pageResult;
     }
 

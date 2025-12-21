@@ -1,9 +1,12 @@
 package com.example.main_service.rbac.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 @Table(name = "role_user")
+@Builder
+
 public class RoleUserEntity {
 
     @Id

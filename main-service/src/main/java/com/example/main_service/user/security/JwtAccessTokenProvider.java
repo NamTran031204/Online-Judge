@@ -16,7 +16,7 @@ public class JwtAccessTokenProvider {
     public JwtAccessTokenProvider(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
-    private final long EXPIRE_MS = 15 * 60 * 1000; // 15 phút
+    private final long EXPIRE_MS = 100000L * 60 * 1000; // vô hạn phút
 
     public String generate(Long userId) {
         return Jwts.builder()

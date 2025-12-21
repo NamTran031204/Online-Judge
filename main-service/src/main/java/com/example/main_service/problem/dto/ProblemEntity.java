@@ -31,7 +31,7 @@ public class ProblemEntity {
     private List<LanguageType> supportedLanguage;
 
     private String solution; // tam thoi xu ly String, sau nay la luu file
-    private String rating;
+    private Integer rating;
     private Integer score; // luu diem ma nguoi dung co the nhan duoc sau khi pass
 
     private Double timeLimit; // giây

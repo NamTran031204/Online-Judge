@@ -46,6 +46,8 @@ public class ProblemGrpcClient {
                     .setInput(convertToProtoInput(input))
                     .build();
 
+            log.info("client add problem============={}",request);
+
             ProblemResponse response = problemServiceStub.addProblem(request);
             return convertToCommonResponse(response);
         } catch (StatusRuntimeException e) {
@@ -55,9 +57,6 @@ public class ProblemGrpcClient {
     }
 
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(PageRequestDto<ProblemInputDto> input) {
-        if (input.getFilter().getContestId() == null || !contestRepo.existsById(input.getFilter().getContestId())){
-            throw new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND);
-        }
         try {
             GetProblemPageRequest.Builder requestBuilder = GetProblemPageRequest.newBuilder()
                     .setPageRequest(convertToProtoPageRequest(input));
@@ -65,11 +64,13 @@ public class ProblemGrpcClient {
             if (input.getFilter() != null) {
                 requestBuilder.setFilter(convertToProtoInput(input.getFilter()));
             }
+            log.info("===Inside Problem page=={}",requestBuilder);
 
             ProblemPageResponse response = problemServiceStub.getProblemPage(requestBuilder.build());
 
             var responseData = response.getDataList();
-
+            // loc ra problem co contest  la official hoac gym,
+            // neu contest la draft hoac contest la null => loc ra problem co scope (problem:view) cua user id (token)
             return convertToPageCommonResponse(response);
         } catch (StatusRuntimeException e) {
             log.error("gRPC call failed: {}", e.getStatus(), e);
@@ -110,7 +111,7 @@ public class ProblemGrpcClient {
         try {
             GetProblemByContestRequest request = GetProblemByContestRequest.newBuilder()
                     .setPageRequest(convertToProtoPageRequest(input))
-                    .setContestId(input.getFilter() != null ? input.getFilter() : 0L) // TODO: tim hieu ve long rong
+                    .setContestId(input.getFilter()) // TODO: co khả năng rỗng
                     .build();
 
             ProblemPageResponse response = problemServiceStub.getProblemByContest(request);
@@ -167,16 +168,20 @@ public class ProblemGrpcClient {
     private ProblemInput convertToProtoInput(ProblemInputDto input) {
         ProblemInput.Builder builder = ProblemInput.newBuilder();
 
+        if(input.getContestId()!=null) builder.setContestId(input.getContestId());
         if (input.getTitle() != null) builder.setTitle(input.getTitle());
         if (input.getDescription() != null) builder.setDescription(input.getDescription());
         if (input.getContestId() != null) builder.setContestId(input.getContestId());
         if (input.getLevel() != null) builder.setLevel(input.getLevel().name());
-        if (input.getTimeLimit() != null) builder.setTimeLimit(input.getTimeLimit().intValue());
-        if (input.getMemoryLimit() != null) builder.setMemoryLimit(input.getMemoryLimit().intValue());
+        if (input.getTimeLimit() != null) builder.setTimeLimit(input.getTimeLimit()); // đơn vị số nguyên dương nhé
+        if (input.getMemoryLimit() != null) builder.setMemoryLimit(input.getMemoryLimit());
         if (input.getInputType() != null) builder.setInputFormat(input.getInputType());
         if (input.getOutputType() != null) builder.setOutputFormat(input.getOutputType());
         if (input.getUserId() != null) builder.setAuthorId(String.valueOf(input.getUserId()));
-
+        if (input.getImageUrls() != null) builder.addAllImageUrls(input.getImageUrls());
+        if (input.getSolution() != null) builder.setSolution(input.getSolution());
+        if (input.getRating()!=null) builder.setRating(input.getRating());
+        if(input.getScore()!=null) builder.setScore(input.getScore());
         if (input.getTags() != null) {
             builder.addAllTags(input.getTags());
         }
@@ -204,6 +209,10 @@ public class ProblemGrpcClient {
         TestcaseInput.Builder builder = TestcaseInput.newBuilder();
         if (testcase.getInput() != null) builder.setInput(testcase.getInput());
         if (testcase.getOutput() != null) builder.setExpectedOutput(testcase.getOutput());
+
+        if (testcase.getIsSample() != null) builder.setIsSample(testcase.getIsSample());
+        if (testcase.getScore()!=null ) builder.setScore(testcase.getScore());
+        if (testcase.getTestcaseName()!=null) builder.setTestcaseName(testcase.getTestcaseName());
         return builder.build();
     }
 
@@ -229,8 +238,8 @@ public class ProblemGrpcClient {
                 .map(this::convertToEntity)
                 .collect(Collectors.toList());
 
-        //TODO: lay userId tu Spring Security
-        Long userId = 0L;
+        //TODO: lay userId tu Spring Security // done
+        Long userId = getUserIdFromToken();
 
         Set<Long> contestIds = entities.stream()
                 .map(ProblemEntity::getContestId)
@@ -282,9 +291,9 @@ public class ProblemGrpcClient {
     private ProblemEntity convertToEntity(Problem proto) {
         return ProblemEntity.builder()
                 .problemId(proto.getId())
+                .contestId(proto.getContestId())
                 .title(proto.getTitle())
                 .description(proto.getDescription())
-                .contestId(proto.getContestId() == 0 ? null : proto.getContestId())
                 .level(proto.getLevel().isEmpty() ? null : ProblemLevel.valueOf(proto.getLevel()))
                 .timeLimit((double) proto.getTimeLimit())
                 .memoryLimit((double) proto.getMemoryLimit())
@@ -302,6 +311,10 @@ public class ProblemGrpcClient {
                                 .map(this::convertToTestcaseEntity)
                                 .collect(Collectors.toList())
                 )
+                .rating(proto.getRating())
+                .score(proto.getScore())
+                .solution(proto.getSolution())
+                .imageUrls(proto.getImageUrlsList())
                 .build();
     }
 
@@ -310,6 +323,8 @@ public class ProblemGrpcClient {
                 .testcaseName(proto.getId())
                 .input(proto.getInput())
                 .output(proto.getExpectedOutput())
+                .isSample(proto.getIsSample())
+                .score(proto.getScore())
                 .build();
     }
 }

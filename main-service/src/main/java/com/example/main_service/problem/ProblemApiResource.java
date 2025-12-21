@@ -7,6 +7,8 @@ import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 @RequestMapping("${api.prefix}/problem")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class ProblemApiResource {
 
     private final ProblemGrpcClient problemGrpcClient;
@@ -30,6 +33,8 @@ public class ProblemApiResource {
             throw new IllegalStateException("User not authenticated");
         }
         input.setUserId(userId);
+        log.info("============={}",input);
+
         CommonResponse<ProblemEntity> response =  problemGrpcClient.addProblem(input);
 
         ProblemEntity problem = response.getData();
@@ -51,9 +56,12 @@ public class ProblemApiResource {
         return response;
     }
 
-    // chỉ search problem nằm trong bảng contest problem (đã kết thúc, public)
+    // bug
+    // search theo filter nhung loc nhung cai draft theo role user
     @PostMapping(value = "/search")
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto<ProblemInputDto> input) {
+        log.info("====== INPUT: {}", input);
+
         return problemGrpcClient.getProblemPage(input);
     }
 
@@ -71,11 +79,13 @@ public class ProblemApiResource {
         return problemGrpcClient.updateProblem(input, problemId);
     }
 
-    // tạm coi là official contest
+    /*
+    // tạm coi là official contest // skip vi deo can
     @PostMapping(value = "/by-contest")
     public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<Long> input) {
         return problemGrpcClient.getByContest(input);
     }
+    */
 
     // search problem trong bảng problem contest (đã kết thúc, public)
     @PostMapping(value = "/search-text")

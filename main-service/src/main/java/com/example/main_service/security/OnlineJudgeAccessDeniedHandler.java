@@ -21,7 +21,7 @@ public class OnlineJudgeAccessDeniedHandler implements AccessDeniedHandler {
         response.getWriter().write("""
             {
                 "code": "PERMISSION_DENIED",
-                "message": "Mày không có quyền truy cập"
+                "message": "Bạn Không có quyền truy cập"
             }
         """);
     }

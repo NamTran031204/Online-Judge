@@ -8,7 +8,9 @@ grpc:
 spring:
   application:
      name: main-service
-
+  redis:
+    host: localhost
+    port: 6379
   datasource:
     url: jdbc:mysql://localhost:3307/online_judge?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root

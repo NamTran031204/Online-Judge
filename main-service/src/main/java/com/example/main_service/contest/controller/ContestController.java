@@ -12,7 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-// rbac dat trong application yml
+// visibility dùng cho mỗi gym
+// các tk admin dat trong application yml (reasearch)
+// cần refactor lại repo cho bảng nào thì nằm trong service đấy
+// api submit to official (gan quyen xoa va edit cho admin,pro_user)
+// contest official vẫn nên có thể được edit khi ở trạng thái upcoming
+// api gán quyền read và edit cho 1 contest (role_user)
+
 @RestController
 @RequestMapping("${api.prefix}/contest")
 @RequiredArgsConstructor
@@ -20,28 +26,54 @@ public class ContestController {
     private final ContestService contestService;
     private final ContestProblemService contestProblemService;
 
-    // crud
     @PostMapping("")
     public CommonResponse<ContestCreateUpdateResponseDto> create(@RequestBody ContestCreateUpdateRequestDto input) {
+        // auto khi tạo thì contest là draft
         return CommonResponse.success(contestService.createContest(input));
     }
 
-    @PostMapping("/{contestId}/edit")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit', 'Contest', #contestId)")
+    @PostMapping("/{contestId}/edit-draft-contest")
+    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'DRAFT')")
     public CommonResponse<ContestCreateUpdateResponseDto> update(
             @PathVariable Long contestId,
             @RequestBody ContestCreateUpdateRequestDto input) {
         return CommonResponse.success(contestService.updateContest(contestId, input));
     }
 
+    @PostMapping("/{contestId}/edit-official-contest")
+    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'OFFICIAL'")
+    public CommonResponse<ContestCreateUpdateResponseDto> update(
+            @PathVariable Long contestId,
+            @RequestBody ContestOfficialUpdateRequestDto input) {
+        ContestCreateUpdateRequestDto inputGeneral = new ContestCreateUpdateRequestDto();
+        inputGeneral.setRated(input.getRated());
+        inputinputGeneral.setStartTime(input.getStartTime());
+        inputinputGeneral.setDuration(input.getDuration());
+        return CommonResponse.success(contestService.updateContest(contestId, inputGeneral));
+    }
+
+    @PostMapping("/{contestId}/edit-gym-contest")
+    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'GYM')")
+    public CommonResponse<ContestCreateUpdateResponseDto> update(
+            @PathVariable Long contestId,
+            @RequestBody ContestOfficialUpdateRequestDto input) {
+        ContestCreateUpdateRequestDto inputGeneral = new ContestCreateUpdateRequestDto();
+        inputinputGeneral.setStartTime(input.getStartTime());
+        inputinputGeneral.setDuration(input.getDuration());
+        inputinputGeneral.setVisibility(input.getVisibility());
+        return CommonResponse.success(contestService.updateContest(contestId, inputGeneral));
+    }
+
     @PostMapping("/search")
     public CommonResponse<PageResult<ContestEntity>> getPages(@RequestBody PageRequestDto<ContestFilterDto> input) {
+        // lọc contest official(check status) |gym(check status và visibility) và contest draft (check author)
         return CommonResponse.success(contestService.search(input));
     }
 
-    @GetMapping("/{contestId}") // cho tester
+    @GetMapping("/{contestId}")
     @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:view', 'Contest', #contestId)")
     public CommonResponse<ContestDetailDto> getById(@PathVariable Long contestId) {
+        // official (check status) | gym (check status và visibility | draft (check author)
         return CommonResponse.success(contestService.getById(contestId));
     }
 
@@ -54,30 +86,52 @@ public class ContestController {
 
     // them problem
     @PostMapping("/{contestId}/problems")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit', 'Contest', #contestId)")
+    @PreAuthorize("@rbacService.canEditContest(authentication, 'contest:edit', #contestId,'DRAFT)")
     public CommonResponse<ContestProblemResponseDto> addProblem(
             @PathVariable Long contestId,
             @RequestBody ContestAttachProblemRequestDto input) {
+        // official và gym (skip)
         return CommonResponse.success(contestProblemService.addProblemToContest(contestId, input));
     }
 
     // xoa problem
     @DeleteMapping("/{contestId}/problem/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit', 'Contest', #contestId)")
+    @PreAuthorize("@rbacService.canEditContest(authentication, 'contest:edit', #contestId,'DRAFT)")
     public CommonResponse<String> deleteProblem(@PathVariable Long contestId, @PathVariable String problemId) {
+        // official và gym (skip)
         contestProblemService.deleteProblemFromContest(contestId, problemId);
         return CommonResponse.success();
     }
 
-
-    // tạm thời skip
+    // promote to gym
     @PostMapping("{contestId}/promote-to-gym")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit', 'Contest', #contestId)")
+    @PreAuthorize("@rbacService.canEditContest(authentication, 'contest:edit', #contestId,'DRAFT)")
     public CommonResponse<PromoteDraftToGymResponseDto> promoteDraftToGym(
             @PathVariable("contestId") Long contestId,
             @RequestBody PromoteDraftToGymRequestDto input
     ) {
+        // official và gym (skip)
         return CommonResponse.success(contestService.promoteDraft(contestId, input));
+    }
+
+    @PostMapping("/{contest_id}/make-official") //Pro_user or admin
+    @PreAuthorize("@rbacService.canMakeContestOffical(authentication, 'contest:make_official', 'Contest', #contestId)")
+    public CommonResponse<String> promoteDrafttoOfficial (
+           @PathVariable("contestId") Long contestId,
+                   @RequestBody ContestMakeOfficialRequestDto request
+    ) {
+        contestService.promoteDraftToOfficial(contestId, request);
+        return CommonResponse.success("ContestId promoted to OFFICIAL sucessfully");
+    }
+
+    @PostMapping("/{contestId}/assign-reviewer")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:assign_reviewer', 'Contest', #contestId)")
+    public CommonResponse<String> assignReviewer(
+            @PathVariable Long contestId,
+            @RequestBody AssignReviewerRequestDto input
+    ) {
+        contestService.assignReviewer(contestId, input.getReviewerId());
+        return CommonResponse.success("Reviewer assigned successfully");
     }
 
 }

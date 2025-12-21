@@ -4,6 +4,7 @@ import com.example.main_service.contest.dto.userContest.ContestParticipantFilter
 import com.example.main_service.contest.dto.userContest.ContestParticipantResponseDto;
 import com.example.main_service.contest.dto.userContest.ContestRegistrationFilterDto;
 import com.example.main_service.contest.dto.userContest.ContestRegistrationResponseDto;
+import com.example.main_service.contest.service.ContestService;
 import com.example.main_service.rbac.RoleService;
 import com.example.main_service.sharedAttribute.exceptions.ErrorCode;
 import com.example.main_service.sharedAttribute.exceptions.specException.ContestBusinessException;
@@ -34,6 +35,7 @@ import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 public class UserContestServiceImpl implements UserContestService {
 
     private final ContestRepo contestRepo;
+    private final ContestService contestService;
     private final ContestRegistrationRepo contestRegistrationRepo;
     private final ContestParticipantsRepo contestParticipantsRepo;
     private final RoleService roleService;   // thêm vào để check role
@@ -49,7 +51,7 @@ public class UserContestServiceImpl implements UserContestService {
         if (userId == null || userId == 0)
             throw new ContestBusinessException(ErrorCode.USER_NOT_FOUND);
 
-        if (contest.isExpired()) {
+        if (contestService.isContestFinished(contestId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
         }
         boolean isSpecial = roleService.hasSpecialContestRole(userId,contestId); // theo scope

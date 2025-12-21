@@ -13,13 +13,16 @@ import com.example.jude_service.exceptions.specException.ProblemBusinessExceptio
 import com.example.jude_service.repo.ProblemRepo;
 import com.example.jude_service.services.ProblemService;
 import com.example.proto.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @GrpcService
 @RequiredArgsConstructor
 public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBase {
@@ -36,6 +39,18 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
             ProblemEntity problem = problemRepo.findById(request.getProblemId())
                     .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
+            var clonedTestcases = problem.getTestcaseEntities() == null ? null :
+                    problem.getTestcaseEntities().stream()
+                            .map(tc -> TestcaseEntity.builder()
+                                    .testcaseName(tc.getTestcaseName())
+                                    .input(tc.getInput())
+                                    .output(tc.getOutput())
+                                    .isSample(tc.getIsSample())
+                                    .description(tc.getDescription())
+                                    .score(tc.getScore())
+                                    .build())
+                            .collect(Collectors.toList());
+
             ProblemEntity cloneProblem = problemRepo.save(ProblemEntity.builder()
                     .title(problem.getTitle())
                     .description(problem.getDescription())
@@ -51,7 +66,7 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
                     .inputType(problem.getInputType())
                     .outputType(problem.getOutputType())
                     .authorId(request.getUserId())
-                    .testcaseEntities(problem.getTestcaseEntities())
+                    .testcaseEntities(clonedTestcases)
                     .createdBy(request.getUserId())
                     .lastModifiedBy(request.getUserId())
                     .contestId(request.getContestId())
@@ -99,6 +114,9 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
     public void getProblemPage(GetProblemPageRequest request, StreamObserver<ProblemPageResponse> responseObserver) {
         try {
             PageRequestDto<ProblemInputDto> pageRequest = convertToPageRequestDto(request);
+
+            log.info("akldjaskldasklm,djklsd ======{}",request);
+
             CommonResponse<PageResult<ProblemEntity>> result = problemService.getProblemPage(pageRequest);
             ProblemPageResponse response = convertToProblemPageResponse(result);
             responseObserver.onNext(response);
@@ -190,8 +208,8 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         dto.setContestId(input.getContestId());
         dto.setInputType(input.getInputFormat());
         dto.setOutputType(input.getOutputFormat());
-        dto.setTimeLimit((double) input.getTimeLimit());
-        dto.setMemoryLimit((double) input.getMemoryLimit());
+        dto.setTimeLimit(input.getTimeLimit());
+        dto.setMemoryLimit(input.getMemoryLimit());
 
         if (!input.getLevel().isEmpty()) {
             dto.setLevel(ProblemLevel.valueOf(input.getLevel()));
@@ -214,10 +232,20 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
                         .map(tc -> TestcaseEntity.builder()
                                 .input(tc.getInput())
                                 .output(tc.getExpectedOutput())
+                                .isSample(tc.getIsSample())
+                                .score(tc.getScore())
+                                .testcaseName(tc.getTestcaseName())
                                 .build())
                         .collect(Collectors.toList())
         );
 
+        dto.setImageUrls(input.getImageUrlsList());
+        dto.setSolution(input.getSolution());
+
+        if (input.getRating() > 0) dto.setRating(input.getRating()); // do cái đầu buồi này là kiểu nguyên thủy nên không thể là null
+        if (input.getScore() > 0) dto.setScore(input.getScore());
+
+        log.info("=========Inside convertToInputDto====={}",input);
         return dto;
     }
 
@@ -282,6 +310,11 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         if (entity.getCreatedAt() != null) builder.setCreatedAt(entity.getCreatedAt().toString());
         if (entity.getLastModifiedDate() != null) builder.setUpdatedAt(entity.getLastModifiedDate().toString());
 
+        if (entity.getImageUrls() != null) builder.addAllImageUrls(entity.getImageUrls()); // <-- THÊM
+        if (entity.getSolution() != null) builder.setSolution(entity.getSolution());   // <-- THÊM
+        if (entity.getRating() != null) builder.setRating(entity.getRating()); // <-- THÊM
+        if (entity.getScore() != null) builder.setScore(entity.getScore());    // <-- THÊM
+
         if (entity.getTags() != null) {
             builder.addAllTags(entity.getTags());
         }
@@ -310,6 +343,8 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         if (entity.getTestcaseName() != null) builder.setId(entity.getTestcaseName());
         if (entity.getInput() != null) builder.setInput(entity.getInput());
         if (entity.getOutput() != null) builder.setExpectedOutput(entity.getOutput());
+        if (entity.getIsSample() != null) builder.setIsSample(entity.getIsSample());  // <-- THÊM (nếu có)
+        if (entity.getScore()!=null) builder.setScore(entity.getScore());
         return builder.build();
     }
 }

@@ -14,7 +14,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
+// them api xem rating history
+// them admin api set 1 user len pro_user (role_user)
 @RestController
 @RequestMapping("/api/v1")
 @AllArgsConstructor

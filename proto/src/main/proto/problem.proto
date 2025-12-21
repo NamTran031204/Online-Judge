@@ -54,6 +54,7 @@ message TestcaseInput {
   string expectedOutput = 2;
   int32 score = 3;
   bool isSample = 4;
+  string testcaseName = 5;
 }
 
 message Testcase {
@@ -83,6 +84,10 @@ message ProblemInput {
   repeated TestcaseInput testcases = 11;
   int64 contestId = 12;
   string authorId = 13;
+  repeated string imageUrls = 14;
+  string solution = 15;
+  int32 score = 16;
+  int32 rating = 17;
 }
 
 message Problem {
@@ -102,6 +107,10 @@ message Problem {
   string authorId = 14;
   string createdAt = 15;
   string updatedAt = 16;
+  string solution = 17;
+  repeated string imageUrls = 18;
+  int32 rating = 19;
+  int32 score = 20;
 }
 
 // ==================== Request Messages ====================

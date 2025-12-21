@@ -35,12 +35,13 @@ public class RbacService {
 
         if (auth == null) return false;
 
-        Long userId =  (Long) auth.getPrincipal();
+        System.out.println(scopeId + " " + auth.getPrincipal());
+
+        Long userId =  (Long) auth.getPrincipal(); // bug ở đây ?
 
         RoleUserEntity.ScopeType scopeType = RoleUserEntity.ScopeType.valueOf(scopeTypeStr); //convert enum
 
         System.out.println(userId + " " + scopeType + " ");
-        System.out.println(scopeId + "\n");
 
         try {
             List<Integer> roleIds = roleUserRepo.findRoleIds(userId, scopeType, scopeId);

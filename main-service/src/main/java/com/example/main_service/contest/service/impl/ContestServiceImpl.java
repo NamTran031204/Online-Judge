@@ -1,7 +1,11 @@
 package com.example.main_service.contest.service.impl;
 
+import com.example.main_service.contest.repo.ContestProblemRepo;
+import com.example.main_service.contest.repo.ContestRegistrationRepo;
 import com.example.main_service.contest.service.StatusChangeService;
 import com.example.main_service.rbac.RbacService;
+import com.example.main_service.rbac.model.RoleUserEntity;
+import com.example.main_service.rbac.repo.RoleUserRepo;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.contest.dto.contest.*;
@@ -19,10 +23,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,45 +41,14 @@ public class ContestServiceImpl implements ContestService {
     private final ContestRepo contestRepo;
     private final StatusChangeService statusChangeService;
     private final RbacService rbacService;
-    /**
-     * TODO: chinh sua lai logic tao contest visibility/type vi: hien tai van dang cho tao contest OFFICIAL de test
-     *
-     * @param input
-     * @return
-     */
+    private final ContestRegistrationRepo contestRegistrationRepo;
+
     @Override
     @Transactional(rollbackOn = Exception.class)
     public ContestCreateUpdateResponseDto createContest(ContestCreateUpdateRequestDto input) {
         contestCreateUpdateValidate(input, "create");
-
-        if (input.getContestType() == null) {
-            input.setContestType(ContestType.DRAFT);
-        } else {
-            if (input.getContestType() == ContestType.DRAFT) {
-                if (input.getVisibility() == ContestVisibility.PUBLIC) {
-                    throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong duoc tao contest Draft - Public");
-                }
-                input.setVisibility(ContestVisibility.PRIVATE);
-            } else if (input.getContestType() == ContestType.OFFICIAL) {
-                if (input.getVisibility() == ContestVisibility.PRIVATE) {
-                    throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Contest Official bat buoc PUBLIC");
-                }
-                input.setVisibility(ContestVisibility.PUBLIC);
-            }
-        }
-        if (input.getVisibility() == null) {
-            input.setVisibility(ContestVisibility.PRIVATE);
-        }
-
-        if (input.getContestType() == null) {
-            if (input.getContestType() == ContestType.OFFICIAL && input.getVisibility() == ContestVisibility.PRIVATE) {
-                throw new ContestBusinessException(ErrorCode.CONTEST_PROBLEM_ERROR, "Khong duoc tao contest OFFICIAL nhung PRIVATE do chinh sach he thong");
-            }
-        } else {
-            if (input.getContestType().equals(ContestType.GYM)) {
-                input.setRated(0L);
-            }
-        }
+        input.setContestType(ContestType.DRAFT);
+        input.setVisibility(ContestVisibility.PRIVATE);
 
         Long userId = getUserIdFromToken();
         if(userId==0) throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR, "Khong biet author la ai");
@@ -87,7 +60,7 @@ public class ContestServiceImpl implements ContestService {
                 .duration(input.getDuration())
                 .contestStatus(ContestStatus.UPCOMING)
                 .contestType(input.getContestType())
-                .author(userId) // TODO: lay ra author tu UserDetail cua Security //done
+                .author(userId)
                 .rated(input.getRated())
                 .visibility(input.getVisibility())
                 .groupId(input.getGroupId())
@@ -119,14 +92,8 @@ public class ContestServiceImpl implements ContestService {
             contest.setStartTime(input.getStartTime());
         if (input.getDuration() != null)
             contest.setDuration(input.getDuration());
-        if (input.getContestType() != null)
-            contest.setContestType(statusChangeService.changeContestType(input.getContestType(), contest));
         if (input.getGroupId() != null)
             contest.setGroupId(input.getGroupId());
-        if (input.getRated() != null)
-            contest.setRated(input.getRated());
-        if (input.getVisibility() != null)
-            contest.setVisibility(statusChangeService.changeContestVisibility(input.getVisibility(), contest));
 
         contestRepo.save(contest);
         return ContestCreateUpdateResponseDto.builder()
@@ -189,17 +156,13 @@ public class ContestServiceImpl implements ContestService {
         }
     }
 
-    /**
-     * TODO: neu da phat trien GROUP, request nay can validate get contest by visibility
-     * TODO: lay ra userId tu UserDetail
-     */
     @Override
     public ContestDetailDto getById(Long contestId) {
         ContestEntity contest = contestRepo.findById(contestId)
                 .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
 
         if (contest.getVisibility().equals(ContestVisibility.PRIVATE)) {
-            Long userId = 1L;
+            Long userId = getUserIdFromToken();
             boolean ok = true;
             if (!contest.getAuthor().equals(userId)) {
                 ok = false;
@@ -223,10 +186,7 @@ public class ContestServiceImpl implements ContestService {
                 .visibility(contest.getVisibility())
                 .build();
 
-        List<Long> problemList = new ArrayList<>();
-        /**
-         * TODO: goi den judge-service de lay ra danh sach problem theo contest
-         */
+        List<Long> problemList = new ArrayList<>(); //đọc từ contest problem
 
         ContestDetailDto response = ContestDetailDto.builder()
                 .problems(problemList)
@@ -239,12 +199,13 @@ public class ContestServiceImpl implements ContestService {
     @Transactional(rollbackOn = Exception.class)
     public void deleteContest(Long contestId) {
         if (contestId == null) throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
+        if(!isContestUpcoming(contestId)) throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
         contestRepo.deleteById(contestId);
     }
 
     @Override
     public PromoteDraftToGymResponseDto promoteDraft(Long contestId, PromoteDraftToGymRequestDto input) {
-        // check draft and private?
+
         ContestEntity contest = contestRepo.findById(contestId)
                 .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
 
@@ -273,6 +234,125 @@ public class ContestServiceImpl implements ContestService {
                 .visibility(contest.getVisibility())
                 .message("Contest is now public in Gym")
                 .build();
+    }
+
+    @Override
+    public Boolean isContestRunning(Long contestId) {
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        return contest.getStartTime().isBefore(now)
+                && contest.getEndTime().isAfter(now);
+    }
+
+    @Override
+    public Boolean isContestPublic(Long contestId) {
+        return contestRepo.findById(contestId)
+                .map(c -> c.getVisibility().equals(ContestVisibility.PUBLIC))
+                .orElse(false);
+    }
+
+    @Override
+    public Boolean isUserRegistered(Long contestId, Long userId) {
+        return contestRegistrationRepo.existsByContestIdAndUserId(contestId, userId);
+    }
+
+    @Override
+    public Boolean isContestFinished(Long contestId) {
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        LocalDateTime endTime = contest.getStartTime().plusSeconds(contest.getDuration());
+        return LocalDateTime.now().isAfter(endTime);
+    }
+
+    @Override
+    public Boolean isContestUpcoming(Long contestId) {
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+        return LocalDateTime.now().isBefore(contest.getStartTime());
+    }
+
+    @Override
+    public Boolean canUserSubmit(Long contestId, Long userId) {
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new RuntimeException("Contest not found"));
+
+        if (Boolean.TRUE.equals(isContestPublic(contestId))) {
+            return true;
+        }
+
+        return contestRegistrationRepo
+                .existsByContestIdAndUserId(contestId, userId);
+    }
+
+    @Override
+    public Long getContestStartTime(Long contestId) {
+        return contestRepo.findById(contestId)
+                .orElseThrow()
+                .getStartTime()
+                .atZone(ZoneId.systemDefault())
+                .toEpochSecond();
+    }
+
+    ContestProblemRepo contestProblemRepo;
+    @Override
+    @Transactional
+    public void assignReviewer(Long contestId, Long reviewerId) {
+
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        // 3. Gán quyền contest:view
+        rbacService.assignRole(
+                reviewerId,
+                "AUTHOR",
+                "Contest",
+                contestId.toString()
+        );
+
+        // 4. Lấy tất cả problem trong contest
+        List<String> problemIds = contestProblemRepo.findProblemIdsByContestId(contestId);
+
+        // 5. Gán problem:view cho từng problem
+        for (String problemId : problemIds) {
+            rbacService.assignRole(
+                    reviewerId,
+                    "AUTHOR",
+                    "Problem",
+                    problemId
+            );
+        }
+    }
+
+    @Override
+    public void promoteDraftToOfficial(Long contestId, ContestMakeOfficialRequestDto input) {
+        ContestEntity contest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+
+        if (contest.getContestType() != ContestType.DRAFT) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ERROR);
+        }
+
+        // 2. Validate start time
+        if (input.getStartTime() != null) {
+            if (input.getStartTime().isBefore(LocalDateTime.now())) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_ERROR); // start date ở quá khứ
+            }
+            contest.setStartTime(input.getStartTime());
+        } else {
+            if (contest.getStartTime() == null) {
+                throw new ContestBusinessException(ErrorCode.CONTEST_ERROR); // đéo có start date
+            }
+        }
+
+        // set rate (welp phải là bool)
+        contest.setRated(input.getRated() != null ? input.getRated() : 0L);
+
+        contest.setVisibility(ContestVisibility.PUBLIC);
+
+        contestRepo.save(contest);
     }
 
     private void contestCreateUpdateValidate(ContestCreateUpdateRequestDto input, String type) {
