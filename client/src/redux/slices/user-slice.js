@@ -12,8 +12,8 @@ const initialState = {
 };
 
 /* LOGIN */
-export const loginUser = createAsyncThunk(
-  "user/loginUser",
+export const login = createAsyncThunk(
+  "user/login",
   async ({ user_name, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/login`,
@@ -32,8 +32,8 @@ export const loginUser = createAsyncThunk(
 );
 
 /* REGISTER */
-export const registerUser = createAsyncThunk(
-  "user/registerUser",
+export const signup = createAsyncThunk(
+  "user/signup",
   async ({ user_name, email, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/register`,
@@ -102,11 +102,11 @@ const userSlice = createSlice({
     builder
 
       /*  LOGIN  */
-      .addCase(loginUser.pending, (state) => {
+      .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isLogin = true;
 
@@ -114,17 +114,17 @@ const userSlice = createSlice({
         // localStorage.setItem("accessToken", action.payload.access_token);
         // localStorage.setItem("refreshToken", action.payload.refresh_token);
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
       /*  REGISTER  */
-      .addCase(registerUser.pending, (state) => {
+      .addCase(signup.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
         state.isLogin = true;
 
@@ -135,7 +135,7 @@ const userSlice = createSlice({
         // localStorage.setItem("accessToken", "mock-register-token");
         // localStorage.setItem("refreshToken", "mock-register-refresh");
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
