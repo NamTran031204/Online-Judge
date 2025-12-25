@@ -1,15 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import PublicLayout from "./layout/public-layout";
 import AuthLayout from "./layout/auth-layout";
 import MainLayout from "./layout/main-layout";
 
-import ProtectedRoute from "./routes/protected-route";
-import GuestRoute from "./routes/guest-route";
-
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Register from "./pages/register";
+import Home from "./pages/home/home";
+import Auth from "./pages/auth/auth";
 import ContestList from "./pages/contest/contest-list";
 import ContestDetail from "./pages/contest/contest-detail";
 import ContestForm from "./pages/contest/contest-form";
@@ -32,79 +27,47 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route element={<AuthLayout />}>
+          <Route path="/auth" element={<Auth />} />
+        </Route>
 
-        {/* HOME PUBLIC */}
-        <Route
-          element={
-            <GuestRoute>
-              <PublicLayout />
-            </GuestRoute>
-          }
-        >
+        <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-        </Route>
+          <Route path="/home" element={<Home />} />
 
-        {/* LOGIN - REGISTER */}
-        <Route
-          element={
-            <GuestRoute>
-              <AuthLayout />
-            </GuestRoute>
-          }
-        >
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
-
-        {/* AUTHENTICATED */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* <Route path="/" element={<Home />} /> */}
-          {/* LIST CONTESTS */}
+          {/* contests */}
           <Route path="/contests" element={<ContestList />} />
-
-          {/* CREATE CONTEST */}
           <Route path="/contests/create" element={<ContestForm />} />
-
-          {/* CONTEST DETAIL */}
           <Route path="/contest/:contest_id" element={<ContestDetail />} />
-
-          {/* UPDATE CONTEST */}
           <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} />
 
-           {/* PROBLEMS */}
+          {/* problems */}
           <Route path="/problems" element={<ProblemList />} />
           <Route path="/problem/:problem_id" element={<ProblemDetail />} />
           <Route path="/problems/create" element={<ProblemForm />} />
           <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} />
-          
-          {/* Profile */}
+
+          {/* profile */}
           <Route path="/profile" element={<Profile />} />
 
-          {/* COMMENTS */}
+          {/* comments */}
           <Route path="/comments" element={<CommentList />} />
 
-          {/* SUBMISSIONS */}
+          {/* submissions */}
           <Route path="/submissions" element={<SubmissionList />} />
           <Route path="/submission/:submission_id" element={<SubmissionDetail />} />
           <Route path="/submission/create" element={<SubmissionCreate />} />
 
-          {/* GROUPS */}
+          {/* groups */}
           <Route path="/groups" element={<GroupList />} />
           <Route path="/group/:group_id" element={<GroupDetail />} />
           <Route path="/group/create" element={<GroupCreate />} />
-          
-          {/* RATING */}
+
+          {/* ratings */}
           <Route path="/ratings" element={<RatingList />} />
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
