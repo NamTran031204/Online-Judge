@@ -83,7 +83,7 @@ export default function Gym() {
                   <tr key={g.contest_id}>
                     <td className="title-cell">
                       <Link
-                        to={`/gym/${g.contest_id}`}
+                        to={`/contest/${g.contest_id}`}
                         className="gym-title"
                       >
                         {g.title}

@@ -13,7 +13,7 @@ import Problems from "./pages/problems/problems";
 import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
-// import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/dashboard";
 import CommentList from "./pages/comments/comment-list";
 import SubmissionList from "./pages/submissions/submission-list";
 import SubmissionDetail from "./pages/submissions/submission-detail";
@@ -55,10 +55,13 @@ function App() {
           {/* comments */}
           <Route path="/comments" element={<CommentList />} />
 
-          {/* submissions */}
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />
           <Route path="/submission/:submission_id" element={<SubmissionDetail />} />
-          <Route path="/submission/create" element={<SubmissionCreate />} />
+          {/* <Route path="/submission/create" element={<SubmissionCreate />} /> */}
 
           {/* groups */}
           <Route path="/groups" element={<GroupList />} />

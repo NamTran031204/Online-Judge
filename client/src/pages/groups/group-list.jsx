@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { searchGroups } from "../../redux/slices/group-list-slice";
 import { Link } from "react-router-dom";
 import "./group.css";
-import InviteMemberModal from "./group-invite"; 
+import InviteMemberModal from "./group-invite";
 import ViewInvitationsModal from "./invitation-list";
-
 
 // Dữ liệu giả định (Mock Data)
 const mockGroups = [
@@ -46,18 +45,16 @@ export default function GroupList() {
     setSelectedGroup(null);
   };
 
-
   useEffect(() => {
     dispatch(searchGroups({ search, page, size: limit }));
-  }, [search, page]);
+  }, [dispatch, search, page]);
 
-  const groupsToDisplay = fetchedGroups.length > 0 || loading 
-    ? fetchedGroups 
+  const groupsToDisplay = fetchedGroups.length > 0 || loading
+    ? fetchedGroups
     : mockGroups;
     
-  const countToUse = fetchedGroups.length > 0 ? totalCount : mockGroups.length; 
+  const countToUse = fetchedGroups.length > 0 ? totalCount : mockGroups.length;
   const totalPages = Math.ceil(countToUse / limit);
-
 
   return (
     <div className="group-container">
@@ -77,7 +74,7 @@ export default function GroupList() {
         </div>
 
         <Link to="/group/create">
-          <button className="primary-btn">Create Group</button>
+          <button className="btn create-btn">New Group</button>
         </Link>
       </div>
 
@@ -89,7 +86,7 @@ export default function GroupList() {
             <th>ID</th>
             <th>Name</th>
             <th>Owner</th>
-            <th>Actions</th>
+            <th style={{ textAlign: "right" }}>Actions</th>
           </tr>
         </thead>
 
@@ -99,25 +96,24 @@ export default function GroupList() {
               <td>{g.group_id}</td>
               <td>{g.group_name}</td>
               <td>{g.owner_id}</td>
-              <td className="action-cell"> 
+              <td className="action-cell">
                 <Link to={`/group/${g.group_id}`}>
-                  <button className="primary-btn small">View</button>
+                  <button className="btn view-btn small-btn">View</button>
                 </Link>
-                
-                <button 
-                    className="primary-btn small" 
-                    onClick={() => openInviteModal(g)}
+
+                <button
+                  className="btn invite-btn small-btn"
+                  onClick={() => openInviteModal(g)}
                 >
-                    Invite
-                </button>
-                
-                <button 
-                    className="primary-btn small" 
-                    onClick={() => openInvitationsModal(g)}
-                >
-                    Invitations
+                  Invite
                 </button>
 
+                <button
+                  className="btn invitation-btn small-btn"
+                  onClick={() => openInvitationsModal(g)}
+                >
+                  Invitations
+                </button>
               </td>
             </tr>
           ))}
@@ -129,7 +125,6 @@ export default function GroupList() {
         </tbody>
       </table>
 
-      {/* Action + Pagination */}
       <div className="group-list-action-btn-box">
         {groupsToDisplay.length > 0 && (
           <div className="group-pagination-box">
@@ -163,15 +158,14 @@ export default function GroupList() {
       </div>
 
       {isInviteModalOpen && selectedGroup && (
-        <InviteMemberModal 
-            group={selectedGroup} 
-            onClose={closeModal} 
+        <InviteMemberModal
+          group={selectedGroup}
+          onClose={closeModal}
         />
       )}
       {isInvitationsModalOpen && selectedGroup && (
         <ViewInvitationsModal group={selectedGroup} onClose={closeModal} />
       )}
-      
     </div>
   );
 }

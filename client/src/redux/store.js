@@ -11,6 +11,7 @@ import submissionListReducer from "./slices/submissions-list-slice";
 import groupsListReducer from "./slices/group-list-slice";
 import groupsReducer from "./slices/groups-slice";
 import ratingsReducer from "./slices/rating-slice";
+import dashboardReducer from "./slices/dashboard-slice";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     submission: submissionReducer,
     groupList: groupsListReducer,
     group: groupsReducer,
+    dashboard: dashboardReducer,
   },
 });
 

@@ -1,4 +1,3 @@
-// src/redux/problems/problem-slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { SERVER_URL } from "../../config/config.js";

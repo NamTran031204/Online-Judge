@@ -1,77 +1,91 @@
+/* ============================
+    COMMENT LIST
+=============================== */
+
 .comment-container {
-  width: 100%;
-  padding: 20px;
-  background: #fff;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #ffffff;
 }
 
 .comment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; 
 }
 
 .comment-header h2 {
-  margin: 0;
-  font-size: 22px;
+    margin: 0;
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 700;
 }
 
 .new-comment-btn {
-  background: #007bff;
-  color: #fff;
-  padding: 7px 14px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 14px;
-  transition: 0.2s;
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .new-comment-btn:hover {
-  background: #0056b3;
+    background-color: #218838;
 }
 
-/* TABLE */
 .comment-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 6px;
-  overflow: hidden;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .comment-table th {
-  background: #f0f2f5;
-  padding: 10px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
+    background: #eef2ff;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    color: #4338ca;
 }
 
 .comment-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 14px;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: #374151;
 }
 
-/* Hover row */
 .comment-table tbody tr:hover {
-  background: #fafafa;
+    background: #f9f9ff;
 }
 
-/* Delete button */
 .delete-btn {
-  background: #ff4d4f;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 6px;
-  border: none;
-  font-size: 13px;
-  cursor: pointer;
-  transition: 0.2s;
+    background-color: #ef4444;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .delete-btn:hover {
-  background: #d9363e;
+    background-color: #dc2626;
 }
 
 /* ============================

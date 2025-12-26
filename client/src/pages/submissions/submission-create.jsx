@@ -1,14 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react"; 
 import { useDispatch, useSelector } from "react-redux";
-import { createSubmission } from "../../redux/slices/submissions-list-slice";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  MenuItem,
-  CircularProgress,
-} from "@mui/material"; 
+import { 
+  createSubmission,
+  clearCreateError, 
+} from "../../redux/slices/submissions-list-slice"; 
 import { useNavigate } from "react-router-dom";
 import "./submission.css"; 
 
@@ -28,13 +23,24 @@ export default function SubmissionCreate() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error } = useSelector((state) => state.submissionList);
+  const { loading, createError } = useSelector( 
+    (state) => state.submissionList
+  );
+
+  useEffect(() => {
+    if (createError) {
+        dispatch(clearCreateError());
+    }
+    dispatch(clearCreateError()); 
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!problemId.trim() || !sourceCode.trim()) return; 
+
     const payload = {
-      problem_id: problemId,
+      problem_id: problemId.trim(),
       lang,
       source_code: sourceCode,
     };
@@ -44,77 +50,61 @@ export default function SubmissionCreate() {
     }
 
     try {
-      const submission = await dispatch(createSubmission(payload)).unwrap();
-      navigate(`/submissions/${submission.submission_id}`);
+      const submission = await dispatch(createSubmission(payload)).unwrap(); 
+      navigate(`/submissions/${submission.submission_id}`); 
     } catch (err) {
-      console.error(err);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}> 
-      <Typography variant="h4" gutterBottom sx={{ mb: 4 }}> 
-        Create Submission
-      </Typography>
+    <div className="submission-container"> 
+      
+      <form className="submission-form" onSubmit={handleSubmit}>
+        <h2>Create Submission</h2>
 
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Problem ID"
+        {createError && <div className="gc-error">{createError}</div>}
+
+        <label>Problem ID</label>
+        <input
+          type="text"
           value={problemId}
           onChange={(e) => setProblemId(e.target.value)}
-          fullWidth
           required
-          sx={{ mb: 3 }} 
         />
 
-        {/* Contest ID */}
-        <TextField
-          label="Contest ID (optional)"
+        <label>Contest ID (optional)</label>
+        <input
+          type="text"
           value={contestId}
           onChange={(e) => setContestId(e.target.value)}
-          fullWidth
-          sx={{ mb: 3 }}
         />
 
-        {/* Language */}
-        <TextField
-          select
-          label="Language"
+        <label>Language</label>
+        <select
           value={lang}
           onChange={(e) => setLang(e.target.value)}
-          fullWidth
-          sx={{ mb: 3 }}
         >
           {LANGS.map((l) => (
-            <MenuItem key={l.value} value={l.value}>
+            <option key={l.value} value={l.value}>
               {l.label}
-            </MenuItem>
+            </option>
           ))}
-        </TextField>
+        </select>
 
-        {/* Source Code */}
-        <TextField
-          label="Source Code"
+        <label>Source Code</label>
+        <textarea
           value={sourceCode}
           onChange={(e) => setSourceCode(e.target.value)}
-          fullWidth
-          multiline
-          minRows={12}
           required
-          sx={{ mb: 4 }}
         />
 
-        <Button 
+        <button 
           type="submit" 
-          variant="contained" 
-          disabled={loading}
-          fullWidth
-          size="large"
-          sx={{ py: 1.5 }}
+          disabled={loading || !problemId.trim() || !sourceCode.trim()} 
         >
-          {loading ? <CircularProgress size={20} color="inherit" /> : "Create Submission"}
-        </Button>
+          {loading ? "Creating..." : "Create Submission"}
+        </button>
       </form>
-    </Box>
+    </div>
   );
 }

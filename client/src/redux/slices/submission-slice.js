@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
 import { SERVER_URL } from "../../config/config.js";
+import { mockSubmissions } from "../../pages/submissions/mock-submissions";
 
 /* ============================================================
    GET SUBMISSION DETAIL
@@ -15,8 +15,18 @@ export const getSubmissionDetail = createAsyncThunk(
       );
       return res.data.data;
     } catch (err) {
+      console.warn(
+        "[SubmissionDetail] API failed, fallback to mock"
+      );
+
+      const mock = mockSubmissions.find(
+        (s) => String(s.submission_id) === String(submission_id)
+      );
+
+      if (mock) return mock;
+
       return rejectWithValue(
-        err.response?.data?.message || "Get submission detail failed"
+        "Submission not found (API & mock)"
       );
     }
   }
@@ -35,7 +45,8 @@ export const deleteSubmission = createAsyncThunk(
       return submission_id;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Delete submission failed"
+        err.response?.data?.message ||
+          "Delete submission failed"
       );
     }
   }
@@ -54,7 +65,8 @@ export const deleteSubmissionsByProblem = createAsyncThunk(
       return problem_id;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Delete submissions by problem failed"
+        err.response?.data?.message ||
+          "Delete submissions by problem failed"
       );
     }
   }
@@ -73,7 +85,8 @@ export const deleteSubmissionsByUser = createAsyncThunk(
       return user_id;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Delete submissions by user failed"
+        err.response?.data?.message ||
+          "Delete submissions by user failed"
       );
     }
   }
@@ -102,11 +115,11 @@ const submissionSlice = createSlice({
       /* ================= DETAIL ================= */
       .addCase(getSubmissionDetail.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(getSubmissionDetail.fulfilled, (state, action) => {
         state.loading = false;
         state.detail = action.payload;
-        state.error = null;
       })
       .addCase(getSubmissionDetail.rejected, (state, action) => {
         state.loading = false;
@@ -133,7 +146,6 @@ const submissionSlice = createSlice({
       })
       .addCase(deleteSubmissionsByProblem.fulfilled, (state) => {
         state.loading = false;
-        state.error = null;
       })
       .addCase(deleteSubmissionsByProblem.rejected, (state, action) => {
         state.loading = false;
@@ -146,7 +158,6 @@ const submissionSlice = createSlice({
       })
       .addCase(deleteSubmissionsByUser.fulfilled, (state) => {
         state.loading = false;
-        state.error = null;
       })
       .addCase(deleteSubmissionsByUser.rejected, (state, action) => {
         state.loading = false;
