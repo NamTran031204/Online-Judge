@@ -1,16 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   fetchContestDetail,
-  addContestProblem,
-  removeContestProblem,
-  deleteContest
+  deleteContest,
 } from "../../redux/slices/contest-slice";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import "./contest.css";
 
-import { PERMISSION } from "../../types/user";
-import { hasPermission, hasAnyPermission, hasAllPermissions } from "../../utils/permission";
+import {
+  Trophy,
+  Medal,
+  Award,
+  ArrowLeft,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Code,
+  Users,
+  Play,
+  BookOpen,
+  MessageSquare,
+} from "lucide-react";
+
+import "./contest-detail.css";
 
 export default function ContestDetail() {
   const { contest_id } = useParams();
@@ -19,104 +30,171 @@ export default function ContestDetail() {
 
   const { detail, loading } = useSelector((state) => state.contest);
 
-  const [newProblem, setNewProblem] = useState("");
-
   useEffect(() => {
     dispatch(fetchContestDetail(contest_id));
   }, [contest_id]);
 
-  if (!detail || loading) return <p>Loading...</p>;
+  if (loading || !detail) return <div className="contest-loading">Loading...</div>;
 
-  const handleAddProblem = () => {
-    if (!newProblem) return alert("Enter problem_id!");
-    dispatch(addContestProblem({ contest_id, problem_id: newProblem })).then(
-      () => dispatch(fetchContestDetail(contest_id))
-    );
-    setNewProblem("");
-  };
-
-  const handleRemoveProblem = (pid) => {
-    dispatch(removeContestProblem({ contest_id, problem_id: pid })).then(() =>
-      dispatch(fetchContestDetail(contest_id))
-    );
-  };
-
-  const handleDelete = () => {
-    if (!confirm("Delete this contest?")) return;
-    dispatch(deleteContest(contest_id)).then(() => navigate("/contests"));
-  };
+  const isRunning = detail.contest_status === "running";
+  const isEnded = detail.contest_status === "ended";
 
   return (
-    <div className="contest-container">
-      <h2 className="contest-title">{detail.title}</h2>
-
-      <p className="contest-info"><b>Type:</b> {detail.contest_type}</p>
-      <p className="contest-info"><b>Start:</b> {detail.start_time}</p>
-      <p className="contest-info"><b>Duration:</b> {detail.duration} minutes</p>
-      <p className="contest-info"><b>Description:</b> {detail.description}</p>
-
-      <p className="contest-problems-title">Problems</p>
-
-      <table className="list-table">
-        <thead>
-          <tr>
-            <th>Problem ID</th>
-            <th>Title</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {detail.problems.length === 0 && (
-            <tr>
-              <td colSpan="4" style={{ textAlign: "center" }}>
-                No problems
-              </td>
-            </tr>
-          )}
-
-          {detail.problems.map((p) => (
-            <tr key={p.problem_id}>
-              <td>{p.problem_id}</td>
-              <td>{p.title}</td>
-              <td className="action-cell">
-                <Link to={`/problem/${p.problem_id}`}>
-                  <button className="view-btn">Solve</button>
-                </Link>
-
-                <button
-                  className="del-btn"
-                  onClick={() => handleRemoveProblem(p.problem_id)}
-                >
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-
-
-      {/* Add Problem */}
-      <div className="add-problem-box">
-        <input
-          placeholder="problem_id"
-          value={newProblem}
-          onChange={(e) => setNewProblem(e.target.value)}
-        />
-        <button className="create-btn" onClick={handleAddProblem}>Add Problem</button>
-      </div>
-
-      {/* Edit + Delete */}
-      <div className="action-cell">
-        <Link to={`/contest/edit/${contest_id}`}>
-          <button className="edit-btn">Edit Contest</button>
+    <div className="contest-detail-page">
+      {/* Header */}
+      <div className="contest-header">
+        <Link to="/contests" className="back-btn">
+          <ArrowLeft size={16} />
+          Back to contests
         </Link>
 
-        <button className="del-btn" onClick={handleDelete}>
-          Delete Contest
-        </button>
+        <div className="contest-title-row">
+          <div>
+            <h1>{detail.title}</h1>
+            <p className="contest-desc">{detail.description}</p>
+          </div>
+
+          <span className={`status-badge ${detail.contest_status}`}>
+            {isRunning && <CheckCircle size={14} />}
+            {isEnded && <XCircle size={14} />}
+            {!isRunning && !isEnded && <Clock size={14} />}
+            {detail.contest_status}
+          </span>
+        </div>
+      </div>
+
+      <div className="contest-grid">
+        {/* LEFT */}
+        <div className="contest-main">
+          {/* Problems */}
+          <section className="card">
+            <h2 className="card-title">
+              <Code size={18} />
+              Problems
+            </h2>
+
+            <table className="contest-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.problems.length === 0 && (
+                  <tr>
+                    <td colSpan="3" className="empty">
+                      No problems
+                    </td>
+                  </tr>
+                )}
+
+                {detail.problems.map((p, idx) => (
+                  <tr key={p.problem_id}>
+                    <td>{String.fromCharCode(65 + idx)}</td>
+                    <td>{p.title}</td>
+                    <td>
+                      <Link
+                        to={`/problem/${p.problem_id}`}
+                        className="solve-btn"
+                      >
+                        Solve
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+
+          {/* Standings */}
+          <section className="card">
+            <h2 className="card-title">
+              <Trophy size={18} />
+              Standings
+            </h2>
+
+            {isRunning || isEnded ? (
+              <div className="standings-placeholder">
+                <Users size={32} />
+                <p>Standings will appear here</p>
+              </div>
+            ) : (
+              <div className="standings-placeholder">
+                <Clock size={32} />
+                <p>Contest has not started</p>
+              </div>
+            )}
+          </section>
+
+          {/* Questions */}
+          <section className="card">
+            <h2 className="card-title">
+              <MessageSquare size={18} />
+              Questions & Announcements
+            </h2>
+
+            <div className="empty">No announcements yet</div>
+          </section>
+        </div>
+
+        {/* RIGHT */}
+        <aside className="contest-sidebar">
+          <div className="card">
+            <h3>Contest Info</h3>
+
+            <div className="info-row">
+              <span>Status</span>
+              <span>{detail.contest_status}</span>
+            </div>
+
+            <div className="info-row">
+              <span>Type</span>
+              <span>{detail.contest_type}</span>
+            </div>
+
+            <div className="info-row">
+              <span>Start</span>
+              <span>{detail.start_time}</span>
+            </div>
+
+            <div className="info-row">
+              <span>Duration</span>
+              <span>{detail.duration} minutes</span>
+            </div>
+          </div>
+
+          <div className="card">
+            <h3>
+              <Play size={16} /> Virtual Participation
+            </h3>
+            <button className="primary-btn">Start Virtual Contest</button>
+          </div>
+
+          <div className="card">
+            <h3>
+              <BookOpen size={16} /> Materials
+            </h3>
+            <Link className="link-item">Announcements</Link>
+            <Link className="link-item">Tutorial</Link>
+          </div>
+
+          <div className="card danger">
+            <button
+              className="danger-btn"
+              onClick={() => {
+                if (confirm("Delete this contest?")) {
+                  dispatch(deleteContest(contest_id)).then(() =>
+                    navigate("/contests")
+                  );
+                }
+              }}
+            >
+              Delete Contest
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import {
 } from "../../redux/slices/contest-slice";
 import { createContest } from "../../redux/slices/contests-list-slice";
 import { useParams, useNavigate } from "react-router-dom";
-import "./contest.css";
+// import "./contest.css";
 
 export default function ContestForm() {
   const { contest_id } = useParams();

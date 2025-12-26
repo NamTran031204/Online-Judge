@@ -14,10 +14,10 @@ const initialState = {
 /* LOGIN */
 export const login = createAsyncThunk(
   "user/login",
-  async ({ user_name, password }, { rejectWithValue }) => {
+  async ({ username, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/login`,
-        { user_name, password }
+        { username, password }
       );
 
       // API trả về: { isSuccessful, data: { access_token, refresh_token, expires_in } }
@@ -34,13 +34,13 @@ export const login = createAsyncThunk(
 /* REGISTER */
 export const signup = createAsyncThunk(
   "user/signup",
-  async ({ user_name, email, password }, { rejectWithValue }) => {
+  async ({ username, email, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/register`,
-        { user_name, email, password }
+        { username, email, password }
       );
 
-      // API trả về: { isSuccessful, data: { user_id, user_name, email } }
+      // API trả về: { isSuccessful, data: { user_id, username, email } }
       return res.data.data;
 
     } catch (error) {
@@ -128,7 +128,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.isLogin = true;
 
-        // action.payload = { user_id, user_name, email }
+        // action.payload = { user_id, username, email }
         state.user = action.payload;
 
         // API register không trả token 

@@ -1,0 +1,153 @@
+.gym-page {
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.gym-header h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.gym-header p {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.gym-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.gym-table-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.gym-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gym-table th,
+.gym-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.gym-table th {
+  background: #f1f5f9;
+  text-align: left;
+  color: #475569;
+}
+
+.title-cell .sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gym-title {
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.running {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.ended {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status.upcoming {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #2563eb;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.btn-outline {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px;
+  color: #94a3b8;
+}
+
+.gym-sidebar .filter-card,
+.gym-sidebar .info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  margin-bottom: 16px;
+}
+
+.filter-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  color: #475569;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.full {
+  width: 100%;
+  margin-top: 12px;
+}

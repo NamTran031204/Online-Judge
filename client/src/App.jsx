@@ -5,10 +5,11 @@ import MainLayout from "./layout/main-layout";
 
 import Home from "./pages/home/home";
 import Auth from "./pages/auth/auth";
-import ContestList from "./pages/contest/contest-list";
+import Contests from "./pages/contest/contests";
+import Gym from "./pages/contest/gym";
 import ContestDetail from "./pages/contest/contest-detail";
 import ContestForm from "./pages/contest/contest-form";
-import ProblemList from "./pages/problems/problem-list";
+import Problems from "./pages/problems/problems";
 import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
@@ -36,13 +37,14 @@ function App() {
           <Route path="/home" element={<Home />} />
 
           {/* contests */}
-          <Route path="/contests" element={<ContestList />} />
+          <Route path="/contests" element={<Contests />} />
+          <Route path="/gym" element={<Gym />} />
           <Route path="/contests/create" element={<ContestForm />} />
           <Route path="/contest/:contest_id" element={<ContestDetail />} />
           <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} />
 
           {/* problems */}
-          <Route path="/problems" element={<ProblemList />} />
+          <Route path="/problems" element={<Problems />} />
           <Route path="/problem/:problem_id" element={<ProblemDetail />} />
           <Route path="/problems/create" element={<ProblemForm />} />
           <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} />
