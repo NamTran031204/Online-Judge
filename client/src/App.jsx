@@ -95,7 +95,7 @@ function App() {
           {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />
           <Route path="/submission/:submission_id" element={<SubmissionDetail />} />
-          <Route path="/submission/create" element={<SubmissionCreate />} />
+          {/* <Route path="/submission/create" element={<SubmissionCreate />} /> */}
 
           {/* GROUPS */}
           <Route path="/groups" element={<GroupList />} />
