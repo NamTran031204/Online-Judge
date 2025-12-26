@@ -1,8 +1,15 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .auth-layout {
-  min-height: calc(100vh - 70px);
+  flex: 1;
   background: #eef2ff;
+  overflow-y: auto;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
 }

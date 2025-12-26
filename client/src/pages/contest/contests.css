@@ -1,0 +1,141 @@
+.contest-page {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #0f172a;
+}
+
+/* HEADER */
+.contest-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.contest-header p {
+  margin-top: 6px;
+  color: #64748b;
+}
+
+/* SECTION */
+.contest-section {
+  margin-top: 40px;
+}
+
+.contest-section h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* TABLE */
+.contest-table-wrapper {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.contest-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.contest-table thead {
+  background: #f8fafc;
+}
+
+.contest-table th,
+.contest-table td {
+  padding: 14px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.contest-table th {
+  font-weight: 600;
+  color: #334155;
+}
+
+.contest-table tr {
+  border-top: 1px solid #e2e8f0;
+}
+
+.contest-table tr:hover {
+  background: #f9fbff;
+}
+
+.contest-name a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contest-name a:hover {
+  text-decoration: underline;
+}
+
+.center {
+  text-align: center;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.upcoming {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge.running {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.ended {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn.outline {
+  background: #fff;
+  border: 1px solid #cbd5f5;
+  color: #1e40af;
+}
+
+.btn.outline:hover {
+  background: #eff6ff;
+}
+
+.btn.disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  cursor: not-allowed;
+}
+
+/* EMPTY */
+.empty-row {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+}
+
+.loading {
+  margin-top: 20px;
+  color: #64748b;
+}

@@ -12,12 +12,12 @@ const initialState = {
 };
 
 /* LOGIN */
-export const loginUser = createAsyncThunk(
-  "user/loginUser",
-  async ({ user_name, password }, { rejectWithValue }) => {
+export const login = createAsyncThunk(
+  "user/login",
+  async ({ username, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/login`,
-        { user_name, password }
+        { username, password }
       );
 
       // API trả về: { isSuccessful, data: { access_token, refresh_token, expires_in } }
@@ -32,15 +32,15 @@ export const loginUser = createAsyncThunk(
 );
 
 /* REGISTER */
-export const registerUser = createAsyncThunk(
-  "user/registerUser",
-  async ({ user_name, email, password }, { rejectWithValue }) => {
+export const signup = createAsyncThunk(
+  "user/signup",
+  async ({ username, email, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${SERVER_URL}/auth/register`,
-        { user_name, email, password }
+        { username, email, password }
       );
 
-      // API trả về: { isSuccessful, data: { user_id, user_name, email } }
+      // API trả về: { isSuccessful, data: { user_id, username, email } }
       return res.data.data;
 
     } catch (error) {
@@ -102,11 +102,11 @@ const userSlice = createSlice({
     builder
 
       /*  LOGIN  */
-      .addCase(loginUser.pending, (state) => {
+      .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isLogin = true;
 
@@ -114,28 +114,28 @@ const userSlice = createSlice({
         // localStorage.setItem("accessToken", action.payload.access_token);
         // localStorage.setItem("refreshToken", action.payload.refresh_token);
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
       /*  REGISTER  */
-      .addCase(registerUser.pending, (state) => {
+      .addCase(signup.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
         state.isLogin = true;
 
-        // action.payload = { user_id, user_name, email }
+        // action.payload = { user_id, username, email }
         state.user = action.payload;
 
         // API register không trả token 
         // localStorage.setItem("accessToken", "mock-register-token");
         // localStorage.setItem("refreshToken", "mock-register-refresh");
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

@@ -1,23 +1,15 @@
 import "./main-layout.css";
 
 import Header from "../components/header/header";
-import Sidebar from "../components/sidebar/sidebar";
 import { Outlet } from "react-router-dom";
+// import { Footer } from "../components/footer/footer";
 
-export default function MainLayout() {
+export default function MainLayout({ children }) {
   return (
     <div className="main-layout">
-
       <Header />
-
-      <div className="main-body">
-        <Sidebar />
-
-        <div className="main-content">
-          <Outlet />
-        </div>
-      </div>
-
+      <main className="main-content"><Outlet /></main>
+      {/* <Footer /> */}
     </div>
   );
 }

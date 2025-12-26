@@ -1,8 +1,0 @@
-.public-layout {
-  min-height: calc(100vh - 70px);
-  background: linear-gradient(135deg, #e0f2fe, #e9d5ff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-}

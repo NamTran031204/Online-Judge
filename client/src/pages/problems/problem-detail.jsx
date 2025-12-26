@@ -1,143 +1,290 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams, Link } from "react-router-dom";
+import { useRef } from "react";
 import { getProblemDetail } from "../../redux/slices/problem-slice";
-import { useParams } from "react-router-dom";
-import "./problems.css";
+import Editor from "@monaco-editor/react";
+import {
+  Clock,
+  HardDrive,
+  ArrowLeft,
+  Play,
+  RotateCcw,
+  CheckCircle,
+  Send,
+} from "lucide-react";
+import "./problem-detail.css";
+
+/*======
+   CODE TEMPLATES
+  ====== */
+const LANGUAGE_TEMPLATES = {
+  cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    // Your solution here
+
+    return 0;
+}`,
+  python: `def solve():
+    # Your solution here
+    pass
+
+if __name__ == "__main__":
+    solve()`,
+  java: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Your solution here
+    }
+}`,
+};
+
+const MONACO_LANGUAGE_MAP = {
+  cpp: "cpp",
+  python: "python",
+  java: "java",
+};
 
 export default function ProblemDetail() {
   const { problem_id } = useParams();
   const dispatch = useDispatch();
-
-  // Lấy dữ liệu từ slice
   const { problem: p, loading } = useSelector((state) => state.problem);
 
-  // fake test result
-  const [runResult, setRunResult] = useState(null);
+  const [activeTab, setActiveTab] = useState("description");
+  const [language, setLanguage] = useState("cpp");
+  const [code, setCode] = useState(LANGUAGE_TEMPLATES.cpp);
+  const [langOpen, setLangOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
 
   useEffect(() => {
-    dispatch(getProblemDetail(problem_id)); // gọi API từ slice
-  }, [problem_id]);
+    dispatch(getProblemDetail(problem_id));
+  }, [problem_id, dispatch]);
 
-  const handleRun = () => {
-    const fakeResult = {
-      status: "Accepted",
-      time: "0.012s",
-      memory: "4 MB",
-      output: "3",
-      expected: "3",
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setLangOpen(false);
+      }
     };
-    setRunResult(fakeResult);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    setCode(LANGUAGE_TEMPLATES[lang]);
   };
 
-  if (loading || !p)
-    return <div className="problem-container">Loading...</div>;
+  const handleReset = () => {
+    setCode(LANGUAGE_TEMPLATES[language]);
+  };
+
+  if (loading || !p) {
+    return <div className="problem-detail-loading">Loading...</div>;
+  }
 
   return (
-    <div className="problem-container">
-      <h2 className="problem-title">
-        {p.problem_id}. {p.title}
-      </h2>
+    <div className="problem-detail-layout">
+      {/* LEFT */}
+      <div className="problem-left">
+        <div className="problem-left-inner">
+          {/* Header */}
+          <div className="problem-header">
+            <Link to="/problems" className="back-link">
+              <ArrowLeft size={16} />
+              Back to Problems
+            </Link>
 
-      {/* Tags + Rating */}
-      <div className="problem-info">
-        <div className="tag-list">
-          {p.tags?.map((t) => (
-            <span key={t} className="tag">{t}</span>
-          ))}
-        </div>
-
-        <span className="rating">Rating: {p.rating}</span>
-      </div>
-
-      {/*  PROBLEM DESCRIPTION  */}
-      <div className="problem-card">
-        <h3>Description</h3>
-        <pre className="statement">{p.description}</pre>
-
-        <h3>Constraints</h3>
-        <p>Time Limit: {p.time_limit} ms</p>
-        <p>Memory Limit: {p.memory_limit} MB</p>
-
-        <h3>Sample Tests</h3>
-        {p.sample?.map((ex, index) => (
-          <div key={index} className="example-box">
-            <div>
-              <b>Input</b>
-              <pre>{ex.input}</pre>
-            </div>
-            <div>
-              <b>Output</b>
-              <pre>{ex.output}</pre>
+            <div className="title-row">
+              <h1>{p.title}</h1>
+              <span className="score-pill">{p.score} points</span>
             </div>
           </div>
-        ))}
 
-        <h3>Score</h3>
-        <p>{p.score}</p>
-
-        <h3>Solution</h3>
-        <pre className="statement">{p.solution}</pre>
-
-        <h3>Tutorial</h3>
-        <pre className="statement">{p.tutorial}</pre>
-      </div>
-
-      {/*  CODE EDITOR SECTION  */}
-      <div className="editor-section">
-        <h3>Write Your Solution</h3>
-
-        <label className="editor-label">Language</label>
-        <select className="editor-select">
-          <option>C++ 17</option>
-          <option>Java</option>
-          <option>Python 3</option>
-          <option>JavaScript (Node.js)</option>
-        </select>
-
-        <textarea
-          className="code-editor"
-          placeholder="// Write your code here..."
-        ></textarea>
-
-        <div className="action-cell">
-          <button className="view-btn" onClick={handleRun}>Run</button>
-          <button className="create-btn">Submit</button>
-        </div>
-      </div>
-
-      {/*  RUN RESULT SECTION  */}
-      {runResult && (
-        <div className="run-result">
-          <h3>Run Result</h3>
-
-          <div className="result-row">
-            <span>Status:</span>
-            <span className={`result-status ${runResult.status.toLowerCase()}`}>
-              {runResult.status}
+          {/* Meta */}
+          <div className="problem-meta">
+            <span>
+              <Clock size={14} /> {p.time_limit}s
+            </span>
+            <span>
+              <HardDrive size={14} /> {p.memory_limit} MB
+            </span>
+            <span>
+              <CheckCircle size={14} /> {p.rating}% accepted
             </span>
           </div>
 
-          <div className="result-row">
-            <span>Time:</span>
-            <span>{runResult.time}</span>
+          {/* Tags */}
+          <div className="problem-tags">
+            {p.tags?.map((tag) => (
+              <span key={tag} className="tag">
+                {tag}
+              </span>
+            ))}
           </div>
 
-          <div className="result-row">
-            <span>Memory:</span>
-            <span>{runResult.memory}</span>
+          {/* Tabs */}
+          <div className="problem-tabs">
+            <button
+              className={`tab ${activeTab === "description" ? "active" : ""}`}
+              onClick={() => setActiveTab("description")}
+            >
+              Description
+            </button>
+
+            <button
+              className={`tab ${activeTab === "submissions" ? "active" : ""}`}
+              onClick={() => setActiveTab("submissions")}
+            >
+              Submissions
+            </button>
           </div>
 
-          <div className="result-block">
-            <b>Your Output</b>
-            <pre>{runResult.output}</pre>
-          </div>
+          {/* Content */}
+          <div className="problem-content">
+            {activeTab === "description" && (
+              <>
+                <section>
+                  <h3>Problem</h3>
+                  <p className="pre-wrap">{p.description}</p>
+                </section>
 
-          <div className="result-block">
-            <b>Expected Output</b>
-            <pre>{runResult.expected}</pre>
+                {p.sample?.length > 0 && (
+                  <section className="examples-section">
+                    <h3>Examples</h3>
+
+                    {p.sample.map((ex, i) => (
+                      <div key={i} className="example-card">
+                        <div className="example-block">
+                          <div className="example-label">Input</div>
+                          <pre className="example-content">{ex.input}</pre>
+                        </div>
+
+                        <div className="example-block">
+                          <div className="example-label">Output</div>
+                          <pre className="example-content">{ex.output}</pre>
+                        </div>
+
+                        {ex.explanation && (
+                          <div className="example-explanation">
+                            <span>Explanation:</span> {ex.explanation}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </section>
+                )}
+              </>
+            )}
+
+            {activeTab === "submissions" && (
+              <div className="submissions-empty">
+                <div className="submissions-card">
+                  <p>Your submissions for this problem will appear here.</p>
+
+                  <Link to="/submissions" className="submissions-link">
+                    View all submissions
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* RIGHT */}
+      <div className="problem-right">
+        {/* Editor Header */}
+        <div className="editor-header">
+          <div className="language-dropdown" ref={dropdownRef}>
+            <button
+              className="language-trigger"
+              onClick={() => setLangOpen(!langOpen)}
+            >
+              {language.toUpperCase()}
+            </button>
+
+            {langOpen && (
+              <div className="language-menu">
+                <button onClick={() => {
+                  handleLanguageChange("cpp");
+                  setLangOpen(false);
+                }}>
+                  C++
+                </button>
+
+                <button onClick={() => {
+                  handleLanguageChange("python");
+                  setLangOpen(false);
+                }}>
+                  Python
+                </button>
+
+                <button onClick={() => {
+                  handleLanguageChange("java");
+                  setLangOpen(false);
+                }}>
+                  Java
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button className="reset-btn" onClick={handleReset}>
+            <RotateCcw size={14} />
+            Reset
+          </button>
+        </div>
+
+        {/* Editor */}
+        <div className="editor-body">
+          <Editor
+            height="100%"
+            language={MONACO_LANGUAGE_MAP[language]}
+            value={code}
+            onChange={(value) => setCode(value || "")}
+            theme="vs-dark"
+            options={{
+              fontSize: 14,
+              fontFamily: "'JetBrains Mono', monospace",
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              padding: { top: 16 },
+              lineNumbers: "on",
+              tabSize: 4,
+              automaticLayout: true,
+            }}
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="editor-footer">
+          <span className="editor-lines">
+            {code.split("\n").length} lines
+          </span>
+
+          <div className="editor-actions">
+            <button className="run-btn">
+              <Play size={14} />
+              Run
+            </button>
+            <button className="submit-btn">
+              <Send size={14} />
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
