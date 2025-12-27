@@ -11,6 +11,7 @@ import ContestDetail from "./pages/contest/contest-detail";
 import ContestForm from "./pages/contest/contest-form";
 import Problems from "./pages/problems/problems";
 import ProblemDetail from "./pages/problems/problem-detail";
+import ProblemSandbox from "./pages/problems/problem-sandbox";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
 import Dashboard from "./pages/dashboard/dashboard";
@@ -39,15 +40,17 @@ function App() {
           {/* contests */}
           <Route path="/contests" element={<Contests />} />
           <Route path="/gym" element={<Gym />} />
-          <Route path="/contests/create" element={<ContestForm />} />
+          {/* <Route path="/contests/create" element={<ContestForm />} /> */}
           <Route path="/contest/:contest_id" element={<ContestDetail />} />
-          <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} />
+          <Route path="/gym/:contest_id" element={<ContestDetail />} />
+          {/* <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} /> */}
 
           {/* problems */}
           <Route path="/problems" element={<Problems />} />
           <Route path="/problem/:problem_id" element={<ProblemDetail />} />
-          <Route path="/problems/create" element={<ProblemForm />} />
-          <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} />
+          {/* <Route path="/problems/create" element={<ProblemForm />} /> */}
+          {/* <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} /> */}
+          <Route path="/sandbox" element={<ProblemSandbox />} />
 
           {/* profile */}
           <Route path="/profile" element={<Profile />} />

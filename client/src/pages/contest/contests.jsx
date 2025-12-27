@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchContests } from "../../redux/slices/contests-list-slice";
 import { Link } from "react-router-dom";
+import ContestCountdown from "../../components/contest-countdown/contest-countdown";
+import { Search } from "lucide-react";
 import "./contests.css";
 
 export default function ContestList() {
@@ -10,9 +12,24 @@ export default function ContestList() {
     (state) => state.contestsList
   );
 
+  const [keyword, setKeyword] = useState("");
+  const debounceRef = useRef(null);
+
+
   useEffect(() => {
-    dispatch(fetchContests({}));
-  }, []);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      dispatch(fetchContests({
+        keyword: keyword.trim() || undefined,
+      }));
+    }, 500);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [keyword, dispatch]);
+
 
   const upcoming = list.filter(
     (c) =>
@@ -21,18 +38,51 @@ export default function ContestList() {
   );
 
   const past = list.filter(
-    (c) => c.contest_status === "ended"
+    (c) => c.contest_status === "finished"
   );
 
   const formatTime = (time) =>
     new Date(time).toLocaleString();
 
-  const renderStatus = (status) => {
-    if (status === "running")
-      return <span className="badge running">Running</span>;
-    if (status === "upcoming")
-      return <span className="badge upcoming">Before start</span>;
-    return <span className="badge ended">Finished</span>;
+  // const renderStatus = (status) => {
+  //   if (status === "running")
+  //     return <span className="badge running">Running</span>;
+  //   if (status === "upcoming")
+  //     return <span className="badge upcoming">Before start</span>;
+  //   return <span className="badge ended">Finished</span>;
+  // };
+
+  const renderStatus = (contest) => {
+    if (!contest) return null;
+    const { contest_status, start_time, duration } = contest;
+    console.log("STATUS DEBUG:", contest.contest_status);
+    console.log("START:", contest.start_time);
+    console.log("DURATION:", contest.duration);
+
+    return (
+      <div className="status-cell">
+        {contest_status === "running" && (
+          <span className="badge running">Running</span>
+        )}
+
+        {contest_status === "upcoming" && (
+          <span className="badge upcoming">Upcoming</span>
+        )}
+
+        {contest_status === "finished" && (
+          <span className="badge ended">Finished</span>
+        )}
+
+        {(contest_status === "upcoming" ||
+          contest_status === "running") && (
+            <ContestCountdown
+              startTime={start_time}
+              duration={duration}
+              status={contest_status}
+            />
+          )}
+      </div>
+    );
   };
 
   const renderAction = (contest) => {
@@ -54,8 +104,19 @@ export default function ContestList() {
   return (
     <div className="contest-page">
       <header className="contest-header">
-        <h1>Contests</h1>
-        <p>Official programming contests and competitions</p>
+        <div>
+          <h1>Contests</h1>
+          <p>Official programming contests and competitions</p>
+        </div>
+
+        <div className="contest-search">
+          <Search size={16} />
+          <input
+            placeholder="Search contests..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
+        </div>
       </header>
 
       {/* CURRENT / UPCOMING */}
@@ -66,12 +127,12 @@ export default function ContestList() {
           <table className="contest-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Start</th>
-                <th>Length</th>
-                <th>Status</th>
-                <th>Rated</th>
-                <th>Action</th>
+                <th className="col-name">Name</th>
+                <th className="col-start">Start</th>
+                <th className="col-length">Length</th>
+                <th className="col-status">Status</th>
+                <th className="col-rated">Rated</th>
+                <th className="col-action">Action</th>
               </tr>
             </thead>
 
@@ -85,7 +146,9 @@ export default function ContestList() {
                   </td>
                   <td>{formatTime(c.start_time)}</td>
                   <td>{c.duration} min</td>
-                  <td>{renderStatus(c.contest_status)}</td>
+                  <td>
+                    {renderStatus(c)}
+                  </td>
                   <td>{c.rated ? "Yes" : "No"}</td>
                   <td className="center">
                     {renderAction(c)}
@@ -113,12 +176,12 @@ export default function ContestList() {
           <table className="contest-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Start</th>
-                <th>Length</th>
-                <th>Status</th>
-                <th>Rated</th>
-                <th>Virtual</th>
+                <th className="col-name">Name</th>
+                <th className="col-start">Start</th>
+                <th className="col-length">Length</th>
+                <th className="col-status">Status</th>
+                <th className="col-rated">Rated</th>
+                <th className="col-action">Action</th>
               </tr>
             </thead>
 
@@ -132,7 +195,7 @@ export default function ContestList() {
                   </td>
                   <td>{formatTime(c.start_time)}</td>
                   <td>{c.duration} min</td>
-                  <td>{renderStatus(c.contest_status)}</td>
+                  <td>{renderStatus(c)}</td>
                   <td>{c.rated ? "Yes" : "No"}</td>
                   <td className="center">
                     <button className="btn outline">Virtual</button>

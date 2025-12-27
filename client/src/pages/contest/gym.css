@@ -1,57 +1,114 @@
 .gym-page {
-  padding: 24px;
-  background: #f8fafc;
+  max-width: 90vw;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #0f172a;
+}
+
+/* header */
+.gym-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .gym-header h1 {
-  font-size: 28px;
+  font-size: 32px;
   margin: 0;
 }
 
 .gym-header p {
-  color: #64748b;
   margin-top: 4px;
+  color: #64748b;
 }
 
-.gym-grid {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 24px;
-  margin-top: 24px;
+/* Search */
+.gym-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 12px;
+  width: 260px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
 }
 
+.gym-search svg {
+  color: #94a3b8;
+}
+
+.gym-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  background: #fff;
+  color:#0f172a
+}
+
+/* table */
 .gym-table-card {
   background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   overflow: hidden;
 }
 
 .gym-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .gym-table th,
 .gym-table td {
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 14px;
   font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
   vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .gym-table th {
-  background: #f1f5f9;
-  text-align: left;
+  background: #f8fafc;
   color: #475569;
+  font-weight: 600;
+  text-align: left;
 }
 
-.title-cell .sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #64748b;
+.col-title {
+  width: 38%;
+}
+
+.col-start {
+  width: 20%;
+}
+
+.col-length {
+  width: 12%;
+  text-align: center;
+}
+
+.col-status {
+  width: 15%;
+  text-align: center;
+}
+
+.col-action {
+  width: 15%;
+  text-align: center;
+}
+
+.title-cell {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
 }
 
@@ -61,11 +118,33 @@
   text-decoration: none;
 }
 
+.gym-title:hover {
+  text-decoration: underline;
+}
+
+.sub {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.center {
+  text-align: center;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* status */
 .status {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  display: inline-block;
 }
 
 .status.running {
@@ -87,21 +166,23 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #2563eb;
-  color: white;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
-  text-decoration: none;
+  background: #2563eb;
+  color: #fff;
   font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .btn-outline {
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   border: 1px solid #cbd5f5;
   color: #2563eb;
-  text-decoration: none;
   font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .empty {
@@ -110,44 +191,14 @@
   color: #94a3b8;
 }
 
-.gym-sidebar .filter-card,
-.gym-sidebar .info-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  margin-bottom: 16px;
-}
+/* responsive */
+@media (max-width: 1024px) {
+  .gym-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.filter-card h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.filter-group label {
-  font-size: 13px;
-  color: #475569;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #e5e7eb;
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 6px;
-}
-
-.search-box input {
-  border: none;
-  outline: none;
-  flex: 1;
-}
-
-.full {
-  width: 100%;
-  margin-top: 12px;
+  .gym-search {
+    width: 100%;
+  }
 }

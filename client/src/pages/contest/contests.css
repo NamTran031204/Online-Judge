@@ -1,5 +1,5 @@
 .contest-page {
-  max-width: 1200px;
+  max-width: 90vw;
   margin: 40px auto;
   padding: 0 20px;
   font-family: "Segoe UI", system-ui, sans-serif;
@@ -7,6 +7,13 @@
 }
 
 /* HEADER */
+.contest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
 .contest-header h1 {
   font-size: 32px;
   font-weight: 700;
@@ -15,6 +22,31 @@
 .contest-header p {
   margin-top: 6px;
   color: #64748b;
+}
+
+.contest-search {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  width: 260px;
+}
+
+.contest-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  background: #fff;
+  color:#0f172a;
+}
+
+.contest-search svg {
+  color: #94a3b8;
 }
 
 /* SECTION */
@@ -39,6 +71,7 @@
 .contest-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .contest-table thead {
@@ -50,6 +83,9 @@
   padding: 14px;
   font-size: 14px;
   text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .contest-table th {
@@ -65,7 +101,39 @@
   background: #f9fbff;
 }
 
+.col-name {
+  width: 30%;
+}
+
+.col-start {
+  width: 15%;
+}
+
+.col-length {
+  width: 10%;
+  text-align: center;
+}
+
+.col-status {
+  width: 20%;
+}
+
+.col-rated {
+  width: 10%;
+  text-align: center;
+}
+
+.col-action {
+  width: 15%;
+  text-align: center;
+}
+
 .contest-name a {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   color: #2563eb;
   font-weight: 600;
   text-decoration: none;
@@ -78,6 +146,15 @@
 .center {
   text-align: center;
 }
+
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 
 /* BADGES */
 .badge {

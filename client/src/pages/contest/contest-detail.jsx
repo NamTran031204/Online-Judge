@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import "./contest-detail.css";
+import ContestCountdown from "../../components/contest-countdown/contest-countdown";
 
 export default function ContestDetail() {
   const { contest_id } = useParams();
@@ -42,10 +43,10 @@ export default function ContestDetail() {
   return (
     <div className="contest-detail-page">
       {/* Header */}
-      <div className="contest-header">
+      <div className="contest-detail-header">
         <Link to="/contests" className="back-btn">
           <ArrowLeft size={16} />
-          Back to contests
+          {detail.contest_type === "gym" ? "Back to gym" : "Back to contests"}
         </Link>
 
         <div className="contest-title-row">
@@ -55,10 +56,27 @@ export default function ContestDetail() {
           </div>
 
           <span className={`status-badge ${detail.contest_status}`}>
-            {isRunning && <CheckCircle size={14} />}
-            {isEnded && <XCircle size={14} />}
-            {!isRunning && !isEnded && <Clock size={14} />}
             {detail.contest_status}
+            {isRunning && 
+            <>
+            {/* <CheckCircle size={14} /> */}
+            <ContestCountdown
+              startTime={detail.start_time}
+              duration={detail.duration}
+              status={detail.contest_status}
+            />
+            </>}
+            {isEnded && <XCircle size={14} />}
+            {!isRunning && !isEnded && 
+              <>
+              {/* <Clock size={14} /> */}
+              <ContestCountdown
+                startTime={detail.start_time}
+                duration={detail.duration}
+                status={detail.contest_status}
+              />
+              </>}
+            
           </span>
         </div>
       </div>
@@ -180,7 +198,7 @@ export default function ContestDetail() {
             <Link className="link-item">Tutorial</Link>
           </div>
 
-          <div className="card danger">
+          {/* <div className="card danger">
             <button
               className="danger-btn"
               onClick={() => {
@@ -193,7 +211,7 @@ export default function ContestDetail() {
             >
               Delete Contest
             </button>
-          </div>
+          </div> */}
         </aside>
       </div>
     </div>

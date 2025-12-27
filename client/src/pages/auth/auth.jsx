@@ -51,7 +51,7 @@ export default function Auth() {
     }
 
     if (result.meta.requestStatus === "fulfilled") {
-      navigate("/");
+      navigate("/home");
     }
   };
 

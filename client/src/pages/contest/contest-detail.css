@@ -3,8 +3,10 @@
   background: #f8fafc;
 }
 
-.contest-header {
+.contest-detail-header {
   margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .back-btn {

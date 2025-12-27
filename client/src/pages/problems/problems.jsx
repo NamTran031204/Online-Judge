@@ -11,9 +11,6 @@ export default function ProblemList() {
     (state) => state.problemsList
   );
 
-  /* =======================
-     SEARCH + TAG STATE
-     ======================= */
   const [searchText, setSearchText] = useState("");
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -24,9 +21,7 @@ export default function ProblemList() {
 
   const debounceRef = useRef(null);
 
-  /* =======================
-     DEBOUNCE SEARCH
-     ======================= */
+  // fetch problems (500ms)
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -53,9 +48,7 @@ export default function ProblemList() {
     return () => clearTimeout(debounceRef.current);
   }, [searchText, tags, dispatch]);
 
-  /* =======================
-     TAG HANDLERS
-     ======================= */
+  // tag handler
   const addTag = () => {
     const value = tagInput.trim();
     if (!value || tags.includes(value)) return;
@@ -83,138 +76,152 @@ export default function ProblemList() {
         </div>
       </div>
 
-      {/* Search + Tag bar */}
-      <div className="problem-filters compact">
-        {/* Search */}
-        <div className="search-input compact">
-          <Search size={16} />
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </div>
-
-        {/* Tags */}
-        <div className="tag-filter">
-          {tags.map((tag) => (
-            <span key={tag} className="tag-chip">
-              {tag}
-              <X size={12} onClick={() => removeTag(tag)} />
-            </span>
-          ))}
-
-          {showTagInput ? (
-            <input
-              className="tag-input"
-              value={tagInput}
-              autoFocus
-              placeholder="Enter tag"
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") addTag();
-                if (e.key === "Escape") {
-                  setShowTagInput(false);
-                  setTagInput("");
-                }
-              }}
-              onBlur={() => {
-                setShowTagInput(false);
-                setTagInput("");
-              }}
-            />
-          ) : (
-            <button
-              className="add-tag-btn"
-              onClick={() => setShowTagInput(true)}
-            >
-              <Plus size={14} />
-              Add tag
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="problem-table-wrapper">
-        <table className="problem-table">
-          <thead>
-            <tr>
-              <th className="col-id">ID</th>
-              <th>Title</th>
-              <th>Tag</th>
-              <th className="col-score">Score</th>
-              <th className="col-rating">Rating</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="empty">Loading...</td>
-              </tr>
-            ) : problems?.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="empty">No problems found</td>
-              </tr>
-            ) : (
-              problems.map((p) => (
-                <tr key={p.problem_id}>
-                  <td className="col-id">{p.problem_id}</td>
-
-                  <td className="problem-title-cell">
-                    <Link
-                      to={`/problem/${p.problem_id}`}
-                      className="problem-title"
-                    >
-                      {p.title}
-                    </Link>
-                  </td>
-
-                  <td>
-                    <div className="tag-list-cell">
-                      {p.tags?.map((tag) => (
-                        <span key={tag} className="tag primary">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-
-                  <td className="col-score">{p.score ?? "--"}</td>
-                  <td className="col-rating">
-                    {p.rating ? `${p.rating}%` : "--"}
-                  </td>
+      <div className="problem-set-content">
+        {/* Table */}
+        <div className="problem-main">
+          <div className="problem-table-wrapper">
+            <table className="problem-table">
+              <thead>
+                <tr>
+                  <th className="col-id">ID</th>
+                  <th>Title</th>
+                  <th>Tag</th>
+                  <th className="col-score">Score</th>
+                  <th className="col-rating">Rating</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
 
-      {/* Pagination */}
-      <div className="pagination">
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </button>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="empty">Loading...</td>
+                  </tr>
+                ) : problems?.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="empty">No problems found</td>
+                  </tr>
+                ) : (
+                  problems.map((p) => (
+                    <tr key={p.problem_id}>
+                      <td className="col-id">{p.problem_id}</td>
 
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            className={page === i + 1 ? "active" : ""}
-            onClick={() => setPage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        ))}
+                      <td className="problem-title-cell">
+                        <Link
+                          to={`/problem/${p.problem_id}`}
+                          className="problem-title"
+                        >
+                          {p.title}
+                        </Link>
+                      </td>
 
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
+                      <td>
+                        <div className="tag-list-cell">
+                          {p.tags?.map((tag) => (
+                            <span key={tag} className="tag primary">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+
+                      <td className="col-score">{p.score ?? "--"}</td>
+                      <td className="col-rating">
+                        {p.rating ? `${p.rating}%` : "--"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="pagination">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={page === i + 1 ? "active" : ""}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+        <div className="problem-sidebar">
+          {/* Search + Tag bar */}
+          <div className="problem-filters vertical">
+            {/* Search */}
+            <div className="search-input">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
+
+            {/* Tags */}
+            <div className="tag-filter">
+              {/* Header: Tags + Add tag */}
+              <div className="tag-filter-header">
+                <span className="tag-title">Tags</span>
+
+                {showTagInput ? (
+                  <input
+                    className="tag-input"
+                    value={tagInput}
+                    autoFocus
+                    placeholder="Enter tag"
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addTag();
+                      if (e.key === "Escape") {
+                        setShowTagInput(false);
+                        setTagInput("");
+                      }
+                    }}
+                    onBlur={() => {
+                      setShowTagInput(false);
+                      setTagInput("");
+                    }}
+                  />
+                ) : (
+                  <button
+                    className="add-tag-btn"
+                    onClick={() => setShowTagInput(true)}
+                  >
+                    <Plus size={14} />
+                    Add tag
+                  </button>
+                )}
+              </div>
+
+              {/* Tag list */}
+              <div className="tag-list">
+                {tags.map((tag) => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <X size={12} onClick={() => removeTag(tag)} />
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
