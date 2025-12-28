@@ -8,6 +8,8 @@ grpc:
 spring:
   application:
      name: main-service
+  kafka:
+     bootstrap-servers: localhost:9092
   redis:
     host: localhost
     port: 6379

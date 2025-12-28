@@ -32,36 +32,12 @@ public class ContestController {
         return CommonResponse.success(contestService.createContest(input));
     }
 
-    @PostMapping("/{contestId}/edit-draft-contest")
-    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'DRAFT')")
+    @PostMapping("/{contestId}/edit")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit',#contestId)")
     public CommonResponse<ContestCreateUpdateResponseDto> update(
             @PathVariable Long contestId,
             @RequestBody ContestCreateUpdateRequestDto input) {
         return CommonResponse.success(contestService.updateContest(contestId, input));
-    }
-
-    @PostMapping("/{contestId}/edit-official-contest")
-    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'OFFICIAL'")
-    public CommonResponse<ContestCreateUpdateResponseDto> update(
-            @PathVariable Long contestId,
-            @RequestBody ContestOfficialUpdateRequestDto input) {
-        ContestCreateUpdateRequestDto inputGeneral = new ContestCreateUpdateRequestDto();
-        inputGeneral.setRated(input.getRated());
-        inputinputGeneral.setStartTime(input.getStartTime());
-        inputinputGeneral.setDuration(input.getDuration());
-        return CommonResponse.success(contestService.updateContest(contestId, inputGeneral));
-    }
-
-    @PostMapping("/{contestId}/edit-gym-contest")
-    @PreAuthorize("@rbacService.canEditContest(authentication, #contestId,'GYM')")
-    public CommonResponse<ContestCreateUpdateResponseDto> update(
-            @PathVariable Long contestId,
-            @RequestBody ContestOfficialUpdateRequestDto input) {
-        ContestCreateUpdateRequestDto inputGeneral = new ContestCreateUpdateRequestDto();
-        inputinputGeneral.setStartTime(input.getStartTime());
-        inputinputGeneral.setDuration(input.getDuration());
-        inputinputGeneral.setVisibility(input.getVisibility());
-        return CommonResponse.success(contestService.updateContest(contestId, inputGeneral));
     }
 
     @PostMapping("/search")
@@ -128,7 +104,7 @@ public class ContestController {
     @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:assign_reviewer', 'Contest', #contestId)")
     public CommonResponse<String> assignReviewer(
             @PathVariable Long contestId,
-            @RequestBody AssignReviewerRequestDto input
+            @RequestBody AssignReviewerContestDto input
     ) {
         contestService.assignReviewer(contestId, input.getReviewerId());
         return CommonResponse.success("Reviewer assigned successfully");
