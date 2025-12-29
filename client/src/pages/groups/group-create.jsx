@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createGroup, createGroupState } from "../../redux/slices/group-list-slice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Save } from "lucide-react";
 
-import "./group.css";
+import "./group-create.css";
 
 export default function GroupCreate() {
   const dispatch = useDispatch();
@@ -30,40 +31,75 @@ export default function GroupCreate() {
     dispatch(createGroup(formData));
   };
 
-  // Redirect khi tạo xong
   useEffect(() => {
     if (createdGroupId) {
       navigate(`/group/${createdGroupId}`);
       dispatch(createGroupState());
     }
-  }, [createdGroupId]);
+  }, [createdGroupId, navigate, dispatch]);
 
   return (
-    <div className="group-container">
-      <form className="group-form" onSubmit={handleSubmit}>
-        <h2>Create Group</h2>
+    <div className="problem-page">
+      {/* Header đồng bộ với Problem List */}
+      <div className="problem-header">
+        <div>
+          <h1>Create New Group</h1>
+          <p className="subtitle">Set up a new space for collaboration and learning</p>
+        </div>
+        <Link to="/groups" className="btn-back">
+          <ArrowLeft size={16} />
+          Back to Group
+        </Link>
+      </div>
 
-        {createError && <div className="gc-error">{createError}</div>}
+      {/* Form Container */}
+      <div className="problem-table-wrapper">
+        <div className="form-container">
+          <form onSubmit={handleSubmit}>
+            
+            {createError && <div className="gc-error">{createError}</div>}
 
-        <label>Group Name</label>
-        <input
-          type="text"
-          value={groupName}
-          onChange={(e) => setGroupName(e.target.value)}
-          required
-        />
+            <div className="form-group">
+              <label className="form-label">Group Name</label>
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Enter group name..."
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                required
+              />
+            </div>
 
-        <label>Group Image</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setGroupImage(e.target.files[0] || null)}
-        />
+            <div className="form-group">
+              <label className="form-label">Group Image</label>
+              <div className="file-input-box">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setGroupImage(e.target.files[0] || null)}
+                />
+              </div>
+              <p className="file-help">Optional: Upload an image to represent your group (PNG, JPG).</p>
+            </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Group"}
-        </button>
-      </form>
+            <div className="form-actions">
+              <button type="submit" className="btn-create" disabled={loading}>
+                <Save size={18} />
+                {loading ? "Creating..." : "Create Group"}
+              </button>
+              
+              <button 
+                type="button" 
+                className="btn-cancel" 
+                onClick={() => navigate("/groups")}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

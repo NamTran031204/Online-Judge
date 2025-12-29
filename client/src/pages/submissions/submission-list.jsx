@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchSubmissions } from "../../redux/slices/submissions-list-slice";
 import { mockSubmissions } from "../../pages/submissions/mock-submissions";
-import "./submission.css";
+import "./submission-list.css";
 
 const LIMIT = 10;
 
-export default function SubmissionList() {
+export default function SubmissionList({ minimal = false }) {
   const dispatch = useDispatch();
 
   const { items = [], totalItems = 0, loading } = useSelector(
@@ -36,36 +36,44 @@ export default function SubmissionList() {
   );
 
   return (
-    <div className="submission-container list-full-width">
-      <div className="list-header-actions">
-        <h2>Submissions</h2>
-      </div>
+    <div className={`submission-container ${minimal ? "minimal-mode" : "list-full-width"}`}>
+      {!minimal && (
+        <>
+          <div className="list-header-actions">
+            <h2>Submissions</h2>
+          </div>
 
-      <div className="list-filter-actions">
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">All status</option>
-          <option value="PENDING">PENDING</option>
-          <option value="DONE">DONE</option>
-        </select>
-        
-        <Link to="/problems">
-          <button className="btn create-btn">
-            New Submission
-          </button>
-        </Link>
-      </div>
+          <div className="list-filter-container">
+            <div className="filter-left">
+              <select
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">All status</option>
+                <option value="PENDING">PENDING</option>
+                <option value="DONE">DONE</option>
+              </select>
+            </div>
+            
+            <div className="filter-right">
+              <Link to="/problems">
+                <button className="btn-new-submission">
+                  New Submission
+                </button>
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
 
       <table className="submission-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>User</th>
+            {!minimal && <th>User</th>}
             <th>Result</th>
             <th>Status</th>
             <th>Time</th>
@@ -74,7 +82,7 @@ export default function SubmissionList() {
         <tbody>
           {loading && (
             <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>
+              <td colSpan={minimal ? "4" : "5"} style={{ textAlign: "center" }}>
                 Loading...
               </td>
             </tr>
@@ -82,7 +90,7 @@ export default function SubmissionList() {
 
           {!loading && pagedItems.length === 0 && (
             <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>
+              <td colSpan={minimal ? "4" : "5"} style={{ textAlign: "center" }}>
                 No submissions found
               </td>
             </tr>
@@ -99,17 +107,15 @@ export default function SubmissionList() {
                     {s.submission_id}
                   </Link>
                 </td>
-                <td>{s.user_id}</td>
+                {!minimal && <td>{s.user_id}</td>}
                 <td>
                   <span
                     className={`result ${
-                      s.result === "AC"
+                      s.result === "AC" || s.result === "Accepted"
                         ? "result-ac"
-                        : ["WA", "RE", "TLE", "CE"].includes(s.result)
+                        : s.result === "WA" || s.result === "Wrong Answer"
                         ? "result-wa"
-                        : ["PENDING", "RUNNING"].includes(s.result)
-                        ? "result-pending"
-                        : "result-unknown"
+                        : "result-other"
                     }`}
                   >
                     {s.result}

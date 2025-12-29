@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/standings', label: 'Standings' },
   { href: '/drafts', label: 'Drafts' },
   { href: '/sandbox', label: 'Sandbox' },
+  { href: '/groups', label: 'Groups' },
 ];
 
 export default function Header() {

@@ -64,10 +64,6 @@ export default function ContestDashboard({ contestId }) {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>Contest Dashboard</h2>
-        {loading && <span className="loading">Loading...</span>}
-      </div>
 
       <div className="dashboard-tabs">
         <button

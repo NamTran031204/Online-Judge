@@ -6,7 +6,7 @@ import { SERVER_URL } from "../../config/config.js";
 
 const initialState = {
   user: null,
-  isLogin: false,
+  isLogin: true,
   loading: false,
   error: null,
 };

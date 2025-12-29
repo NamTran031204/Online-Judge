@@ -7,13 +7,13 @@ import { SERVER_URL } from "../../config/config.js";
 ============================================================ */
 export const searchComments = createAsyncThunk(
   "comments/search",
-  async (filter, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
       const res = await axios.post(
         `${SERVER_URL}/comments/search`,
-        filter
+        payload
       );
-      return res.data.data; 
+      return res.data.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Search comments failed"
@@ -33,7 +33,7 @@ export const createComment = createAsyncThunk(
         `${SERVER_URL}/comments`,
         body
       );
-      return res.data.data; 
+      return res.data.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Create comment failed"
@@ -48,8 +48,9 @@ export const createComment = createAsyncThunk(
 const commentsListSlice = createSlice({
   name: "comments",
   initialState: {
-    items: ([]),
-    totalItems: 0,
+    items: [],
+    totalCount: 0,
+    maxResultCount: 10,
     loading: false,
     error: null,
   },
@@ -57,7 +58,7 @@ const commentsListSlice = createSlice({
   reducers: {
     clearComments: (state) => {
       state.items = [];
-      state.totalItems = 0;
+      state.totalCount = 0;
       state.error = null;
     },
   },
@@ -69,10 +70,14 @@ const commentsListSlice = createSlice({
         state.loading = true;
       })
       .addCase(searchComments.fulfilled, (state, action) => {
+        const { data = [], totalCount = 0 } = action.payload || {};
+
         state.loading = false;
-        state.items = action.payload?.data || [];
-        state.totalItems = action.payload?.totalCount || 0;
+        state.totalCount = totalCount;
         state.error = null;
+
+        // append (Load more)
+        state.items.push(...data);
       })
       .addCase(searchComments.rejected, (state, action) => {
         state.loading = false;
@@ -83,14 +88,9 @@ const commentsListSlice = createSlice({
       .addCase(createComment.pending, (state) => {
         state.loading = true;
       })
-      .addCase(createComment.fulfilled, (state, action) => {
+      .addCase(createComment.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
-
-        if (action.payload) {
-          state.items.unshift(action.payload);
-          state.totalItems += 1;
-        }
       })
       .addCase(createComment.rejected, (state, action) => {
         state.loading = false;

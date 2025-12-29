@@ -14,10 +14,8 @@ import ProblemDetail from "./pages/problems/problem-detail";
 import Profile from "./pages/profile/profile"
 import ProblemForm from "./pages/problems/problem-form";
 import Dashboard from "./pages/dashboard/dashboard";
-import CommentList from "./pages/comments/comment-list";
 import SubmissionList from "./pages/submissions/submission-list";
 import SubmissionDetail from "./pages/submissions/submission-detail";
-import SubmissionCreate from "./pages/submissions/submission-create";
 import GroupList from "./pages/groups/group-list";
 import GroupDetail from "./pages/groups/group-detail";
 import GroupCreate from "./pages/groups/group-create";
@@ -52,9 +50,6 @@ function App() {
           {/* profile */}
           <Route path="/profile" element={<Profile />} />
 
-          {/* comments */}
-          <Route path="/comments" element={<CommentList />} />
-
           {/* Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
 
@@ -69,7 +64,7 @@ function App() {
           <Route path="/group/create" element={<GroupCreate />} />
 
           {/* ratings */}
-          <Route path="/ratings" element={<RatingList />} />
+          <Route path="/standings" element={<RatingList />} />
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Route>

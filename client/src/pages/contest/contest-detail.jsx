@@ -5,7 +5,8 @@ import {
   fetchContestDetail,
   deleteContest,
 } from "../../redux/slices/contest-slice";
-
+import ContestDashboard from "../../pages/dashboard/dashboard"
+import CommentList from "../../pages/comments/comment-list"
 import {
   Trophy,
   Medal,
@@ -112,14 +113,11 @@ export default function ContestDetail() {
           <section className="card">
             <h2 className="card-title">
               <Trophy size={18} />
-              Standings
+              Dashboard
             </h2>
 
             {isRunning || isEnded ? (
-              <div className="standings-placeholder">
-                <Users size={32} />
-                <p>Standings will appear here</p>
-              </div>
+              <ContestDashboard />
             ) : (
               <div className="standings-placeholder">
                 <Clock size={32} />
@@ -135,7 +133,7 @@ export default function ContestDetail() {
               Questions & Announcements
             </h2>
 
-            <div className="empty">No announcements yet</div>
+            <CommentList sourceId={contest_id} type="CONTEST" />
           </section>
         </div>
 

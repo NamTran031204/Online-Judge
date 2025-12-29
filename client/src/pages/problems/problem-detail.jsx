@@ -14,6 +14,7 @@ import {
   Send,
 } from "lucide-react";
 import "./problem-detail.css";
+import SubmissionList from "../submissions/submission-list";
 
 /*======
    CODE TEMPLATES
@@ -188,15 +189,16 @@ export default function ProblemDetail() {
             )}
 
             {activeTab === "submissions" && (
-              <div className="submissions-empty">
-                <div className="submissions-card">
-                  <p>Your submissions for this problem will appear here.</p>
+              // <div className="submissions-empty">
+              //   <div className="submissions-card">
+                  <SubmissionList minimal={true} />
+              //     <p>Your submissions for this problem will appear here.</p>
 
-                  <Link to="/submissions" className="submissions-link">
-                    View all submissions
-                  </Link>
-                </div>
-              </div>
+              //     <Link to="/submissions" className="submissions-link">
+              //       View all submissions
+              //     </Link>
+              //   </div>
+              // </div>
             )}
           </div>
         </div>

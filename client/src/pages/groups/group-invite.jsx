@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { inviteGroupUser } from "../../redux/slices/groups-slice"; 
-
+import { X } from "lucide-react";
+import "./group-invite.css";
 
 export default function InviteMemberModal({ group, onClose }) {
     const [userId, setUserId] = useState("");
     const dispatch = useDispatch();
     
-    const { inviteLoading, inviteError } = useSelector((state) => state.groups || {});
+    const { inviteLoading, inviteError } = useSelector((state) => state.group || {});
 
     const handleInvite = () => {
         if (!userId.trim()) return;
@@ -22,27 +23,24 @@ export default function InviteMemberModal({ group, onClose }) {
         )
         .then((result) => {
             if (result.meta.requestStatus === 'fulfilled') {
-                onClose(); 
+                onClose();
             }
         });
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div 
-                className="modal-content" 
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="modal-header">
+            <div className="modal-content-invite" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header-invite">
                     <h3>Invite User to {group.group_name}</h3>
-                    <button className="close-btn" onClick={onClose}>&times;</button>
+                    <button className="close-icon-btn" onClick={onClose}>
+                        <X size={20} />
+                    </button>
                 </div>
                 
-                <div className="modal-body">
-                    <div className="modal-form-container">
-                        
-                        {inviteError && <p className="gc-error">{inviteError}</p>}
-
+                <div className="modal-body-invite">
+                    {inviteError && <p className="error-message">{inviteError}</p>}
+                    <div className="input-group-invite">
                         <label htmlFor="invite-user-id">User ID to Invite</label>
                         <input
                             id="invite-user-id"
@@ -52,24 +50,20 @@ export default function InviteMemberModal({ group, onClose }) {
                             placeholder="Enter User ID..."
                             required
                         />
-                        
-                        {/* Actions */}
-                        <div className="modal-actions">
-                            <button 
-                                className="danger-btn" 
-                                onClick={onClose}
-                                style={{ marginRight: '10px' }}
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                className="primary-btn" 
-                                onClick={handleInvite} 
-                                disabled={inviteLoading || !userId.trim()}
-                            >
-                                {inviteLoading ? "Sending..." : "Submit"}
-                            </button>
-                        </div>
+                    </div>
+                    
+                    <div className="modal-actions-invite">
+                        <button type="button" className="btn-cancel" onClick={onClose}>
+                            Cancel
+                        </button>
+                        <button 
+                            type="button" 
+                            className="btn-submit-invite" 
+                            onClick={handleInvite} 
+                            disabled={inviteLoading || !userId.trim()}
+                        >
+                            {inviteLoading ? "Sending..." : "Invite"}
+                        </button>
                     </div>
                 </div>
             </div>

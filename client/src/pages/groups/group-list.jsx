@@ -1,19 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchGroups } from "../../redux/slices/group-list-slice";
 import { Link } from "react-router-dom";
-import "./group.css";
+import { Search, Plus } from "lucide-react";
+import "./group-list.css";
 import InviteMemberModal from "./group-invite";
 import ViewInvitationsModal from "./invitation-list";
-
-// Dữ liệu giả định (Mock Data)
-const mockGroups = [
-  { group_id: 101, group_name: "Lập trình cơ bản", owner_id: "user_A", member_count: 55 },
-  { group_id: 102, group_name: "Thuật toán nâng cao", owner_id: "user_B", member_count: 120 },
-  { group_id: 103, group_name: "Thi đấu ICPC", owner_id: "user_C", member_count: 30 },
-  { group_id: 104, group_name: "Nhóm luyện đề số 1", owner_id: "user_D", member_count: 88 },
-  { group_id: 105, group_name: "Học tập ReactJS", owner_id: "user_E", member_count: 210 },
-];
 
 export default function GroupList() {
   const dispatch = useDispatch();
@@ -23,11 +15,45 @@ export default function GroupList() {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const pageSize = 10;
+  const debounceRef = useRef(null);
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isInvitationsModalOpen, setIsInvitationsModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+
+  // Debounce Search logic đồng bộ với Problems
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      dispatch(
+        searchGroups({
+          search: search.trim() || undefined,
+          page: 1, // Luôn reset về page 1 khi search
+          size: pageSize,
+        })
+      );
+      setPage(1);
+    }, 500);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [search, dispatch]);
+
+  // Logic chuyển trang (không debounce)
+  useEffect(() => {
+    if (page !== 1) {
+      dispatch(
+        searchGroups({
+          search: search.trim() || undefined,
+          page: page,
+          size: pageSize,
+        })
+      );
+    }
+  }, [page, dispatch]);
 
   const openInviteModal = (group) => {
     setSelectedGroup(group);
@@ -45,123 +71,120 @@ export default function GroupList() {
     setSelectedGroup(null);
   };
 
-  useEffect(() => {
-    dispatch(searchGroups({ search, page, size: limit }));
-  }, [dispatch, search, page]);
-
-  const groupsToDisplay = fetchedGroups.length > 0 || loading
-    ? fetchedGroups
-    : mockGroups;
-    
-  const countToUse = fetchedGroups.length > 0 ? totalCount : mockGroups.length;
-  const totalPages = Math.ceil(countToUse / limit);
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const groupsToDisplay = fetchedGroups || [];
 
   return (
-    <div className="group-container">
-      <h2>Groups</h2>
-
-      <div className="group-header-actions">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search group..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+    <div className="problem-page"> {/* Dùng chung class page với problem để đồng bộ layout */}
+      <div className="problem-header">
+        <div>
+          <h1>Groups</h1>
+          <p className="subtitle">
+            Manage your learning groups and collaborate with other members
+          </p>
         </div>
-
-        <Link to="/group/create">
-          <button className="btn create-btn">New Group</button>
+        <Link to="/group/create" className="btn-primary">
+          <Plus size={16} style={{ marginRight: "4px" }} />
+          New Group
         </Link>
       </div>
 
-      {loading && <p>Loading...</p>}
+      <div className="problem-filters compact">
+        <div className="search-input compact">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Search groups..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
 
-      <table className="group-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Owner</th>
-            <th style={{ textAlign: "right" }}>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {groupsToDisplay.map((g) => (
-            <tr key={g.group_id}>
-              <td>{g.group_id}</td>
-              <td>{g.group_name}</td>
-              <td>{g.owner_id}</td>
-              <td className="action-cell">
-                <Link to={`/group/${g.group_id}`}>
-                  <button className="btn view-btn small-btn">View</button>
-                </Link>
-
-                <button
-                  className="btn invite-btn small-btn"
-                  onClick={() => openInviteModal(g)}
-                >
-                  Invite
-                </button>
-
-                <button
-                  className="btn invitation-btn small-btn"
-                  onClick={() => openInvitationsModal(g)}
-                >
-                  Invitations
-                </button>
-              </td>
-            </tr>
-          ))}
-          {!loading && groupsToDisplay.length === 0 && (
+      <div className="problem-table-wrapper">
+        <table className="problem-table">
+          <thead>
             <tr>
-              <td colSpan="4" className="no-data-message">Không tìm thấy nhóm nào.</td>
+              <th className="col-id">ID</th>
+              <th>Group Name</th>
+              <th>Owner</th>
+              <th style={{ textAlign: "right", paddingRight: "16px" }}>Actions</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
 
-      <div className="group-list-action-btn-box">
-        {groupsToDisplay.length > 0 && (
-          <div className="group-pagination-box">
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="4" className="empty">Loading...</td>
+              </tr>
+            ) : groupsToDisplay.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="empty">No groups found</td>
+              </tr>
+            ) : (
+              groupsToDisplay.map((g) => (
+                <tr key={g.group_id}>
+                  <td className="col-id">
+                    <Link to={`/group/${g.group_id}`} className="group-id-link">
+                      {g.group_id}
+                    </Link>
+                  </td>
+                  <td className="problem-title-cell">
+                    <span className="problem-title">{g.group_name}</span>
+                  </td>
+                  <td>{g.owner_id}</td>
+                  <td style={{ textAlign: "right" }}>
+                    <button
+                      className="btn-outline-sm"
+                      onClick={() => openInviteModal(g)}
+                    >
+                      Invite
+                    </button>
+                    <button
+                      className="btn-outline-sm"
+                      onClick={() => openInvitationsModal(g)}
+                    >
+                      Invitations
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="pagination">
+        <button 
+          disabled={page === 1} 
+          onClick={() => setPage(page - 1)}
+        >
+          Prev
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => {
+          const pageNum = i + 1;
+          return (
             <button
-              className={`page-btn ${page === 1 ? "disabled" : ""}`}
-              onClick={() => page > 1 && setPage(page - 1)}
-              disabled={page === 1}
+              key={pageNum}
+              className={page === pageNum ? "active" : ""}
+              onClick={() => setPage(pageNum)}
             >
-              Prev
+              {pageNum}
             </button>
+          );
+        })}
 
-            {totalPages > 1 && Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={`page-btn ${page === i + 1 ? "active" : ""}`}
-                onClick={() => setPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              className={`page-btn ${page >= totalPages ? "disabled" : ""}`}
-              onClick={() => page < totalPages && setPage(page + 1)}
-              disabled={page >= totalPages}
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <button
+          disabled={page === totalPages || totalPages === 0}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
       </div>
 
       {isInviteModalOpen && selectedGroup && (
-        <InviteMemberModal
-          group={selectedGroup}
-          onClose={closeModal}
-        />
+        <InviteMemberModal group={selectedGroup} onClose={closeModal} />
       )}
       {isInvitationsModalOpen && selectedGroup && (
         <ViewInvitationsModal group={selectedGroup} onClose={closeModal} />

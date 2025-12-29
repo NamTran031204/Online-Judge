@@ -1,7 +1,11 @@
-// groupsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { SERVER_URL } from "../../config/config.js";
+import {
+  mockGroupDetails,
+  mockGroupMembers,
+  mockGroupInvitations,
+} from "../../pages/groups/mock-group.js";
 
 /* ============================================================
    GET GROUP DETAIL
@@ -11,9 +15,13 @@ export const fetchGroupDetail = createAsyncThunk(
   async (group_id, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${SERVER_URL}/group/${group_id}`);
-      return res.data.data;        // GroupDetailDto
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Detail failed");
+      const group = mockGroupDetails.find(
+        (g) => g.group_id === Number(group_id)
+      );
+      if (group) return group;
+      return rejectWithValue("Detail failed");
     }
   }
 );
@@ -29,9 +37,15 @@ export const searchGroupMembers = createAsyncThunk(
         `${SERVER_URL}/group/${group_id}/members/search`,
         body
       );
-      return res.data.data;        // PageResult<GroupMemberDto>
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Load members failed");
+      const items = mockGroupMembers.filter(
+        (m) => m.group_id === Number(group_id)
+      );
+      return {
+        items,
+        totalCount: items.length,
+      };
     }
   }
 );
@@ -47,9 +61,21 @@ export const inviteGroupUser = createAsyncThunk(
         `${SERVER_URL}/group/${group_id}/invite`,
         body
       );
-      return res.data.data;        // GroupInvitationDto
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Invite failed");
+
+      const invitation = {
+        invite_id: Date.now(),
+        group_id: Number(group_id),
+        inviter_id: 1,
+        invitee_id: body.invitee_user_id,
+        status: "PENDING",
+        created_at: new Date().toISOString(),
+        responded_at: null,
+      };
+
+      mockGroupInvitations.push(invitation);
+      return invitation;
     }
   }
 );
@@ -65,11 +91,16 @@ export const searchGroupInvitations = createAsyncThunk(
         `${SERVER_URL}/group/${group_id}/invitations/search`,
         body
       );
-      return res.data.data;        // PageResult<GroupInvitationDto>
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Load invitations failed"
+      const items = mockGroupInvitations.filter(
+        (i) => i.group_id === Number(group_id)
       );
+
+      return {
+        items,
+        totalCount: items.length,
+      };
     }
   }
 );
@@ -80,10 +111,13 @@ export const searchGroupInvitations = createAsyncThunk(
 const groupsSlice = createSlice({
   name: "groups",
   initialState: {
-    groups: [],
     detail: null,
+
     members: [],
+    membersTotal: 0,
+
     invitations: [],
+    invitationsTotal: 0,
 
     inviteLoading: false,
     inviteError: null,
@@ -97,19 +131,21 @@ const groupsSlice = createSlice({
     clearGroupDetail: (state) => {
       state.detail = null;
       state.members = [];
+      state.membersTotal = 0;
       state.invitations = [];
+      state.invitationsTotal = 0;
     },
 
     resetInviteState: (state) => {
       state.inviteLoading = false;
       state.inviteError = null;
       state.inviteSuccess = false;
-    }
+    },
   },
 
   extraReducers: (builder) => {
     builder
-      /* DETAIL */
+      /* ===== DETAIL ===== */
       .addCase(fetchGroupDetail.pending, (state) => {
         state.loading = true;
       })
@@ -122,12 +158,18 @@ const groupsSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* MEMBERS SEARCH */
+      /* ===== MEMBERS ===== */
       .addCase(searchGroupMembers.fulfilled, (state, action) => {
-        state.members = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.members = action.payload;
+          state.membersTotal = action.payload.length;
+        } else {
+          state.members = action.payload.items;
+          state.membersTotal = action.payload.totalCount;
+        }
       })
 
-      /* INVITE USER */
+      /* ===== INVITE ===== */
       .addCase(inviteGroupUser.pending, (state) => {
         state.inviteLoading = true;
         state.inviteError = null;
@@ -136,16 +178,22 @@ const groupsSlice = createSlice({
       .addCase(inviteGroupUser.fulfilled, (state, action) => {
         state.inviteLoading = false;
         state.inviteSuccess = true;
-        state.invitations.push(action.payload);
+        state.invitations.unshift(action.payload);
       })
       .addCase(inviteGroupUser.rejected, (state, action) => {
         state.inviteLoading = false;
         state.inviteError = action.payload;
       })
 
-      /* SEARCH INVITATIONS */
+      /* ===== INVITATIONS ===== */
       .addCase(searchGroupInvitations.fulfilled, (state, action) => {
-        state.invitations = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.invitations = action.payload;
+          state.invitationsTotal = action.payload.length;
+        } else {
+          state.invitations = action.payload.items;
+          state.invitationsTotal = action.payload.totalCount;
+        }
       });
   },
 });
