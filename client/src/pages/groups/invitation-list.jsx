@@ -9,11 +9,13 @@ export default function ViewInvitationsModal({ group, onClose }) {
   const limit = 10;
   const group_id = group.group_id;
 
-  const { invitations, totalCount, loading, error } = useSelector(
-    (state) => state.groupInvitations
+  // SỬA: Lấy từ state.group vì store.js định nghĩa là "group: groupsReducer"
+  const { invitations, invitationsTotal, loading, error } = useSelector(
+    (state) => state.group
   );
   
-  const totalPages = Math.ceil(totalCount / limit);
+  // SỬA: Dùng invitationsTotal (đúng với định nghĩa trong groups-slice)
+  const totalPages = Math.ceil((invitationsTotal || 0) / limit);
 
   useEffect(() => {
     const searchBody = {
@@ -22,14 +24,15 @@ export default function ViewInvitationsModal({ group, onClose }) {
       filter: {} 
     };
     
-    dispatch(searchGroupInvitations({ group_id, searchBody }));
+    // SỬA: Truyền object có key là 'body' (khớp với asyncThunk trong slice)
+    dispatch(searchGroupInvitations({ group_id, body: searchBody }));
   }, [group_id, dispatch, page]);
 
   return (
     <div className="modal-backdrop"> 
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Invitations for Group: **{group.group_name}** (#{group_id})</h2>
+          <h2>Invitations for Group: {group.group_name} (#{group_id})</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
 
@@ -55,7 +58,8 @@ export default function ViewInvitationsModal({ group, onClose }) {
                 </thead>
 
                 <tbody>
-                  {invitations.length === 0 ? (
+                  {/* Sử dụng optional chaining hoặc mặc định mảng rỗng để tránh lỗi .length */}
+                  {(!invitations || invitations.length === 0) ? (
                     <tr>
                       <td colSpan="6" className="no-data-message">
                         No invitations found.
@@ -67,7 +71,11 @@ export default function ViewInvitationsModal({ group, onClose }) {
                         <td>{inv.invite_id}</td>
                         <td>{inv.inviter_id}</td>
                         <td>{inv.invitee_id}</td>
-                        <td><span className={`status-${inv.status.toLowerCase()}`}>{inv.status}</span></td>
+                        <td>
+                          <span className={`status-badge status-${inv.status?.toLowerCase()}`}>
+                            {inv.status}
+                          </span>
+                        </td>
                         <td>{new Date(inv.created_at).toLocaleDateString()}</td>
                         <td>{inv.responded_at ? new Date(inv.responded_at).toLocaleDateString() : "-"}</td>
                       </tr>
@@ -99,7 +107,6 @@ export default function ViewInvitationsModal({ group, onClose }) {
                   </div>
               )}
               {loading && page > 1 && <p className="small-loading">Loading page {page}...</p>}
-
             </>
           )}
         </div>

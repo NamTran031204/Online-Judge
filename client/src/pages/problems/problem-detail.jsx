@@ -17,6 +17,7 @@ import {
 
 
 import "./problem-detail.css";
+import SubmissionList from "../submissions/submission-list";
 
 /* CODE TEMPLATES */
 const LANGUAGE_TEMPLATES = {
@@ -224,15 +225,18 @@ export default function ProblemDetail() {
             )}
 
             {activeTab === "submissions" && (
-              <div className="submissions-empty">
-                <div className="submissions-card">
-                  <p>Your submissions for this problem will appear here.</p>
+              // nhannx
+              // <div className="submissions-empty">
+              //   <div className="submissions-card">
+              //     <p>Your submissions for this problem will appear here.</p>
+              //     <Link to="/submissions" className="submissions-link">
+              //       View all submissions
+              //     </Link>
+              //   </div>
+              // </div>
 
-                  <Link to="/submissions" className="submissions-link">
-                    View all submissions
-                  </Link>
-                </div>
-              </div>
+              // phongdt
+              <SubmissionList minimal={true} />
             )}
           </div>
         </div>

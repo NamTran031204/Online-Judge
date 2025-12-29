@@ -1,117 +1,198 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { searchComments } from "../../redux/slices/comment-list-slice";
-import { deleteComment } from "../../redux/slices/comment-slice";
-import NewCommentModal from "./new-comment";
-import { mockComments } from "./mock-comments";
+import { searchComments, createComment, clearComments } from "../../redux/slices/comment-list-slice";
 import "./comment.css";
 
-export default function CommentList() {
+const PAGE_SIZE = 10;
+
+// Mock data
+const mockComments = [
+  {
+    comment_id: "1",
+    user_id: "admin",
+    contents: "Bài này dùng greedy là hợp lý nhất.",
+    parent_id: null,
+    source_id: "1",
+    type: "SUBMISSION",
+  },
+  {
+    comment_id: "2",
+    user_id: "phongdt",
+    contents: "Em bị TLE ở test cuối, có ai gặp chưa?",
+    parent_id: null,
+    source_id: "1",
+    type: "SUBMISSION",
+  },
+  {
+    comment_id: "3",
+    user_id: "admin",
+    contents: "Bạn thử tối ưu vòng lặp trong DFS nhé.",
+    parent_id: "2", // Khớp với ID của phongdt
+    source_id: "1",
+    type: "SUBMISSION",
+  },
+];
+
+/* =========================
+   CommentInput
+========================= */
+const CommentInput = ({ parentId, sourceId, type, onSuccess, placeholder }) => {
+  const [contents, setContents] = useState("");
   const dispatch = useDispatch();
-  const { source_id } = useParams();
-  const [showModal, setShowModal] = useState(false);
 
-  const { items, loading } = useSelector(
-    (state) => state.commentList
-  );
+  const handleSubmit = async () => {
+    if (!contents.trim() || !sourceId || !type) return;
 
-  const comments =
-    items && items.length > 0 ? items : mockComments;
+    const body = {
+      source_id: sourceId,
+      type,
+      contents,
+      parent_id: parentId || null,
+    };
 
-  useEffect(() => {
-    if (!source_id) return;
-
-    dispatch(
-      searchComments({
-        source_id,
-        type: "SUBMISSION",
-      })
-    );
-  }, [source_id, dispatch]);
-
-  const handleDelete = async (id) => {
-    await dispatch(deleteComment(id));
-    dispatch(
-      searchComments({
-        source_id,
-        type: "SUBMISSION",
-      })
-    );
+    const res = await dispatch(createComment(body));
+    if (!res.error) {
+      setContents("");
+      onSuccess?.();
+    }
   };
 
   return (
-    <div className="comment-container">
-      <div className="comment-header">
-        <h2>Comments</h2>
-        <button
-          className="new-comment-btn"
-          onClick={() => setShowModal(true)}
-        >
-          New Comment
-        </button>
-      </div>
+    <div className="input-group">
+      <input
+        className="comment-input-field"
+        placeholder={placeholder || "Viết bình luận..."}
+        value={contents}
+        onChange={(e) => setContents(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+      />
+      <button className="send-btn" onClick={handleSubmit}>Gửi</button>
+    </div>
+  );
+};
 
-      <table className="comment-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Content</th>
-            <th>Time</th>
-            <th width="90px">Actions</th>
-          </tr>
-        </thead>
+/* =========================
+   CommentItem
+========================= */
+const CommentItem = ({ comment, sourceId, type, onReload }) => {
+  const [showReply, setShowReply] = useState(false);
+  const avatarUrl = `https://ui-avatars.com/api/?name=${comment.user_id}&background=random&color=fff`;
 
-        <tbody>
-          {loading && (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>
-                Loading...
-              </td>
-            </tr>
+  return (
+    <div className="comment-wrapper">
+      <div className="comment-main-row">
+        <div className="avatar-section">
+          <img src={avatarUrl} alt={comment.user_id} className="user-avatar" />
+          {/* Đường kẻ dọc nối các reply */}
+          {comment.replies?.length > 0 && <div className="reply-line" />}
+        </div>
+
+        <div className="comment-content-container">
+          <div className="comment-bubble">
+            <div className="user-name">{comment.user_id}</div>
+            <div className="comment-text">{comment.contents}</div>
+          </div>
+
+          <div className="comment-actions">
+            <span className="action-time">Vừa xong</span>
+            <button className="action-btn">Like</button>
+            <button className="action-btn" onClick={() => setShowReply(!showReply)}>Reply</button>
+          </div>
+
+          {showReply && (
+            <div className="reply-input-box">
+              <CommentInput
+                parentId={comment.comment_id}
+                sourceId={sourceId}
+                type={type}
+                placeholder={`Phản hồi ${comment.user_id}...`}
+                onSuccess={() => {
+                  setShowReply(false);
+                  onReload();
+                }}
+              />
+            </div>
           )}
 
-          {!loading &&
-            comments.map((c) => (
-              <tr key={c.comment_id}>
-                <td>{c.comment_id}</td>
-                <td>{c.user_id}</td>
-                <td>{c.contents}</td>
-                <td>
-                  {new Date(c.created_at).toLocaleString()}
-                </td>
-                <td>
-                  {!c.is_deleted && (
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(c.comment_id)}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+          {/* Render các phản hồi con ngay bên trong container của cha */}
+          {comment.replies?.length > 0 && (
+            <div className="replies-container">
+              {comment.replies.map((r) => (
+                <CommentItem 
+                  key={r.comment_id} 
+                  comment={r} 
+                  sourceId={sourceId} 
+                  type={type} 
+                  onReload={onReload} 
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      {showModal && (
-        <NewCommentModal
-          source_id={source_id}
-          type="SUBMISSION"
-          onClose={() => setShowModal(false)}
-          onSuccess={() => {
-            setShowModal(false);
-            dispatch(
-              searchComments({
-                source_id,
-                type: "SUBMISSION",
-              })
-            );
-          }}
-        />
-      )}
+/* =========================
+   Utility
+========================= */
+const buildCommentTree = (flat = []) => {
+  const map = {};
+  const roots = [];
+  
+  // Tạo bản đồ tham chiếu
+  flat.forEach((c) => {
+    map[String(c.comment_id)] = { ...c, replies: [] };
+  });
+
+  // Xây dựng cấu trúc cây
+  flat.forEach((c) => {
+    const current = map[String(c.comment_id)];
+    if (c.parent_id && map[String(c.parent_id)]) {
+      map[String(c.parent_id)].replies.push(current);
+    } else {
+      roots.push(current);
+    }
+  });
+
+  return roots;
+};
+
+/* =========================
+   Main Component
+========================= */
+export default function CommentList({ sourceId, type }) {
+  const dispatch = useDispatch();
+  const { items = [], totalCount = 0, loading = false } = useSelector((s) => s.commentList || {});
+
+  const loadFirst = () => {
+    if (!sourceId || !type) return;
+    dispatch(clearComments());
+    dispatch(searchComments({
+      maxResultCount: PAGE_SIZE,
+      skipCount: 0,
+      sorting: "created_at desc",
+      filter: { source_id: sourceId, type },
+    }));
+  };
+
+  useEffect(() => { loadFirst(); }, [sourceId, type]);
+
+  const finalItems = items.length > 0 ? items : mockComments;
+  const commentTree = buildCommentTree(finalItems);
+
+  return (
+    <div className="fb-comment-section">
+      <div className="root-input-container">
+        <CommentInput sourceId={sourceId} type={type} onSuccess={loadFirst} />
+      </div>
+
+      <div className="fb-comment-container">
+        {commentTree.map((c) => (
+          <CommentItem key={c.comment_id} comment={c} sourceId={sourceId} type={type} onReload={loadFirst} />
+        ))}
+      </div>
     </div>
   );
 }

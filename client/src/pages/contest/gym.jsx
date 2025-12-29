@@ -122,7 +122,7 @@ export default function Gym() {
                 <td>{renderStatus(g)}</td>
 
                 {/* ACTION */}
-                <td classname="nowrap">
+                <td className="nowrap">
                   {g.rated}
                 </td>
               </tr>

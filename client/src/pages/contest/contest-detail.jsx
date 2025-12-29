@@ -1,12 +1,21 @@
 import { useEffect } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
+import {
+  fetchContestDetail,
+  deleteContest,
+} from "../../redux/slices/contest-slice";
+
+import ContestDashboard from "../../pages/dashboard/dashboard"
+import CommentList from "../../pages/comments/comment-list"
 
 import {
   ArrowLeft,
   Code,
   Trophy,
   ExternalLink,
+  MessageSquare
 } from "lucide-react";
 import ContestCountdown from "../../components/contest-countdown/contest-countdown";
 
@@ -210,7 +219,9 @@ export default function ContestDetail() {
             </Link> */}
 
           {/* Standings */}
-          <div className="contest-detail-card">
+          {/* Standing by nhannx but accept phongdt */}
+
+          {/* <div className="contest-detail-card">
             <div className="contest-table-title">
               <Trophy size={20} />
               <div>Standings</div>
@@ -246,9 +257,36 @@ export default function ContestDetail() {
             >
               View full standings →
             </Link>
-          </div>
-        </div>
+          </div> */}
+          {/* End of standing by nhan */}
+          
+          <section className="card">
+            <h2 className="card-title">
+              <Trophy size={18} />
+              Dashboard
+            </h2>
 
+            {/* {isRunning || isEnded ? ( */}
+            {contest.contest_status === "Running" || contest.contest_status === "Finished" ? (
+              <ContestDashboard />
+            ) : (
+              <div className="standings-placeholder">
+                <Clock size={32} />
+                <p>Contest has not started</p>
+              </div>
+            )}
+          </section>
+
+          {/* Questions */}
+          <section className="card">
+            <h2 className="card-title">
+              <MessageSquare size={18} />
+              Questions & Announcements
+            </h2>
+
+            <CommentList sourceId={contest_id} type="CONTEST" />
+          </section>
+        </div>
 
 
         {/* RIGHT */}

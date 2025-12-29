@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRatings } from "../../redux/slices/rating-slice"; 
 
@@ -18,13 +18,18 @@ export default function RatingList() {
   const dispatch = useDispatch();
   const { items: fetchedItems, loading } = useSelector((state) => state.ratings);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
   useEffect(() => {
     if (contest_id) {
-        dispatch(fetchRatings({ contest_id, pageRequest: {} }));
+        dispatch(fetchRatings({ contest_id, pageRequest: { page, size: pageSize } }));
     }
-  }, [contest_id, dispatch]);
+  }, [contest_id, dispatch, page]);
 
   const items = fetchedItems.length > 0 ? fetchedItems : mockRatingItems;
+  const totalPages = 1; 
 
   if (loading) {
     return (
@@ -36,19 +41,23 @@ export default function RatingList() {
 
   return (
     <div className="rating-page">
-      <div className="content-container"> 
-        
-        <h5 className="rating-header">
-          Rating History — Contest #{contest_id}
-        </h5>
+      {/* Header đồng bộ với ProblemList */}
+      <div className="rating-header-section">
+        <h1>Rating History</h1>
+        <p className="subtitle">
+          View rating changes and standings for {contest_id || "the contest"}
+        </p>
+      </div>
 
+      {/* Table Wrapper */}
+      <div className="rating-table-wrapper">
         <table className="rating-table">
           <thead>
             <tr>
-              <th>User ID</th>
-              <th>Contest ID</th>
+              <th className="col-user">User ID</th>
+              <th className="col-contest">Contest ID</th>
               <th>Rating Mới (Sau Contest)</th>
-              <th>Rating Delta</th>
+              <th className="col-delta">Rating Delta</th>
             </tr>
           </thead>
 
@@ -56,30 +65,56 @@ export default function RatingList() {
             {items.map((r, index) => (
               <tr key={`${r.user_id}-${index}`}>
                 <td className="user-id-cell">{r.user_id}</td>
-                <td>{r.contest_id}</td>
-                <td>{r.rating}</td>
+                <td className="contest-id-cell">{r.contest_id}</td>
+                <td className="rating-cell">{r.rating}</td>
                 
-                <td className={r.delta >= 0 ? "rating-up" : "rating-down"}>
-                  {r.delta >= 0 ? "+" : ""}
-                  {r.delta}
+                {/* Logic đổi màu Delta */}
+                <td className={
+                    r.delta > 0 ? "rating-up" : 
+                    r.delta < 0 ? "rating-down" : 
+                    "rating-zero"
+                }>
+                  {r.delta > 0 ? `+${r.delta}` : r.delta}
                 </td>
               </tr>
             ))}
-            {items.length === 0 && fetchedItems.length === 0 && (
+
+            {items.length === 0 && (
                 <tr>
-                    <td colSpan="4" className="no-data">
+                    <td colSpan="4" className="empty">
                         Không có dữ liệu lịch sử xếp hạng nào.
                     </td>
                 </tr>
             )}
           </tbody>
         </table>
+      </div>
 
-        <div className="pagination-container">
-          <span className="pagination-text">Prev</span>
-          <button className="pagination-button">1</button>
-          <span className="pagination-text">Next</span>
-        </div>
+      {/* Pagination */}
+      <div className="pagination">
+        <button 
+          disabled={page === 1} 
+          onClick={() => setPage(page - 1)}
+        >
+          Prev
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            className={page === i + 1 ? "active" : ""}
+            onClick={() => setPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
