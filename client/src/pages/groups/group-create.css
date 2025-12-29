@@ -80,15 +80,16 @@
   color: #000;
 }
 
+/* PHẦN THAY ĐỔI CHÍNH Ở ĐÂY */
 .form-actions {
   display: flex;
   gap: 16px;
   margin-top: 40px;
+  max-width: 580px; /* Giới hạn tổng độ rộng để nút không bị quá dài trên màn hình lớn */
 }
 
 .form-actions button {
   height: 42px;
-  min-width: 140px;
   padding: 0 24px; 
   border-radius: 8px;
   font-size: 15px;
@@ -100,15 +101,21 @@
   gap: 8px;
   border: none;
   transition: opacity 0.2s;
-}
-
-.btn-create, .btn-cancel {
-  background-color: #28a745; 
   color: white !important;
 }
 
+.btn-create {
+  background-color: #28a745; 
+  flex: 2;
+}
+
+.btn-cancel {
+  background-color: #dc3545;
+  flex: 1;
+}
+
 .btn-create:hover, .btn-cancel:hover {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .btn-create:disabled {
