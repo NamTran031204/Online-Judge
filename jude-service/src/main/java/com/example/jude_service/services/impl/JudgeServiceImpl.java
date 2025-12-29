@@ -31,7 +31,7 @@ public class JudgeServiceImpl implements JudgeService {
     public JudgeResult judge(SubmissionInputDto submission, String problemId) throws Exception {
         log.info("Starting judge process for problem: {}, language: {}", problemId, submission.getLanguage());
 
-        String judgeId = UUID.randomUUID().toString();
+        String judgeId = UUID.randomUUID() + "_" + problemId + "_" + submission.getUserId() + "_" + submission.getLanguage();
 
         JudgeResult judgeResult = JudgeResult.builder()
                 .submissionId(judgeId)
@@ -76,19 +76,16 @@ public class JudgeServiceImpl implements JudgeService {
             
             for (int i = 0; i < testCases.size(); i++) {
                 TestcaseEntity testCase = testCases.get(i);
-                String testCaseId = testCase.getTestcaseName() != null && !testCase.getTestcaseName().isEmpty() 
-                        ? testCase.getTestcaseName() 
-                        : String.valueOf(i + 1);
 
-                log.info("Executing test case {}/{}: {}", i + 1, testCases.size(), testCaseId);
+                String testcaseId = String.valueOf(i+1);
+
+                log.info("Executing test case {}/{}: {}", i + 1, testCases.size(), testCase.getTestcaseName());
 
                 TestCaseResult testCaseResult = dockerSandboxService.executeTestCase(
                         judgeId,
-                        testCaseId,
+                        testcaseId,
+                        testCase,
                         submission.getSourceCode(),
-                        submission.getLanguage(),
-                        testCase.getInput(),
-                        testCase.getOutput(),
                         timeLimit,
                         memoryLimit,
                         COMPILE_TEMP_DIR

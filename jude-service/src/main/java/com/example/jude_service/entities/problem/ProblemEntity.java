@@ -63,6 +63,8 @@ public class ProblemEntity {
     private Long authorId;
     private List<TestcaseEntity> testcaseEntities;
 
+    private Boolean isActive;
+
     private Long createdBy;
     private Long lastModifiedBy;
 

@@ -3,10 +3,12 @@ package com.example.jude_service.services.impl;
 import com.example.jude_service.entities.CommonResponse;
 import com.example.jude_service.entities.PageRequestDto;
 import com.example.jude_service.entities.PageResult;
+import com.example.jude_service.entities.judge.TestCaseResult;
 import com.example.jude_service.entities.problem.ProblemEntity;
 import com.example.jude_service.entities.problem.ProblemInputDto;
 import com.example.jude_service.entities.testcase.TestcaseEntity;
 import com.example.jude_service.enums.LanguageType;
+import com.example.jude_service.enums.ResponseStatus;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
@@ -17,14 +19,15 @@ import com.example.jude_service.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,19 +37,19 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemRepo problemRepo;
     private final MongoTemplate mongoTemplate;
     private final SubmissionService submissionService;
+    private final DockerSandboxService dockerSandboxService;
 
     @Override
     public CommonResponse<ProblemEntity> addProblem(ProblemInputDto input) {
         validateBeforeInsertProblem(input);
 
-        ProblemEntity entity = problemRepo.save(ProblemEntity.builder()
+        ProblemEntity entity = ProblemEntity.builder()
                 .title(input.getTitle())
                 .description(input.getDescription())
                 .tags(input.getTags())
                 .imageUrls(input.getImageUrls())
                 .level(input.getLevel())
                 .supportedLanguage(input.getSupportedLanguage())
-                .solution(input.getSolution())
                 .rating(input.getRating())
                 .score(input.getScore())
                 .timeLimit(input.getTimeLimit())
@@ -54,11 +57,23 @@ public class ProblemServiceImpl implements ProblemService {
                 .inputType(input.getInputType())
                 .outputType(input.getOutputType())
                 .authorId(input.getUserId())
-                .testcaseEntities(input.getTestcaseEntities())
                 .createdBy(input.getUserId())
                 .lastModifiedBy(input.getUserId())
                 .contestId(input.getContestId())
-                .build());
+                .build();
+
+        Boolean isActive = input.getSolution() != null && input.getTestcaseEntities() != null;
+        var testcaseList = input.getTestcaseEntities();
+        if (testcaseList != null && !testcaseList.isEmpty()) {
+            var response = validateTestcaseEntities(testcaseList, null, input.getSolution());
+            testcaseList = response.getSecond();
+            isActive = response.getFirst();
+        }
+
+        entity.setIsActive(isActive);
+        entity.setTestcaseEntities(testcaseList);
+
+        problemRepo.save(entity);
         return CommonResponse.success(entity);
     }
 
@@ -114,7 +129,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<ProblemEntity> updateProblem(ProblemInputDto input, String problemId) {
-        ProblemEntity entity = problemRepo.findById(problemId.toString())
+        ProblemEntity entity = problemRepo.findById(problemId)
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         /**
@@ -158,9 +173,11 @@ public class ProblemServiceImpl implements ProblemService {
             entity.setOutputType(input.getOutputType());
         }
         if (input.getTestcaseEntities() != null && !input.getTestcaseEntities().isEmpty()) {
+            var validateTestcases = validateTestcaseEntities(input.getTestcaseEntities(), entity.getTestcaseEntities(), input.getSolution() != null? input.getSolution() : entity.getSolution());
             entity.setTestcaseEntities(
-                    validateTestcaseEntities(input.getTestcaseEntities())
+                    validateTestcases.getSecond()
             );
+            entity.setIsActive(validateTestcases.getFirst());
         }
         if (input.getUserId() != null) {
             if (!input.getUserId().equals(entity.getAuthorId())){
@@ -194,17 +211,39 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
-    List<TestcaseEntity> validateTestcaseEntities(List<TestcaseEntity> input) {
-        List<TestcaseEntity> result = new ArrayList<>();
-        Set<String> set = new HashSet<String>();
-        for (var e: input) {
-            if (set.contains(e.getTestcaseName())) {
+    Pair<Boolean, List<TestcaseEntity>> validateTestcaseEntities(List<TestcaseEntity> newTestCaseList, List<TestcaseEntity> entityTestcases, String sourceCode) {
+        Set<TestcaseEntity> set = new HashSet<>(entityTestcases);
+        entityTestcases = new ArrayList<>();
+
+        boolean isActive = Boolean.TRUE;
+        if (sourceCode == null || sourceCode.isEmpty()) {
+            isActive = Boolean.FALSE;
+        }
+
+        for (var testcase: newTestCaseList) {
+            if (set.contains(testcase)) {
                 continue;
             }
-            set.add(e.getTestcaseName());
-            result.add(e);
+            Path currentRelativePath = Paths.get("");
+            final String COMPILE_TEMP_DIR = currentRelativePath.toAbsolutePath()+ "compile-temp";
+            if (isActive == Boolean.TRUE) {
+                TestCaseResult testCaseResult = dockerSandboxService.executeTestCase(
+                        UUID.randomUUID() + sourceCode,
+                        UUID.randomUUID().toString(),
+                        testcase,
+                        sourceCode,
+                        1,
+                        128,
+                        COMPILE_TEMP_DIR
+                );
+                if (testCaseResult.getVerdict() != ResponseStatus.AC) {
+                    continue;
+                }
+            }
+            set.add(testcase);
+            entityTestcases.add(testcase);
         }
-        return result;
+        return Pair.of(isActive, entityTestcases);
     }
 
     Query filter(PageRequestDto<ProblemInputDto> input) {

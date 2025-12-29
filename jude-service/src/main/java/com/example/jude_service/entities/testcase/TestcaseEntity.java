@@ -10,6 +10,6 @@ import lombok.*;
 @ToString
 public class TestcaseEntity {
     private String testcaseName;
-    private String input;
-    private String output;
+    private String input; // objectName cua testcase input trong sourcecode
+    private String output; // objectName cua testcase output trong sourcecode
 }

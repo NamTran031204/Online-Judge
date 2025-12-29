@@ -1,33 +1,34 @@
 package com.example.jude_service.services.impl;
 
 import com.example.jude_service.entities.judge.TestCaseResult;
+import com.example.jude_service.entities.testcase.TestcaseEntity;
 import com.example.jude_service.enums.LanguageType;
 import com.example.jude_service.enums.ResponseStatus;
+import com.example.jude_service.services.MinioService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class DockerSandboxService {
+
+    private final MinioService minioService;
 
     private static final long DEFAULT_TIMEOUT = 30; // thoi gian toi da ma docker duoc phep chay, qua thi se timeout RTE
 
     public TestCaseResult executeTestCase(
             String judgeId,
             String testCaseId,
+            TestcaseEntity testcase,
             String sourceCode,
-            LanguageType language,
-            String input,
-            String expectedOutput,
             double timeLimit,
             double memoryLimit,
             String compileTempDir
@@ -35,38 +36,50 @@ public class DockerSandboxService {
         long startTime = System.currentTimeMillis();
         TestCaseResult result = TestCaseResult.builder()
                 .testCaseId(testCaseId)
-                .expectedOutput(expectedOutput)
                 .build();
 
         Path judgeDir = null;
         Path testCaseDir = null;
 
-        try {
+        try (
+                InputStream solutionFile = minioService.getFile(sourceCode);
+                InputStream inputFile = minioService.getFile(testcase.getInput());
+                InputStream expectedOutputFile = minioService.getFile(testcase.getOutput());
+                ){
 
             judgeDir = Paths.get(compileTempDir, "judge-" + judgeId);
             testCaseDir = Paths.get(judgeDir.toString(), "testcase_" + testCaseId);
             Files.createDirectories(testCaseDir);
 
-            Path solutionFile = createSolutionFile(judgeDir, sourceCode, language);
+            String extension = sourceCode.substring(sourceCode.lastIndexOf('.'));
+            Path solutionPath = judgeDir.resolve("solution"+extension);
+            Files.copy(solutionFile, solutionPath, StandardCopyOption.REPLACE_EXISTING);
 
-            Path inputFile = testCaseDir.resolve("input.txt");
-            Path expectedOutputFile = testCaseDir.resolve("expected_output.txt");
-            Path outputFile = testCaseDir.resolve("output.txt");
-            Path errorFile = testCaseDir.resolve("error.txt");
+            Path inputPath = testCaseDir.resolve("input.txt");
+            Files.copy(inputFile, inputPath, StandardCopyOption.REPLACE_EXISTING);
 
-            Files.writeString(inputFile, input != null ? input : "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            Files.writeString(expectedOutputFile, expectedOutput != null ? expectedOutput : "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            Files.writeString(outputFile, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            Files.writeString(errorFile, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Path expectedOutputPath = testCaseDir.resolve("expected_output.txt");
+            Files.copy(expectedOutputFile, expectedOutputPath, StandardCopyOption.REPLACE_EXISTING);
 
+            Path outputFilePath = testCaseDir.resolve("output.txt");
+            Path errorFilePath = testCaseDir.resolve("error.txt");
+
+            Files.writeString(outputFilePath, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(errorFilePath, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+            LanguageType language = switch (extension) {
+                case ".py" -> LanguageType.PYTHON;
+                case ".java" -> LanguageType.JAVA;
+                default -> LanguageType.CPP;
+            };
             String imageName = getDockerImageName(language);
             int exitCode = executeDocker(
                     imageName,
-                    solutionFile,
-                    inputFile,
-                    outputFile,
-                    errorFile,
-                    expectedOutputFile,
+                    solutionPath,
+                    inputPath,
+                    outputFilePath,
+                    errorFilePath,
+                    expectedOutputPath,
                     timeLimit,
                     memoryLimit
             );
@@ -74,13 +87,15 @@ public class DockerSandboxService {
             long executionTime = System.currentTimeMillis() - startTime;
             result.setExecutionTime(executionTime);
 
-            String actualOutput = Files.readString(outputFile).trim();
-            String errorMessage = Files.readString(errorFile).trim();
+            // upload minio
+            String actualOutputFile = minioService.uploadLocalFile(outputFilePath, judgeId + "_actualOutput.txt");
 
-            result.setActualOutput(actualOutput);
+            String errorMessage = Files.readString(errorFilePath).trim();
+
+            result.setActualOutput(actualOutputFile);
             result.setErrorMessage(errorMessage);
 
-            ResponseStatus verdict = determineVerdict(exitCode, actualOutput, expectedOutput, errorMessage);
+            ResponseStatus verdict = determineVerdict(exitCode, actualOutputFile, testcase.getOutput(), errorMessage);
             result.setVerdict(verdict);
 
             result.setMemoryUsed(0L);
@@ -95,19 +110,6 @@ public class DockerSandboxService {
         }
 
         return result;
-    }
-
-    private Path createSolutionFile(Path judgeDir, String sourceCode, LanguageType language) throws IOException {
-        String fileName = switch (language) {
-            case CPP -> "solution.cpp";
-            case JAVA -> "Solution.java";
-            case PYTHON -> "solution.py";
-            default -> throw new IllegalArgumentException("Unsupported language: " + language);
-        };
-
-        Path solutionFile = judgeDir.resolve(fileName);
-        Files.writeString(solutionFile, sourceCode, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        return solutionFile;
     }
 
     private String getDockerImageName(LanguageType language) {

@@ -15,9 +15,8 @@ spring:
   mongodb:
     uri: mongodb://admin:admin123456@localhost:27017/judge-service?authSource=admin
 
-
 minio:
   endpoint: http://localhost:9000
-  access-key: 6UGBs1aNth7L1LiwEdjq
-  secret-key: qmHy1xc3w7ZIqFJtIexZba8LCjQ3klP9HQ3E6BL0
-  bucket-name: judge-service
+  access-key: Z82SG4T9BL1C2H98EGMW
+  secret-key: dG+Zdt1UtovVQ4L1awSNyEhvEVfPVGPjO9RQyIBd
+  bucket-name: online-judge
