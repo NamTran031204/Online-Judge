@@ -2,18 +2,23 @@ import "./auth.css";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  login,
-  signup,
   clearError,
 } from "../../redux/slices/user-slice";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Code2, Eye, EyeOff } from 'lucide-react';
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "../../services/authApi";
 
 export default function Auth() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.user);
+
+  const [login, { isLoading: isLoginLoading, error: loginError }] = useLoginMutation();
+
+  const [ register, { isLoading: isRegisterLoading, error: registerError }] = useRegisterMutation();
 
   const [authMode, setAuthMode] = useState("login"); // login | register
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +29,10 @@ export default function Auth() {
     password: "",
   });
 
+  const loading = isLoginLoading || isRegisterLoading;
+  const error = loginError || registerError;
+
+
   useEffect(() => {
     dispatch(clearError());
   }, [authMode]);
@@ -31,29 +40,31 @@ export default function Auth() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let result;
-
-    if (authMode === "login") {
-      result = await dispatch(
-        login({
+    try {
+      if (authMode === "login") {
+        await login({
           username: form.username,
           password: form.password,
-        })
-      );
-    } else {
-      result = await dispatch(
-        signup({
+        }).unwrap();
+      } else {
+        await register({
           username: form.username.trim(),
           email: form.email.trim(),
           password: form.password,
-        })
-      );
-    }
+        }).unwrap();
+      }
 
-    if (result.meta.requestStatus === "fulfilled") {
       navigate("/home");
+    } catch (err) {
+      // error đã được RTK Query quản lý
+      console.error("Auth error:", err);
     }
-  };
+  }
+
+  // if (result.meta.requestStatus === "fulfilled") {
+  //   navigate("/home");
+  // }
+
 
   return (
     <div className="auth-wrapper">

@@ -1,22 +1,27 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Code2, Menu, X, User, LogOut, Settings, Trophy } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useLogoutMutation } from '../../services/authApi';
 import './header.css';
 
 const navLinks = [
   { href: '/problems', label: 'Problems' },
   { href: '/contests', label: 'Contests' },
   { href: '/gym', label: 'Gym' },
+  { href: '/groups', label: 'Group' },
   { href: '/standings', label: 'Standings' },
   { href: '/drafts', label: 'Drafts' },
   { href: '/sandbox', label: 'Sandbox' },
 ];
 
 export default function Header() {
-  const dispatch = useDispatch();
-  const { user, isLogin } = useSelector((state) => state.user);
   const location = useLocation();
+  const navigate = useNavigate()
+
+  const user = useSelector((state) => state.user);
+
+  const [logoutApi] = useLogoutMutation();
 
   const [userDropdownSelected, setUserDropdownSelected] = useState(false);
   const [mobileResponsive, setMobileResponsive] = useState(false);
@@ -33,9 +38,14 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // dispatch(logout());
-    setUserDropdownSelected(false);
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+      setDropdownOpen(false);
+      navigate('/home');
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
   };
 
   return (
@@ -68,7 +78,7 @@ export default function Header() {
 
           {/* right header */}
           <div className="header-right">
-            {isLogin ? (
+            {user.isAuthenticated ? (
               <>
                 <Link to="/submissions" className="submissions-link">
                   My Submissions
@@ -81,10 +91,10 @@ export default function Header() {
                     onClick={() => setUserDropdownSelected((v) => !v)}
                   >
                     <div className="avatar">
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.user.username?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <span className="username">
-                      {user?.username || 'User'}
+                      {user?.user.username || 'User'}
                     </span>
                   </button>
 
@@ -148,7 +158,7 @@ export default function Header() {
 
           <div className="mobile-divider" />
 
-          {isLogin ? (
+          {user?.isAuthenticated ? (
             <>
               <Link
                 to="/submissions"

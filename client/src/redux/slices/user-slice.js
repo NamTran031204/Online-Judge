@@ -1,151 +1,99 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from "axios";
-import { User } from "../../types/user";
-import { SERVER_URL } from "../../config/config.js";
+import { createSlice } from '@reduxjs/toolkit';
+import { authApi } from '../../services/authApi';
+// import localStorage from 'localStorage';
 
-
-const initialState = {
-  user: null,
-  isLogin: false,
-  loading: false,
-  error: null,
+//  user lưu trong store
+const emptyUser = {
+  user_id: null,
+  username: null,
 };
 
-/* LOGIN */
-export const login = createAsyncThunk(
-  "user/login",
-  async ({ username, password }, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${SERVER_URL}/auth/login`,
-        { username, password }
-      );
+//  Load token từ localStorage khi reload trang
+const accessToken = localStorage.getItem('accessToken');
+const refreshToken = localStorage.getItem('refreshToken');
 
-      // API trả về: { isSuccessful, data: { access_token, refresh_token, expires_in } }
-      return res.data.data;
+const initialState = {
+  user: emptyUser,
+  accessToken: accessToken || null,
+  refreshToken: refreshToken || null,
+  isAuthenticated: !!accessToken,
+};
 
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Login failed!"
-      );
-    }
-  }
-);
-
-/* REGISTER */
-export const signup = createAsyncThunk(
-  "user/signup",
-  async ({ username, email, password }, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${SERVER_URL}/auth/register`,
-        { username, email, password }
-      );
-
-      // API trả về: { isSuccessful, data: { user_id, username, email } }
-      return res.data.data;
-
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Register failed!"
-      );
-    }
-  }
-);
-
-/*  REFRESH-TOKEN */
-export const refreshToken = createAsyncThunk(
-  "user/refreshToken",
-  async ({ refresh_token }, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${SERVER_URL}/auth/refresh`,
-        { refresh_token }
-      );
-
-      // API trả về: { isSuccessful, data: { access-token, expires_in } }
-      return res.data.data;
-
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Register failed!"
-      );
-    }
-  }
-);
-
-/* LOGOUT */
-export const logoutUser = createAsyncThunk(
-  "user/logout",
-  async () => {
-    await axios.post(`${SERVER_URL}/auth/logout`);
-  }
-);
-
-/* SLICE */
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {
-    clearError: (state) => {
-      state.error = null;
-    },
-    // clearUser: (state) => {
-    //   state.user = null;
-    //   state.isLogin = false;
-    //   state.error = null;
-    //   state.loading = false;
 
-    //   localStorage.removeItem("accessToken");
-    //   localStorage.removeItem("refreshToken");
-    // },
+  reducers: {
+    // Logout thủ công 
+    logout: (state) => {
+      state.user = emptyUser;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
+
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    },
+
+    setUserInfo: (state, action) => {
+      state.user = action.payload;
+    },
+
+    clearError: (state) => {
+      state.error = null; 
+    }
   },
 
   extraReducers: (builder) => {
-    builder
 
-      /*  LOGIN  */
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isLogin = true;
+    builder.addMatcher(
+      authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
+        const { access_token, refresh_token } = payload.data;
 
-        // action.payload = data returned from API
-        // localStorage.setItem("accessToken", action.payload.access_token);
-        // localStorage.setItem("refreshToken", action.payload.refresh_token);
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+        state.accessToken = access_token;
+        state.refreshToken = refresh_token;
+        state.isAuthenticated = true;
 
-      /*  REGISTER  */
-      .addCase(signup.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(signup.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isLogin = true;
+        localStorage.setItem('accessToken', access_token);
+        localStorage.setItem('refreshToken', refresh_token);
+      }
+    );
 
-        // action.payload = { user_id, username, email }
-        state.user = action.payload;
+    builder.addMatcher(
+      authApi.endpoints.register.matchFulfilled, (state) => {
+        // user cần login lại
+      }
+    );
 
-        // API register không trả token 
-        // localStorage.setItem("accessToken", "mock-register-token");
-        // localStorage.setItem("refreshToken", "mock-register-refresh");
-      })
-      .addCase(signup.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.isLogin = false;
-      });
-  }
+    builder.addMatcher(
+      authApi.endpoints.refreshToken.matchFulfilled, (state, { payload }) => {
+        const { access_token } = payload.data;
+
+        state.accessToken = access_token;
+        state.isAuthenticated = true;
+
+        localStorage.setItem('accessToken', access_token);
+      }
+    );
+
+    builder.addMatcher(
+      authApi.endpoints.logout.matchFulfilled, (state) => {
+        state.user = emptyUser;
+        state.accessToken = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+    );
+  },
 });
 
+export const {
+  logout,
+  setUserInfo,
+  clearError,
+} = userSlice.actions;
 
-export const { clearError, clearUser } = userSlice.actions;
 export default userSlice.reducer;

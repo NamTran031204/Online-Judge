@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
-import { getProblemDetail } from "../../redux/slices/problem-slice";
+import { useGetProblemDetailQuery } from "../../services/problemApi";
+import { useSubmitSolutionMutation } from "../../services/submissionApi";
 import Editor from "@monaco-editor/react";
 import {
   Clock,
@@ -13,11 +14,11 @@ import {
   CheckCircle,
   Send,
 } from "lucide-react";
+
+
 import "./problem-detail.css";
 
-/*======
-   CODE TEMPLATES
-  ====== */
+/* CODE TEMPLATES */
 const LANGUAGE_TEMPLATES = {
   cpp: `#include <bits/stdc++.h>
 using namespace std;
@@ -54,8 +55,18 @@ const MONACO_LANGUAGE_MAP = {
 
 export default function ProblemDetail() {
   const { problem_id } = useParams();
-  const dispatch = useDispatch();
-  const { problem: p, loading } = useSelector((state) => state.problem);
+  const location = useLocation();
+  const pathParts = location.pathname.split("/").filter(Boolean);
+
+  const isContestProblem = pathParts[0] === "contest" || pathParts[0] === "gym";
+  const contest_id = isContestProblem ? Number(pathParts[1]) : null;
+
+  const currentUser = useSelector((state) => state.user);
+
+  const { data, isLoading: loading, isError } = useGetProblemDetailQuery(problem_id);
+  const p = data?.data;
+
+  const [submitSolution, { isLoading: isSubmitting }] = useSubmitSolutionMutation();
 
   const [activeTab, setActiveTab] = useState("description");
   const [language, setLanguage] = useState("cpp");
@@ -63,10 +74,6 @@ export default function ProblemDetail() {
   const [langOpen, setLangOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-
-  useEffect(() => {
-    dispatch(getProblemDetail(problem_id));
-  }, [problem_id, dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -89,6 +96,32 @@ export default function ProblemDetail() {
     setCode(LANGUAGE_TEMPLATES[language]);
   };
 
+  const handleSubmit = async () => {
+    if (!currentUser.isAuthenticated) {
+      alert("You must login to submit");
+      return;
+    }
+
+    const payload = {
+      problem_id: problem_id,
+      lang: language,
+      source_code: code,
+    };
+
+    if (isContestProblem && contest_id) {
+      payload.contest_id = contest_id;
+    }
+
+    try {
+      const res = await submitSolution(payload).unwrap();
+      console.log("Submission ID:", res.submission_id);
+
+      // optional: navigate to submissions / toast success
+    } catch (err) {
+      console.error("Submit failed:", err);
+    }
+  };
+
   if (loading || !p) {
     return <div className="problem-detail-loading">Loading...</div>;
   }
@@ -100,9 +133,12 @@ export default function ProblemDetail() {
         <div className="problem-left-inner">
           {/* Header */}
           <div className="problem-header">
-            <Link to="/problems" className="back-link">
+            <Link
+              to={location.state?.from || "/problems"}
+              className="back-link"
+            >
               <ArrowLeft size={16} />
-              Back to Problems
+              Back
             </Link>
 
             <div className="title-row">
@@ -278,7 +314,11 @@ export default function ProblemDetail() {
               <Play size={14} />
               Run
             </button>
-            <button className="submit-btn">
+            <button
+              className="submit-btn"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
               <Send size={14} />
               Submit
             </button>

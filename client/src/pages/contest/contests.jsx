@@ -1,96 +1,177 @@
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchContests } from "../../redux/slices/contests-list-slice";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Search, Calendar, Clock } from "lucide-react";
+
 import ContestCountdown from "../../components/contest-countdown/contest-countdown";
-import { Search } from "lucide-react";
+import Pagination from "../../components/pagination/pagination";
+
+import {
+  useSearchContestsQuery,
+  useRegisterContestMutation,
+  useSearchRegistrationsQuery,
+} from "../../services/contestApi";
+import { contestApi } from "../../services/contestApi";
+
+
 import "./contests.css";
 
+const PAGE_SIZE = 10;
+
 export default function ContestList() {
-  const dispatch = useDispatch();
-  const { list = [], loading } = useSelector(
-    (state) => state.contestsList
-  );
+  const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.user);
 
-  const [keyword, setKeyword] = useState("");
-  const debounceRef = useRef(null);
+  const [page, setPage] = useState(1);
 
+  /* QUERY CONTESTS */
 
-  useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
-      dispatch(fetchContests({
-        keyword: keyword.trim() || undefined,
-      }));
-    }, 500);
-
-    return () => clearTimeout(debounceRef.current);
-  }, [keyword, dispatch]);
-
-
-  const upcoming = list.filter(
-    (c) =>
-      c.contest_status === "upcoming" ||
-      c.contest_status === "running"
-  );
-
-  const past = list.filter(
-    (c) => c.contest_status === "finished"
-  );
-
-  const formatTime = (time) =>
-    new Date(time).toLocaleString();
-
-  // const renderStatus = (status) => {
-  //   if (status === "running")
-  //     return <span className="badge running">Running</span>;
-  //   if (status === "upcoming")
-  //     return <span className="badge upcoming">Before start</span>;
-  //   return <span className="badge ended">Finished</span>;
-  // };
-
-  const renderStatus = (contest) => {
-    if (!contest) return null;
-    const { contest_status, start_time, duration } = contest;
-    console.log("STATUS DEBUG:", contest.contest_status);
-    console.log("START:", contest.start_time);
-    console.log("DURATION:", contest.duration);
-
-    return (
-      <div className="status-cell">
-        {contest_status === "running" && (
-          <span className="badge running">Running</span>
-        )}
-
-        {contest_status === "upcoming" && (
-          <span className="badge upcoming">Upcoming</span>
-        )}
-
-        {contest_status === "finished" && (
-          <span className="badge ended">Finished</span>
-        )}
-
-        {(contest_status === "upcoming" ||
-          contest_status === "running") && (
-            <ContestCountdown
-              startTime={start_time}
-              duration={duration}
-              status={contest_status}
-            />
-          )}
-      </div>
-    );
+  const baseFilter = {
+    contest_type: "Official",
   };
 
-  const renderAction = (contest) => {
-    if (contest.contest_status === "upcoming") {
-      return <button className="btn outline">Register</button>;
+  const runningQuery = useSearchContestsQuery({
+    maxResultCount: PAGE_SIZE,
+    skipCount: 0,
+    sorting: "start_time asc",
+    filter: { ...baseFilter, contest_status: "Running" },
+  });
+
+  const upcomingQuery = useSearchContestsQuery({
+    maxResultCount: PAGE_SIZE,
+    skipCount: 0,
+    sorting: "start_time asc",
+    filter: { ...baseFilter, contest_status: "Upcoming" },
+  });
+
+  const finishedQuery = useSearchContestsQuery({
+    maxResultCount: PAGE_SIZE,
+    skipCount: (page - 1) * PAGE_SIZE,
+    sorting: "start_time desc",
+    filter: { ...baseFilter, contest_status: "Finished" },
+  });
+
+  const running = runningQuery.data?.data?.data || [];
+  const upcoming = upcomingQuery.data?.data?.data || [];
+  const finished = finishedQuery.data?.data?.data || [];
+  const finishedTotal = finishedQuery.data?.data?.totalCount || 0;
+
+  const currentAndUpcoming = [...running, ...upcoming];
+
+  /* REGISTRATION */
+
+  const [registerContest, { isLoading: registering }] = useRegisterContestMutation();
+
+  const registeredCache = useRef(new Map());
+
+  const checkRegistered = (contest_id) => {
+    if (!currentUser.isAuthenticated) return false;
+
+    if (registeredCache.current.has(contest_id)) {
+      return registeredCache.current.get(contest_id);
     }
 
-    if (contest.contest_status === "running") {
+    const res = contestApi.endpoints.searchRegistrations.initiate(
+      {
+        contest_id,
+        pageRequest: {
+          skipCount: 0,
+          maxResultCount: 1,
+          filter: { user_id: currentUser.accessToken },
+        },
+      },
+      { forceRefetch: true }
+    );
+
+    const result = res.data?.data?.totalCount > 0;
+    registeredCache.current.set(contest_id, result);
+
+    return result;
+  };
+
+  const handleRegister = async (contest_id) => {
+    if (!currentUser.isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      await registerContest(contest_id).unwrap();
+      registeredCache.current.set(contest_id, true);
+      alert("Register successful");
+    } catch {
+      alert("Register failed");
+    }
+  };
+
+  /* TITLE ONCLICK (ACCESS CONTROL) */
+  const handleTitleClick = async (e, contest) => {
+    e.preventDefault();
+
+    const { contest_id, contest_status } = contest;
+
+    // UPCOMING
+    if (contest_status === "Upcoming") {
+      alert("Contest has not started yet");
+      return;
+    }
+
+    // FINISHED
+    if (contest_status === "Finished") {
+      navigate(`/contest/${contest_id}`);
+      return;
+    }
+
+    // RUNNING
+    if (!currentUser.isAuthenticated) {
+      alert("You must login to enter this contest");
+      return;
+    }
+
+    const registered = await checkRegistered(contest_id);
+    if (!registered) {
+      alert("You have not registered for this contest");
+      return;
+    }
+
+    navigate(`/contest/${contest_id}`);
+  };
+
+  /* HELPERS */
+  const formatTime = (time) => new Date(time).toLocaleString();
+
+  const formatDateTime = (iso) =>
+    new Date(iso).toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  const renderStatus = ({ contest_status, start_time, duration }) => (
+    <div className="status-cell">
+      <span className={`badge ${contest_status.toLowerCase()}`}>
+        {contest_status}
+      </span>
+
+      {(contest_status === "Running" ||
+        contest_status === "Upcoming") && (
+          <ContestCountdown
+            startTime={start_time}
+            duration={duration}
+            status={contest_status}
+          />
+        )}
+    </div>
+  );
+
+  const renderAction = (c) => {
+    if (c.contest_status === "Finished") {
+      return <button className="btn outline">Virtual</button>;
+    }
+
+    if (c.contest_status === "Running") {
       return (
         <button className="btn disabled" disabled>
           Register closed
@@ -98,9 +179,18 @@ export default function ContestList() {
       );
     }
 
-    return <button className="btn outline">Virtual</button>;
+    return (
+      <button
+        className="btn outline"
+        disabled={registering}
+        onClick={() => handleRegister(c.contest_id)}
+      >
+        Register
+      </button>
+    );
   };
 
+  /* RENDER */
   return (
     <div className="contest-page">
       <header className="contest-header">
@@ -108,23 +198,14 @@ export default function ContestList() {
           <h1>Contests</h1>
           <p>Official programming contests and competitions</p>
         </div>
-
-        <div className="contest-search">
-          <Search size={16} />
-          <input
-            placeholder="Search contests..."
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-        </div>
       </header>
 
-      {/* CURRENT / UPCOMING */}
+      {/* RUNNING + UPCOMING */}
       <section className="contest-section">
         <h2>Current or Upcoming Contests</h2>
 
         <div className="contest-table-wrapper">
-          <table className="contest-table">
+          <table className="contest-list-table">
             <thead>
               <tr>
                 <th className="col-name">Name</th>
@@ -135,31 +216,40 @@ export default function ContestList() {
                 <th className="col-action">Action</th>
               </tr>
             </thead>
-
             <tbody>
-              {upcoming.map((c) => (
+              {currentAndUpcoming.map((c) => (
                 <tr key={c.contest_id}>
                   <td className="contest-name">
-                    <Link to={`/contest/${c.contest_id}`}>
+                    <a
+                      href="#"
+                      className="contest-link"
+                      onClick={(e) => handleTitleClick(e, c)}
+                    >
                       {c.title}
-                    </Link>
+                    </a>
                   </td>
-                  <td>{formatTime(c.start_time)}</td>
-                  <td>{c.duration} min</td>
                   <td>
-                    {renderStatus(c)}
+                    <div className="contest-date-cell">
+                      <Calendar size={16} />
+                      {formatDateTime(c.start_time)}
+                    </div>
                   </td>
+                  <td>
+                    <div className="contest-date-cell">
+                      <Clock size={14} />
+                      {c.duration} min
+                    </div>
+                  </td>
+                  <td>{renderStatus(c)}</td>
                   <td>{c.rated ? "Yes" : "No"}</td>
-                  <td className="center">
-                    {renderAction(c)}
-                  </td>
+                  <td>{renderAction(c)}</td>
                 </tr>
               ))}
 
-              {upcoming.length === 0 && (
+              {currentAndUpcoming.length === 0 && (
                 <tr>
                   <td colSpan="6" className="empty-row">
-                    No upcoming contests
+                    No contests
                   </td>
                 </tr>
               )}
@@ -168,12 +258,12 @@ export default function ContestList() {
         </div>
       </section>
 
-      {/* PAST */}
+      {/* FINISHED */}
       <section className="contest-section">
         <h2>Past Contests</h2>
 
         <div className="contest-table-wrapper">
-          <table className="contest-table">
+          <table className="contest-list-table">
             <thead>
               <tr>
                 <th className="col-name">Name</th>
@@ -181,29 +271,36 @@ export default function ContestList() {
                 <th className="col-length">Length</th>
                 <th className="col-status">Status</th>
                 <th className="col-rated">Rated</th>
-                <th className="col-action">Action</th>
+                {/* <th className="col-action">Action</th> */}
               </tr>
             </thead>
-
             <tbody>
-              {past.map((c) => (
+              {finished.map((c) => (
                 <tr key={c.contest_id}>
                   <td className="contest-name">
-                    <Link to={`/contest/${c.contest_id}`}>
+                    <a
+                      href={`/contest/${c.contest_id}`}
+                      className="contest-link"
+                    >
                       {c.title}
-                    </Link>
+                    </a>
                   </td>
-                  <td>{formatTime(c.start_time)}</td>
+                  <td>
+                    <div className="contest-date-cell">
+                      <Calendar size={16} />
+                      {formatDateTime(c.start_time)}
+                    </div>
+                  </td>
                   <td>{c.duration} min</td>
                   <td>{renderStatus(c)}</td>
                   <td>{c.rated ? "Yes" : "No"}</td>
-                  <td className="center">
+                  {/* <td>
                     <button className="btn outline">Virtual</button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
 
-              {past.length === 0 && (
+              {finished.length === 0 && (
                 <tr>
                   <td colSpan="6" className="empty-row">
                     No past contests
@@ -213,9 +310,14 @@ export default function ContestList() {
             </tbody>
           </table>
         </div>
-      </section>
 
-      {loading && <p className="loading">Loading...</p>}
-    </div>
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          totalCount={finishedTotal}
+          onPageChange={setPage}
+        />
+      </section >
+    </div >
   );
 }

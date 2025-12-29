@@ -1,52 +1,68 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchProblems } from "../../redux/slices/problems-list-slice";
+import { useSearchProblemsQuery, useSearchProblemsByTextQuery } from "../../services/problemApi";
+import Pagination from "../../components/pagination/pagination";
 import { Link } from "react-router-dom";
 import { Search, Plus, X } from "lucide-react";
 import "./problems.css";
 
 export default function ProblemList() {
-  const dispatch = useDispatch();
-  const { problems, totalItems, loading } = useSelector(
-    (state) => state.problemsList
-  );
-
   const [searchText, setSearchText] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
   const [showTagInput, setShowTagInput] = useState(false);
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const PAGE_SIZE = 10;
 
   const debounceRef = useRef(null);
 
-  // fetch problems (500ms)
+  const hasKeyword = debouncedKeyword.length > 0;
+  const hasTags = tags.length > 0;
+
+  const searchByKeyword = useSearchProblemsByTextQuery(
+    {
+      maxResultCount: PAGE_SIZE,
+      skipCount: (page - 1) * PAGE_SIZE,
+      sort: "title asc",
+      filter: hasKeyword ? { keyword: debouncedKeyword.trim() } : undefined,
+    },
+    { skip: !hasKeyword }
+  );
+
+  const searchByTag = useSearchProblemsQuery(
+    {
+      maxResultCount: PAGE_SIZE,
+      skipCount: (page - 1) * PAGE_SIZE,
+      sort: "title asc",
+      filter: hasTags ? { tags: tags } : undefined,
+    },
+    { skip: hasKeyword }
+  );
+
+  const dataSource = hasKeyword ? searchByKeyword : searchByTag;
+
+  const problems = dataSource.data?.data?.data || [];
+  const loading = dataSource.isLoading;
+  const totalCount = dataSource.data?.data?.totalCount || 0;
+
+  useEffect(() => {
+    setPage(1);
+  }, [tags]);
+
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
 
     debounceRef.current = setTimeout(() => {
-      const filter = {};
-      if (tags.length > 0) {
-        filter.tag = tags;
-      }
-
-      dispatch(
-        searchProblems({
-          page: 1,
-          size: pageSize,
-          keyword: searchText.trim() || undefined,
-          filter,
-        })
-      );
-
+      setDebouncedKeyword(searchText.trim());
       setPage(1);
     }, 500);
 
     return () => clearTimeout(debounceRef.current);
-  }, [searchText, tags, dispatch]);
+  }, [searchText]);
 
   // tag handler
   const addTag = () => {
@@ -61,8 +77,6 @@ export default function ProblemList() {
   const removeTag = (tag) => {
     setTags((prev) => prev.filter((t) => t !== tag));
   };
-
-  const totalPages = Math.ceil(totalItems / pageSize);
 
   return (
     <div className="problem-page">
@@ -136,28 +150,12 @@ export default function ProblemList() {
           </div>
 
           {/* Pagination */}
-          <div className="pagination">
-            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={page === i + 1 ? "active" : ""}
-                onClick={() => setPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </button>
-          </div>
+          <Pagination
+            page={page}
+            PAGE_SIZE={PAGE_SIZE}
+            totalCount={totalCount}
+            onPageChange={setPage}
+          />
         </div>
 
         <div className="problem-sidebar">

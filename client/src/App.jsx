@@ -8,7 +8,9 @@ import Auth from "./pages/auth/auth";
 import Contests from "./pages/contest/contests";
 import Gym from "./pages/contest/gym";
 import ContestDetail from "./pages/contest/contest-detail";
+import ContestDashboard from "./pages/contest/contest-dashboard";
 import ContestForm from "./pages/contest/contest-form";
+import DraftContest from "./pages/contest/draft-contest";
 import Problems from "./pages/problems/problems";
 import ProblemDetail from "./pages/problems/problem-detail";
 import ProblemSandbox from "./pages/problems/problem-sandbox";
@@ -39,17 +41,18 @@ function App() {
 
           {/* contests */}
           <Route path="/contests" element={<Contests />} />
-          <Route path="/gym" element={<Gym />} />
-          {/* <Route path="/contests/create" element={<ContestForm />} /> */}
           <Route path="/contest/:contest_id" element={<ContestDetail />} />
+          <Route path="/contest/:contest_id/problem/:problem_id" element={<ProblemDetail />} />
+          <Route path="/contest/:contest_id/dashboard" element={<ContestDashboard />} />
+          <Route path="/gym" element={<Gym />} />
           <Route path="/gym/:contest_id" element={<ContestDetail />} />
-          {/* <Route path="/contest/edit/:contest_id" element={<ContestForm editMode={true} />} /> */}
+          <Route path="/gym/:contest_id/problem/:problem_id" element={<ProblemDetail />} />
+          <Route path="/gym/:contest_id/dashboard" element={<ContestDashboard />} />
+          <Route path="/drafts" element={<DraftContest />} />
 
           {/* problems */}
           <Route path="/problems" element={<Problems />} />
           <Route path="/problem/:problem_id" element={<ProblemDetail />} />
-          {/* <Route path="/problems/create" element={<ProblemForm />} /> */}
-          {/* <Route path="/problem/edit/:problem_id" element={<ProblemForm editMode={true} />} /> */}
           <Route path="/sandbox" element={<ProblemSandbox />} />
 
           {/* profile */}

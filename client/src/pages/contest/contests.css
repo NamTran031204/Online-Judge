@@ -4,6 +4,7 @@
   padding: 0 20px;
   font-family: "Segoe UI", system-ui, sans-serif;
   color: #0f172a;
+  overflow-y: auto;
 }
 
 /* HEADER */
@@ -60,7 +61,7 @@
   margin-bottom: 16px;
 }
 
-/* TABLE */
+/* list-TABLE */
 .contest-table-wrapper {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -68,18 +69,18 @@
   background: #fff;
 }
 
-.contest-table {
+.contest-list-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-.contest-table thead {
+.contest-list-table thead {
   background: #f8fafc;
 }
 
-.contest-table th,
-.contest-table td {
+.contest-list-table th,
+.contest-list-table td {
   padding: 14px;
   font-size: 14px;
   text-align: left;
@@ -88,16 +89,16 @@
   text-overflow: ellipsis;
 }
 
-.contest-table th {
+.contest-list-table th {
   font-weight: 600;
   color: #334155;
 }
 
-.contest-table tr {
+.contest-list-table tr {
   border-top: 1px solid #e2e8f0;
 }
 
-.contest-table tr:hover {
+.contest-list-table tr:hover {
   background: #f9fbff;
 }
 
@@ -110,12 +111,12 @@
 }
 
 .col-length {
-  width: 10%;
+  width: 13%;
   text-align: center;
 }
 
 .col-status {
-  width: 20%;
+  width: 17%;
 }
 
 .col-rated {
@@ -126,6 +127,23 @@
 .col-action {
   width: 15%;
   text-align: center;
+}
+
+.contest-link {
+  cursor: pointer;
+  color: var(--primary);
+}
+
+.contest-link.disabled {
+  cursor: not-allowed;
+  color: #999;
+}
+
+.contest-date-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
 }
 
 .contest-name a {
@@ -174,7 +192,7 @@
   color: #166534;
 }
 
-.badge.ended {
+.badge.finished {
   background: #e5e7eb;
   color: #374151;
 }

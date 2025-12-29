@@ -1,62 +1,57 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Calendar,
-  Clock,
-  Users,
-  Search,
-  Play,
-} from "lucide-react";
+import { Calendar, Clock, Users, Play } from "lucide-react";
+
+import { useSearchContestsQuery } from "../../services/contestApi";
+import ContestCountdown from "../../components/contest-countdown/contest-countdown";
+import Pagination from "../../components/pagination/pagination";
 
 import "./gym.css";
 
+const PAGE_SIZE = 10;
+
 export default function Gym() {
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const debounceRef = useRef(null);
+  const [page, setPage] = useState(1);
 
-  // MOCK DATA – sau này thay bằng API
-  const gyms = [
-    {
-      contest_id: 1,
-      title: "Codeforces Round 900 (Gym)",
-      start_time: "2024-06-01 20:00",
-      duration: 120,
-      contest_status: "ended",
+  const { data, isLoading } = useSearchContestsQuery({
+    maxResultCount: PAGE_SIZE,
+    skipCount: (page - 1) * PAGE_SIZE,
+    sorting: "start_time desc",
+    filter: {
+      contest_type: "Gym",
     },
-    {
-      contest_id: 2,
-      title: "ICPC Asia Practice Session",
-      start_time: "2024-12-01 09:00",
-      duration: 300,
-      contest_status: "running",
-    },
-  ];
+  });
 
-  // debounce search input
-  useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+  const gyms = data?.data?.data || [];
+  const totalCount = data?.data?.totalCount || 0;
 
-    debounceRef.current = setTimeout(() => {
-      setSearch(searchInput.trim());
-    }, 500);
+  const formatTime = (t) => new Date(t).toLocaleString();
 
-    return () => clearTimeout(debounceRef.current);
-  }, [searchInput]);
+  const formatDateTime = (iso) =>
+    new Date(iso).toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-  const filtered = gyms.filter((g) =>
-    g.title.toLowerCase().includes(search.toLowerCase())
+  const renderStatus = ({ contest_status, start_time, duration }) => (
+    <div className="status-cell">
+      <span className={`badge ${contest_status.toLowerCase()}`}>
+        {contest_status}
+      </span>
+
+      {(contest_status === "Running" ||
+        contest_status === "Upcoming") && (
+          <ContestCountdown
+            startTime={start_time}
+            duration={duration}
+            status={contest_status}
+          />
+        )}
+    </div>
   );
-
-  const renderStatus = (status) => {
-    if (status === "running")
-      return <span className="status running">Running</span>;
-    if (status === "ended")
-      return <span className="status ended">Finished</span>;
-    return <span className="status upcoming">Upcoming</span>;
-  };
 
   return (
     <div className="gym-page">
@@ -66,15 +61,6 @@ export default function Gym() {
           <h1>Gym</h1>
           <p>Practice contests and training sessions</p>
         </div>
-
-        <div className="gym-search">
-          <Search size={16} />
-          <input
-            placeholder="Search gym contests..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-        </div>
       </div>
 
       {/* TABLE */}
@@ -82,16 +68,16 @@ export default function Gym() {
         <table className="gym-table">
           <thead>
             <tr>
-              <th className="col-title">Contest</th>
-              <th className="col-start">Start</th>
-              <th className="col-length">Length</th>
-              <th className="col-status">Status</th>
-              <th className="col-action">Action</th>
+              <th className="gym-col-title">Contest</th>
+              <th className="gym-col-start">Start</th>
+              <th className="gym-col-length">Length</th>
+              <th className="gym-col-status">Status</th>
+              <th className="gym-col-rated">Rated</th>
             </tr>
           </thead>
 
           <tbody>
-            {filtered.length === 0 && (
+            {!isLoading && gyms.length === 0 && (
               <tr>
                 <td colSpan="5" className="empty">
                   No gym contests found
@@ -99,57 +85,61 @@ export default function Gym() {
               </tr>
             )}
 
-            {filtered.map((g) => (
+            {gyms.map((g) => (
               <tr key={g.contest_id}>
+                {/* TITLE */}
                 <td className="title-cell">
                   <Link
-                    to={`/contest/${g.contest_id}`}
+                    to={`/gym/${g.contest_id}`}
                     className="gym-title"
                   >
                     {g.title}
                   </Link>
                   <div className="sub">
-                    <Users size={14} /> Practice Mode
+                    <Users size={14} />
+                    Practice Mode
                   </div>
                 </td>
 
+                {/* START */}
                 <td className="nowrap">
-                  <Calendar size={14} />
-                  {g.start_time}
+                  <div className="gym-date-cell">
+                    <Calendar size={16} />
+                    {formatDateTime(g.start_time)}
+                  </div>
                 </td>
 
-                <td className="center nowrap">
-                  <Clock size={14} />
-                  {g.duration} min
+                {/* LENGTH */}
+                <td className="nowrap">
+                  <div className="gym-date-cell">
+                    <Clock size={14} />
+                    {g.duration} min
+                  </div>
+
                 </td>
 
-                <td className="center">
-                  {renderStatus(g.contest_status)}
-                </td>
+                {/* STATUS + COUNTDOWN */}
+                <td>{renderStatus(g)}</td>
 
-                <td className="center">
-                  {g.contest_status === "ended" ? (
-                    <Link
-                      to={`/gym/${g.contest_id}`}
-                      className="btn-outline"
-                    >
-                      Virtual
-                    </Link>
-                  ) : (
-                    <Link
-                      to={`/gym/${g.contest_id}`}
-                      className="btn-primary"
-                    >
-                      <Play size={14} />
-                      Enter
-                    </Link>
-                  )}
+                {/* ACTION */}
+                <td classname="nowrap">
+                  {g.rated}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {isLoading && <p className="loading">Loading...</p>}
       </div>
+
+      {/* PAGINATION */}
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalCount={totalCount}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

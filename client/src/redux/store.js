@@ -13,6 +13,8 @@ import groupsReducer from "./slices/groups-slice";
 import ratingsReducer from "./slices/rating-slice";
 import dashboardReducer from "./slices/dashboard-slice";
 
+import { baseApi } from "../services/baseApi";
+
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -28,7 +30,11 @@ export const store = configureStore({
     groupList: groupsListReducer,
     group: groupsReducer,
     dashboard: dashboardReducer,
+
+    [baseApi.reducerPath]: baseApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware),
 });
 
 export default store;

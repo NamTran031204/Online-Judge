@@ -74,6 +74,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: #334155;
 }
 
 .gym-table th {
@@ -83,25 +84,25 @@
   text-align: left;
 }
 
-.col-title {
-  width: 38%;
+.gym-col-title {
+  width: 30%;
 }
 
-.col-start {
+.gym-col-start {
   width: 20%;
 }
 
-.col-length {
-  width: 12%;
-  text-align: center;
-}
-
-.col-status {
+.gym-col-length {
   width: 15%;
   text-align: center;
 }
 
-.col-action {
+.gym-col-status {
+  width: 20%;
+  text-align: center;
+}
+
+.gym-col-rated {
   width: 15%;
   text-align: center;
 }
@@ -120,6 +121,13 @@
 
 .gym-title:hover {
   text-decoration: underline;
+}
+
+.gym-date-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
 }
 
 .sub {

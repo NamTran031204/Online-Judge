@@ -1,218 +1,284 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-  fetchContestDetail,
-  deleteContest,
-} from "../../redux/slices/contest-slice";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import {
-  Trophy,
-  Medal,
-  Award,
   ArrowLeft,
-  Clock,
-  CheckCircle,
-  XCircle,
   Code,
-  Users,
-  Play,
-  BookOpen,
-  MessageSquare,
+  Trophy,
+  ExternalLink,
 } from "lucide-react";
-
-import "./contest-detail.css";
 import ContestCountdown from "../../components/contest-countdown/contest-countdown";
 
+import {
+  useGetContestDetailQuery,
+  useSearchRegistrationsQuery,
+  useSearchRankingsQuery,
+} from "../../services/contestApi";
+
+import { useGetProblemsByContestQuery } from "../../services/problemApi";
+
+import "./contest-detail.css";
+
+
 export default function ContestDetail() {
-  const { contest_id } = useParams();
-  const dispatch = useDispatch();
+  const { contest_id: contestIdParam } = useParams();
+  const contest_id = Number(contestIdParam);
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentUser = useSelector((state) => state.user);
 
-  const { detail, loading } = useSelector((state) => state.contest);
+  /* Contest detail */
+  const { data: contestRes, isLoading: contestLoading } =
+    useGetContestDetailQuery(contest_id);
 
+  const contest = contestRes?.data;
+
+  /* Check registration (only when running) */
+  const { data: regRes, isLoading: regLoading } =
+    useSearchRegistrationsQuery(
+      {
+        contest_id,
+        pageRequest: {
+          maxResultCount: 1,
+          skipCount: 0,
+          filter: { user_id: currentUser?.accessToken },
+        },
+      },
+      {
+        skip: !contest || contest.contest_status !== "Running",
+      }
+    );
+
+  const isRegistered = (regRes?.data?.totalCount || 0) > 0;
+
+  /* Problems */
+  const { data: problemsRes, isLoading: problemsLoading } =
+    useGetProblemsByContestQuery(
+      {
+        maxResultCount: 10,
+        skipCount: 0,
+        sorting: "title asc",
+        filter: { contest_id },
+      },
+      { skip: !contest }
+    );
+
+  const problems = problemsRes?.data?.data || [];
+
+  /* Standings preview */
+  const { data: rankingRes } = useSearchRankingsQuery(
+    {
+      contest_id,
+      pageRequest: {
+        maxResultCount: 3,
+        skipCount: 0,
+      },
+    },
+    { skip: !contest }
+  );
+
+  const standings = rankingRes?.data?.data || [];
+
+  /* Access control */
   useEffect(() => {
-    dispatch(fetchContestDetail(contest_id));
-  }, [contest_id]);
+    if (!contest) return;
 
-  if (loading || !detail) return <div className="contest-loading">Loading...</div>;
+    if (contest.contest_type === "Official") {
+      if (contest.contest_status === "Upcoming") {
+        navigate("/contests", { replace: true });
+        return;
+      }
 
-  const isRunning = detail.contest_status === "running";
-  const isEnded = detail.contest_status === "ended";
+      if (
+        contest.contest_status === "Running" && !regLoading && !isRegistered
+      ) {
+        navigate("/contests", { replace: true });
+      }
+    }
+  }, [contest, isRegistered, regLoading, navigate]);
+
+  const renderStatusCountDown = ({ contest_status, start_time, duration }) => (
+    <div className="status-cell">
+      <span className={`badge ${contest_status.toLowerCase()}`}>
+        {contest_status}
+      </span>
+
+      {(contest_status === "Running" ||
+        contest_status === "Upcoming") && (
+          <ContestCountdown
+            startTime={start_time}
+            duration={duration}
+            status={contest_status}
+          />
+        )}
+    </div>
+  );
+
+  const renderStatus = ({ contest_status, start_time, duration }) => (
+    <div className="status-cell">
+      <span className={`badge ${contest_status.toLowerCase()}`}>
+        {contest_status}
+      </span>
+    </div>
+  );
+
+  if (contestLoading || regLoading) {
+    return <div className="contest-loading">Loading...</div>;
+  }
+
+  if (!contest) return null;
 
   return (
     <div className="contest-detail-page">
+      <Link
+        to={contest.contest_type === "Gym" ? "/gym" : "/contests"}
+        className="contest-back-btn"
+      >
+        <ArrowLeft size={16} />
+        Back to {contest.contest_type === "Gym" ? "Gym" : "Contests"}
+      </Link>
       {/* Header */}
       <div className="contest-detail-header">
-        <Link to="/contests" className="back-btn">
-          <ArrowLeft size={16} />
-          {detail.contest_type === "gym" ? "Back to gym" : "Back to contests"}
-        </Link>
-
-        <div className="contest-title-row">
-          <div>
-            <h1>{detail.title}</h1>
-            <p className="contest-desc">{detail.description}</p>
-          </div>
-
-          <span className={`status-badge ${detail.contest_status}`}>
-            {detail.contest_status}
-            {isRunning && 
-            <>
-            {/* <CheckCircle size={14} /> */}
-            <ContestCountdown
-              startTime={detail.start_time}
-              duration={detail.duration}
-              status={detail.contest_status}
-            />
-            </>}
-            {isEnded && <XCircle size={14} />}
-            {!isRunning && !isEnded && 
-              <>
-              {/* <Clock size={14} /> */}
-              <ContestCountdown
-                startTime={detail.start_time}
-                duration={detail.duration}
-                status={detail.contest_status}
-              />
-              </>}
-            
-          </span>
+        <div>
+          <h1>{contest.title}</h1>
+          <p>{contest.description}</p>
         </div>
+        <span>
+          {renderStatusCountDown(contest)}
+        </span>
       </div>
 
-      <div className="contest-grid">
+      <div className="contest-detail-layout">
         {/* LEFT */}
-        <div className="contest-main">
+        <div className="contest-detail-left">
           {/* Problems */}
-          <section className="card">
-            <h2 className="card-title">
-              <Code size={18} />
-              Problems
-            </h2>
+          <div className="contest-detail-card">
+            <div className="contest-table-title">
+              <Code size={20} />
+              <div>Problems</div>
+            </div>
 
-            <table className="contest-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Title</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.problems.length === 0 && (
+            <div className="contest-detail-table-wrapper">
+              <table className="contest-detail-table">
+                <thead>
                   <tr>
-                    <td colSpan="3" className="empty">
-                      No problems
-                    </td>
+                    <th >#</th>
+                    <th>Title</th>
+                    <th>Score</th>
+                    <th>Rating</th>
+                    {/* <th>Solved</th> */}
                   </tr>
-                )}
+                </thead>
+                <tbody>
+                  {problemsLoading && (
+                    <tr>
+                      <td colSpan="6" className="empty">
+                        Loading...
+                      </td>
+                    </tr>
+                  )}
 
-                {detail.problems.map((p, idx) => (
-                  <tr key={p.problem_id}>
-                    <td>{String.fromCharCode(65 + idx)}</td>
-                    <td>{p.title}</td>
-                    <td>
-                      <Link
-                        to={`/problem/${p.problem_id}`}
-                        className="solve-btn"
-                      >
-                        Solve
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                  {problems.map((p, idx) => (
+                    <tr key={p.problem_id}>
+                      <td>{String.fromCharCode(65 + idx)}</td>
+                      <td>
+                        <Link
+                          to={`/contest/${contest_id}/problem/${p.problem_id}`}
+                          state={{ from: location.pathname }}
+                        >
+                          {p.title}
+                        </Link>
+                      </td>
+                      <td>
+                        {p.score}
+                      </td>
+                      <td>{p.rating}</td>
+                      {/* <td>-</td> */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* <Link
+              to={`/contest/${contest_id}/problems`}
+              className="link-more"
+            >
+              Complete problemset →
+            </Link> */}
 
           {/* Standings */}
-          <section className="card">
-            <h2 className="card-title">
-              <Trophy size={18} />
-              Standings
-            </h2>
+          <div className="contest-detail-card">
+            <div className="contest-table-title">
+              <Trophy size={20} />
+              <div>Standings</div>
+            </div>
+            <div className="contest-detail-table-wrapper">
+              <table className="contest-detail-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Participant</th>
+                    <th>Score</th>
+                    <th>Penalty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((u, idx) => (
+                    <tr key={u.user_id}>
+                      <td>{idx + 1}</td>
+                      <td>
+                        <strong>{u.user_name}</strong>
+                      </td>
+                      <td>{u.total_score}</td>
+                      <td>{u.penalty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            {isRunning || isEnded ? (
-              <div className="standings-placeholder">
-                <Users size={32} />
-                <p>Standings will appear here</p>
-              </div>
-            ) : (
-              <div className="standings-placeholder">
-                <Clock size={32} />
-                <p>Contest has not started</p>
-              </div>
-            )}
-          </section>
-
-          {/* Questions */}
-          <section className="card">
-            <h2 className="card-title">
-              <MessageSquare size={18} />
-              Questions & Announcements
-            </h2>
-
-            <div className="empty">No announcements yet</div>
-          </section>
+            <Link
+              to={`/contest/${contest_id}/dashboard`}
+              className="link-more"
+            >
+              View full standings →
+            </Link>
+          </div>
         </div>
 
-        {/* RIGHT */}
-        <aside className="contest-sidebar">
-          <div className="card">
-            <h3>Contest Info</h3>
 
-            <div className="info-row">
-              <span>Status</span>
-              <span>{detail.contest_status}</span>
-            </div>
+
+        {/* RIGHT */}
+        <div className="contest-detail-right">
+          <div className="contest-detail-card">
+            <h3>{contest.title}</h3>
 
             <div className="info-row">
               <span>Type</span>
-              <span>{detail.contest_type}</span>
+              <b>{contest.contest_type}</b>
             </div>
 
             <div className="info-row">
-              <span>Start</span>
-              <span>{detail.start_time}</span>
+              <span>Status</span>
+              <span>
+                {renderStatus(contest)}
+              </span>
             </div>
 
             <div className="info-row">
               <span>Duration</span>
-              <span>{detail.duration} minutes</span>
+              <b>{contest.duration} minutes</b>
+            </div>
+
+            <div className="info-row">
+              <span>Start Time</span>
+              <b>{contest.start_time}</b>
             </div>
           </div>
-
-          <div className="card">
-            <h3>
-              <Play size={16} /> Virtual Participation
-            </h3>
-            <button className="primary-btn">Start Virtual Contest</button>
-          </div>
-
-          <div className="card">
-            <h3>
-              <BookOpen size={16} /> Materials
-            </h3>
-            <Link className="link-item">Announcements</Link>
-            <Link className="link-item">Tutorial</Link>
-          </div>
-
-          {/* <div className="card danger">
-            <button
-              className="danger-btn"
-              onClick={() => {
-                if (confirm("Delete this contest?")) {
-                  dispatch(deleteContest(contest_id)).then(() =>
-                    navigate("/contests")
-                  );
-                }
-              }}
-            >
-              Delete Contest
-            </button>
-          </div> */}
-        </aside>
+        </div>
       </div>
     </div>
   );

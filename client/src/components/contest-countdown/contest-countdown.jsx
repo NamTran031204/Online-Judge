@@ -40,11 +40,11 @@ export default function ContestCountdown({ startTime, duration, status }) {
 
   let targetTime;
 
-  if (status === "upcoming") {
+  if (status === "Upcoming") {
     targetTime = new Date(startTime).getTime();
   }
 
-  if (status === "running") {
+  if (status === "Running") {
     targetTime =
       new Date(startTime).getTime() + duration * 60 * 1000;
   }
@@ -56,7 +56,7 @@ export default function ContestCountdown({ startTime, duration, status }) {
   if (diff <= 0) return null;
 
   return (
-    <span className={`countdown ${status}`}>
+    <span className={`countdown ${status.toLowerCase()}`}>
       <Clock size={14} />
       {formatDuration(diff)}
     </span>
