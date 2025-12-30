@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import './header.css';
 
 const navLinks = [
+  { href: '/admin', label: 'Admin' },
   { href: '/problems', label: 'Problems' },
   { href: '/contests', label: 'Contests' },
   { href: '/gym', label: 'Gym' },

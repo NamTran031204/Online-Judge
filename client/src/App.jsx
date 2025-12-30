@@ -20,7 +20,7 @@ import GroupList from "./pages/groups/group-list";
 import GroupDetail from "./pages/groups/group-detail";
 import GroupCreate from "./pages/groups/group-create";
 import RatingList from "./pages/ratings/rating-list"
-
+import AdminDashboard from "./pages/admin/admin-dashboard";
 
 function App() {
   return (
@@ -51,7 +51,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           {/* Dashboard */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
 
           {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />

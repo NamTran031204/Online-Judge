@@ -1,0 +1,40 @@
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-card-custom {
+  padding: 24px;
+  text-align: center;
+}
+
+.badge-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-status.running { background: #dcfce7; color: #166534; }
+.badge-status.upcoming { background: #dbeafe; color: #1e40af; }
+.badge-status.ended { background: #f1f5f9; color: #475569; }
+
+.tag-item {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-right: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.problem-table td {
+  white-space: nowrap;
+}
+
+/* Các class từ file CSS của group bạn gửi sẽ tự động áp dụng qua className tương ứng:
+   .problem-page, .problem-header, .problem-table-wrapper, .problem-table, v.v.
+*/
