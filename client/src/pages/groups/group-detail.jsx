@@ -126,7 +126,7 @@ export default function GroupDetail() {
                           <User size={18} />
                         </div>
                         <div>
-                          <p className="user-name">{member.username || `User #${member.user_id}`}</p>
+                          <p className="user-name">{member.user_name || `User #${member.user_id}`}</p>
                           <p className="user-id-sub">ID: {member.user_id}</p>
                         </div>
                       </div>

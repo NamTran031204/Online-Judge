@@ -23,7 +23,7 @@ import GroupList from "./pages/groups/group-list";
 import GroupDetail from "./pages/groups/group-detail";
 import GroupCreate from "./pages/groups/group-create";
 import RatingList from "./pages/ratings/rating-list"
-
+import AdminUser from "./pages/admin/admin-user";
 
 function App() {
   return (
@@ -71,6 +71,8 @@ function App() {
 
           {/* ratings */}
           <Route path="/standings" element={<RatingList />} />
+
+          <Route path="/admin/users" element={<AdminUser />} />
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Route>

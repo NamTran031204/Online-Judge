@@ -14,7 +14,7 @@ export default function Profile() {
             className="profile-avatar"
           />
           <div className="flex gap-10px">
-          <p className="profile-username">{user?.username || "User"}</p>
+          <p className="profile-username">{user?.user_name || "User"}</p>
           <p className="profile-email">{user?.email || "email"}</p>
           </div>
           

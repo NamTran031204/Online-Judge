@@ -24,7 +24,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
-    username: "",
+    user_name: "",
     email: "",
     password: "",
   });
@@ -43,12 +43,12 @@ export default function Auth() {
     try {
       if (authMode === "login") {
         await login({
-          username: form.username,
+          user_name: form.user_name,
           password: form.password,
         }).unwrap();
       } else {
         await register({
-          username: form.username.trim(),
+          user_name: form.user_name.trim(),
           email: form.email.trim(),
           password: form.password,
         }).unwrap();
@@ -98,14 +98,14 @@ export default function Auth() {
 
           {authMode === "login" ? (
             <>
-              <label htmlFor="username-input">Username</label>
+              <label htmlFor="user_name-input">Username</label>
               <input
-                id="username-input"
+                id="user_name-input"
                 type="text"
                 placeholder="coder123"
-                value={form.username}
+                value={form.user_name}
                 onChange={(e) =>
-                  setForm({ ...form, username: e.target.value })
+                  setForm({ ...form, user_name: e.target.value })
                 }
                 required
               />
@@ -113,14 +113,14 @@ export default function Auth() {
 
           ) : (
             <>
-              <label htmlFor="username-input">Username</label>
+              <label htmlFor="user_name-input">Username</label>
               <input
-                id="username-input"
+                id="user_name-input"
                 type="text"
                 placeholder="coder123"
-                value={form.username}
+                value={form.user_name}
                 onChange={(e) =>
-                  setForm({ ...form, username: e.target.value })
+                  setForm({ ...form, user_name: e.target.value })
                 }
                 required
               />

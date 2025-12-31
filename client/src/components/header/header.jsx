@@ -91,10 +91,10 @@ export default function Header() {
                     onClick={() => setUserDropdownSelected((v) => !v)}
                   >
                     <div className="avatar">
-                      {user?.user.username?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.user.user_name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <span className="username">
-                      {user?.user.username || 'User'}
+                      {user?.user.user_name || 'User'}
                     </span>
                   </button>
 
@@ -103,7 +103,7 @@ export default function Header() {
                       <Link to="/dashboard" className="dropdown-item">
                         <User className="dropdown-icon" /> Dashboard
                       </Link>
-                      <Link to={`/profile/${user?.username}`} className="dropdown-item">
+                      <Link to={`/profile/${user?.user_name}`} className="dropdown-item">
                         <Trophy className="dropdown-icon" /> Profile
                       </Link>
                       <Link to="/settings" className="dropdown-item">

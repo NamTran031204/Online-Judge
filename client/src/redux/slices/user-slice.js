@@ -5,7 +5,7 @@ import { authApi } from '../../services/authApi';
 //  user lưu trong store
 const emptyUser = {
   user_id: null,
-  username: null,
+  user_name: null,
 };
 
 //  Load token từ localStorage khi reload trang
@@ -17,6 +17,7 @@ const initialState = {
   accessToken: accessToken || null,
   refreshToken: refreshToken || null,
   isAuthenticated: !!accessToken,
+  is_admin: false,
 };
 
 const userSlice = createSlice({
@@ -48,11 +49,13 @@ const userSlice = createSlice({
 
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        const { access_token, refresh_token } = payload.data;
+        const { access_token, refresh_token, is_admin } = payload.data;
 
         state.accessToken = access_token;
         state.refreshToken = refresh_token;
         state.isAuthenticated = true;
+        state.is_admin = is_admin;
+
 
         localStorage.setItem('accessToken', access_token);
         localStorage.setItem('refreshToken', refresh_token);
