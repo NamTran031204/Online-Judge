@@ -4,7 +4,7 @@ services:
   # C++ Judge Sandbox
   judge-sandbox-cpp:
     build:
-      context: ./docker-sandbox/cpp
+      context: ../docker/docker-sandbox/cpp
       dockerfile: Dockerfile
     image: judge-sandbox-cpp:latest
     container_name: judge-sandbox-cpp
@@ -15,7 +15,7 @@ services:
   # Java Judge Sandbox
   judge-sandbox-java:
     build:
-      context: ./docker-sandbox/java
+      context: ../docker/docker-sandbox/java
       dockerfile: Dockerfile
     image: judge-sandbox-java:latest
     container_name: judge-sandbox-java
@@ -26,7 +26,7 @@ services:
   # Python Judge Sandbox
   judge-sandbox-python:
     build:
-      context: ./docker-sandbox/python
+      context: ../docker/docker-sandbox/python
       dockerfile: Dockerfile
     image: judge-sandbox-python:latest
     container_name: judge-sandbox-python
