@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class ContestAttachProblemRequestDto {
     private String problemId;
+    private String problemLabel;
 }

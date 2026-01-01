@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ProblemInputDto {
+public class ProblemInputDto { // thieu problemId so voi problem entity
 
     private String title;
     private Long contestId;

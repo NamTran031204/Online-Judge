@@ -2,10 +2,12 @@ package com.example.main_service.contest.service;
 
 import com.example.main_service.contest.dto.contest.ContestAttachProblemRequestDto;
 import com.example.main_service.contest.dto.contestProblem.ContestProblemResponseDto;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface ContestProblemService {
-    ContestProblemResponseDto addProblemToContest(Long contestId, ContestAttachProblemRequestDto input);
-    void deleteProblemFromContest(Long contestId, String problemId);
+    ContestProblemResponseDto addProblemToContest(Long userId,Long contestId, ContestAttachProblemRequestDto input);
+    void deleteProblemFromContest(Long userId,Long contestId, String problemId);
+    void reArrangeProblem(Long userId,Long contestId, List<String> problemIds);
+
 }
+

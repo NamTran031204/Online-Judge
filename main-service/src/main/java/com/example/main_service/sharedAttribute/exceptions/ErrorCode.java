@@ -39,7 +39,8 @@ public enum ErrorCode {
     PROBLEM_NOT_FOUND("-77","problem not found ",HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_FOUND("-88","user not found ",HttpStatus.INTERNAL_SERVER_ERROR),
     CONTEST_ENDED("401", "Contest has ended",HttpStatus.INTERNAL_SERVER_ERROR),
-    CONTEST_ALREADY_REGISTERED("402", "User already registered contest",HttpStatus.INTERNAL_SERVER_ERROR);
+    CONTEST_ALREADY_REGISTERED("402", "User already registered contest",HttpStatus.INTERNAL_SERVER_ERROR),
+    CONTEST_NOT_REGISTERED("402", "User not registere contest",HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final String message;

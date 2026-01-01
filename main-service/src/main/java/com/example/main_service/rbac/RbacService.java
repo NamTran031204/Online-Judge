@@ -2,6 +2,7 @@ package com.example.main_service.rbac;
 
 import com.example.main_service.rbac.model.RoleUserEntity;
 import com.example.main_service.rbac.repo.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+
 public class RbacService {
 
     private final RoleUserRepo roleUserRepo;
@@ -17,16 +20,6 @@ public class RbacService {
     private final PermissionRepo permRepo;
     private final RoleRepo roleRepo;
 
-    public RbacService(RoleUserRepo roleUserRepo,
-                       RolePermissionRepo rolePermissionRepo,
-                       PermissionRepo permRepo,
-                       RoleRepo roleRepo) {
-
-        this.roleUserRepo = roleUserRepo;
-        this.rolePermissionRepo = rolePermissionRepo;
-        this.permRepo = permRepo;
-        this.roleRepo = roleRepo;
-    }
 
     public boolean hasPermission(Authentication auth,
                                  String permission,
@@ -34,25 +27,17 @@ public class RbacService {
                                  String scopeId) {
 
         if (auth == null) return false;
+        Long userId =  (Long) auth.getPrincipal();
+        RoleUserEntity.ScopeType scopeType = RoleUserEntity.ScopeType.valueOf(scopeTypeStr);
 
-        System.out.println(scopeId + " " + auth.getPrincipal());
-
-        Long userId =  (Long) auth.getPrincipal(); // bug ở đây ?
-
-        RoleUserEntity.ScopeType scopeType = RoleUserEntity.ScopeType.valueOf(scopeTypeStr); //convert enum
-
-        System.out.println(userId + " " + scopeType + " ");
+        if(isAdmin(userId)) return true;
 
         try {
             List<Integer> roleIds = roleUserRepo.findRoleIds(userId, scopeType, scopeId);
             if (roleIds.isEmpty()) return false;
-            // 2. Lấy permission_id từ role
             List<Integer> permIds = rolePermissionRepo.findPermissionIdsByRoleIds(roleIds);
             if (permIds.isEmpty()) return false;
-
-            // 3. Lấy permission_name
             List<String> permNames = permRepo.findPermissionNamesByIds(permIds);
-            System.out.println(permNames);
             return permNames.contains(permission);
 
         } catch (Exception e) {
@@ -66,20 +51,13 @@ public class RbacService {
                            String scopeTypeStr,
                            String scopeId) {
 
-        // 1. Lấy role_id từ tên role
         Integer roleId = roleRepo.findRoleIdByName(roleName);
         if (roleId == null) {
             throw new IllegalStateException("Role not found: " + roleName);
         }
 
-        // 2. Insert vào role_user
         RoleUserEntity.ScopeType scopeType = RoleUserEntity.ScopeType.valueOf(scopeTypeStr);
-        roleUserRepo.insertRoleUser(
-                roleId,
-                userId,
-                scopeId,
-                scopeType.name()
-        );
+        roleUserRepo.insertRoleUser(roleId, userId, scopeId, scopeType.name());
     }
 
 
@@ -94,4 +72,22 @@ public class RbacService {
         }
         return 0l;
     }
+
+    public boolean isAdmin(Long userId) {
+        if (userId == null || userId == 0L) return false;
+
+        try {
+            Integer adminRoleId = roleRepo.findRoleIdByName("ADMIN");
+            if (adminRoleId == null) return false;
+
+            // SYSTEM scope: scope_id "*" nghĩa là global
+            RoleUserEntity.ScopeType scopeType = RoleUserEntity.ScopeType.SYSTEM;
+            List<Integer> roleIds = roleUserRepo.findRoleIds(userId, scopeType, "*");
+
+            return roleIds.contains(adminRoleId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

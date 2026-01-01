@@ -2,20 +2,17 @@ package com.example.main_service.problem;
 
 import com.example.main_service.problem.dto.ProblemEntity;
 import com.example.main_service.problem.dto.ProblemInputDto;
-import com.example.main_service.rbac.RbacService;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 
-// cần handle exception ngay lập tức
 @RestController
 @RequestMapping("${api.prefix}/problem")
 @RequiredArgsConstructor
@@ -23,81 +20,50 @@ import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 @Slf4j
 public class ProblemApiResource {
 
-    private final ProblemGrpcClient problemGrpcClient;
-    private final RbacService rbacService;
+    private final ProblemService problemService;
 
-    @PostMapping(value = "/add-problem")
+    @PostMapping("/add-problem")
     public CommonResponse<ProblemEntity> addProblem(@RequestBody ProblemInputDto input) {
-        Long userId = getUserIdFromToken();
-        if (userId == 0L) {
-            throw new IllegalStateException("User not authenticated");
-        }
-        input.setUserId(userId);
-        log.info("============={}",input);
-
-        CommonResponse<ProblemEntity> response =  problemGrpcClient.addProblem(input);
-
-        ProblemEntity problem = response.getData();
-        if (problem == null) {
-            throw new IllegalStateException("GRPC returned null ProblemEntity");
-        }
-
-        String problemId = problem.getProblemId(); 
-        if (problemId == null) {
-            throw new IllegalStateException("ProblemId is null");
-        }
-
-        rbacService.assignRole(
-                userId,
-                "Author",
-                "Problem",
-                problemId
-        );
-        return response;
+        ProblemEntity problem = problemService.addProblem(getUserIdFromToken(), input);
+        return CommonResponse.success(problem);
     }
 
-    // bug
-    // search theo filter nhung loc nhung cai draft theo role user
-    @PostMapping(value = "/search")
+    @PostMapping("/search")
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(@RequestBody PageRequestDto<ProblemInputDto> input) {
-        log.info("====== INPUT: {}", input);
-
-        return problemGrpcClient.getProblemPage(input);
+        PageResult<ProblemEntity> page = problemService.getProblemPage(getUserIdFromToken(), input);
+        return CommonResponse.success(page);
     }
 
-    @GetMapping(value = "/get-by-id/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:view', 'Problem', #problemId)")
-    public CommonResponse<ProblemEntity> getProblemById(@PathVariable("problemId") String problemId) {
-        return problemGrpcClient.getProblemById(problemId);
+    @GetMapping("/get-by-id/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:view', 'PROBLEM', #problemId)")
+    public CommonResponse<ProblemEntity> getProblemById(@PathVariable String problemId) {
+        ProblemEntity problem = problemService.getProblemById(getUserIdFromToken(), problemId);
+        return CommonResponse.success(problem);
     }
 
-    @PostMapping(value = "/update/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'Problem', #problemId)")
-    public CommonResponse<ProblemEntity> updateProblem(@RequestBody ProblemInputDto input, @PathVariable("problemId") String problemId) {
+    @PostMapping("/update/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'PROBLEM', #problemId)")
+    public CommonResponse<ProblemEntity> updateProblem(
+            @RequestBody ProblemInputDto input,
+            @PathVariable String problemId
+    ) {
         Long userId = getUserIdFromToken();
         input.setUserId(userId);
-        return problemGrpcClient.updateProblem(input, problemId);
+
+        ProblemEntity updated = problemService.updateProblem(userId, problemId, input);
+        return CommonResponse.success(updated);
     }
 
-    /*
-    // tạm coi là official contest // skip vi deo can
-    @PostMapping(value = "/by-contest")
-    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(PageRequestDto<Long> input) {
-        return problemGrpcClient.getByContest(input);
-    }
-    */
-
-    // search problem trong bảng problem contest (đã kết thúc, public)
-    @PostMapping(value = "/search-text")
+    @PostMapping("/search-text")
     public CommonResponse<PageResult<ProblemEntity>> searchProblem(@RequestBody PageRequestDto<String> input) {
-        return problemGrpcClient.searching(input);
+        PageResult<ProblemEntity> page = problemService.searching(getUserIdFromToken(), input);
+        return CommonResponse.success(page);
     }
 
-    // bug
-    @DeleteMapping(value = "/delete/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'Problem', #problemId)")
-    public CommonResponse<ProblemEntity> deleteProblem(@PathVariable("problemId") String problemId) {
-        return problemGrpcClient.deleteProblem(problemId);
+    @DeleteMapping("/delete/{problemId}")
+    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
+    public CommonResponse<ProblemEntity> deleteProblem(@PathVariable String problemId) {
+        ProblemEntity deleted = problemService.deleteProblem(getUserIdFromToken(), problemId);
+        return CommonResponse.success(deleted);
     }
-
 }

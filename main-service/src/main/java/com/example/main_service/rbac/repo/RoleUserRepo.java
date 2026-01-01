@@ -4,9 +4,11 @@ import com.example.main_service.rbac.model.RoleUserEntity;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface RoleUserRepo extends CrudRepository<RoleUserEntity, Integer> {
 
     @Query("""
@@ -40,12 +42,5 @@ public interface RoleUserRepo extends CrudRepository<RoleUserEntity, Integer> {
             RoleUserEntity.ScopeType contestScopeType,
             String contestId,
             RoleUserEntity.ScopeType systemScopeType
-    );
-
-    boolean existsByUserIdAndRoleIdAndScopeIdAndScopeType(
-            Long userId,
-            Long roleId,
-            String scopeId,
-            RoleUserEntity.ScopeType scopeType
     );
 }

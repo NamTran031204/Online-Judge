@@ -29,6 +29,9 @@ import java.util.List;
 
 import static com.example.main_service.rbac.RbacService.getUserIdFromToken;
 
+// handle luôn nếu header k có authorization thì trả về exception từ đầu
+// ở đây mặc định là có head authorization
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -37,118 +40,113 @@ public class UserContestServiceImpl implements UserContestService {
     private final ContestRepo contestRepo;
     private final ContestService contestService;
     private final ContestRegistrationRepo contestRegistrationRepo;
-    private final ContestParticipantsRepo contestParticipantsRepo;
     private final RoleService roleService;   // thêm vào để check role
 
     @Override
     public ContestRegistrationResponseDto registerUser(Long contestId) {
 
-        ContestEntity contest = contestRepo.findById(contestId)
-                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
-
-        // TODO: lay ra userId tu UserDetail
-        Long userId = getUserIdFromToken();
-        if (userId == null || userId == 0)
-            throw new ContestBusinessException(ErrorCode.USER_NOT_FOUND);
+        ContestEntity contest = getContestOrThrow(contestId);
+        Long userId = getUserIdOrThrow();
 
         if (contestService.isContestFinished(contestId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
         }
-        boolean isSpecial = roleService.hasSpecialContestRole(userId,contestId); // theo scope
 
-        //draft contest chỉ tester và admin động vào
-        if (!isSpecial && contest.getContestType().equals(ContestType.DRAFT)) {
-                throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
-        }
-        if(isSpecial && (contest.getContestType().equals(ContestType.GYM) || contest.getContestType().equals(ContestType.OFFICIAL)) ) {
-            throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
-        }
+        validateContestAccess(contest, roleService.hasSpecialContestRole(userId, contestId));
+
         if (contestRegistrationRepo.existsByContestIdAndUserId(contestId, userId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ALREADY_REGISTERED);
         }
 
-        ContestRegistrationEntity entity = contestRegistrationRepo.save(ContestRegistrationEntity.builder()
+        contestRegistrationRepo.save(
+                ContestRegistrationEntity.builder()
                         .contestId(contestId)
                         .userId(userId)
-                .build());
-        contestParticipantsRepo.save(ContestParticipantsEntity.builder()
-                        .contestId(contestId)
-                        .userId(userId)
-                        .ranking(0)
-                        .penalty(0)
-                        .totalScore(0)
-                .build());
-        ContestRegistrationResponseDto response = ContestRegistrationResponseDto.builder()
-                .contestId(entity.getContestId())
-                .userId(entity.getUserId())
-                .registeredAt(entity.getRegisteredAt())
+                        .build()
+        );
+
+        return ContestRegistrationResponseDto.builder()
+                .contestId(contestId)
+                .userId(userId)
                 .build();
-        return response;
     }
 
     @Override
-    public PageResult<ContestRegistrationResponseDto> getRegistration(Long contestId, PageRequestDto<ContestRegistrationFilterDto> input) {
+    public PageResult<ContestRegistrationResponseDto> getRegistration(
+            Long contestId,
+            PageRequestDto<ContestRegistrationFilterDto> input
+    ) {
 
-        Page<ContestRegistrationProjection> data;
-        if (input.getFilter() != null) {
-            data = contestRegistrationRepo.findByContestIdAndUserId(
-                    contestId, input.getFilter().getUserId(), input.getPageRequest());
-        } else {
-            data = contestRegistrationRepo.findByContestId(contestId, input.getPageRequest());
+        if (!contestRepo.existsById(contestId)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND);
         }
 
-        PageResult<ContestRegistrationResponseDto> result = new PageResult<>();
-        result.setTotalCount(data.getTotalElements());
+        Page<ContestRegistrationProjection> page =
+                input.getFilter() != null
+                        ? contestRegistrationRepo.findByContestIdAndUserId(
+                        contestId,
+                        input.getFilter().getUserId(),
+                        input.getPageRequest()
+                )
+                        : contestRegistrationRepo.findByContestId(
+                        contestId,
+                        input.getPageRequest()
+                );
 
-        List<ContestRegistrationResponseDto> dataResult = data.map(projection -> ContestRegistrationResponseDto.builder()
-                        .contestId(projection.getContestId())
-                        .userId(projection.getUserId())
-                        .userName(projection.getUserName())
-                        .registeredAt(projection.getRegisteredAt())
-                        .build())
-                .getContent();
+        List<ContestRegistrationResponseDto> data = page.map(p ->
+                ContestRegistrationResponseDto.builder()
+                        .contestId(p.getContestId())
+                        .userId(p.getUserId())
+                        .userName(p.getUserName())
+                        .registeredAt(p.getRegisteredAt())
+                        .build()
+        ).getContent();
 
-        result.setData(dataResult);
-
-        return result;
+        return PageResult.<ContestRegistrationResponseDto>builder()
+                .totalCount(page.getTotalElements())
+                .data(data)
+                .build();
     }
 
-    // TODO: lam dashboard thi chinh lai api nay
+
+
     @Override
-    public PageResult<ContestParticipantResponseDto> getParticipants(Long contestId, PageRequestDto<ContestParticipantFilterDto> input) {
-        //TODO: lay ra userId tu Spring Sec
-        Long execUserId = getUserIdFromToken();
-        checkUserInContest(execUserId, contestId);
+    public void unregisterUser(Long contestId,Long userId) {
 
-        Page<ContestParticipantProjection> data;
-
-        if (input.getFilter() != null) {
-            data = contestParticipantsRepo.findByContestIdAndUserId(contestId, input.getFilter().getUserId(), input.getPageRequest());
-        } else {
-            data = contestParticipantsRepo.findByContestId(contestId, input.getPageRequest());
+        if (contestService.isContestFinished(contestId)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
         }
-        PageResult<ContestParticipantResponseDto> result = new PageResult<>();
-        result.setTotalCount(data.getTotalElements());
 
-        List<ContestParticipantResponseDto> dataResult = data.map(projection -> ContestParticipantResponseDto.builder()
-                        .contestId(projection.getContestId())
-                        .userId(projection.getUserId())
-                        .userName(projection.getUserName())
-                        .penalty(projection.getPenalty())
-                        .totalScore(projection.getTotalScore())
-                        .ranking(projection.getRanking())
-                        .build())
-                        .getContent();
+        if (!contestRegistrationRepo.existsByContestIdAndUserId(contestId, userId)) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_NOT_REGISTERED);
+        }
 
-        result.setData(dataResult);
-
-        return result;
+        contestRegistrationRepo.deleteByContestIdAndUserId(contestId, userId);
     }
 
-    void checkUserInContest(Long execUserId, Long contestId) {
-        boolean isSpecial = roleService.hasSpecialContestRole(execUserId, contestId);
-        if (isSpecial) return;
-        if (!contestRegistrationRepo.existsByContestIdAndUserId(contestId, execUserId)) {
+
+    private ContestEntity getContestOrThrow(Long contestId) {
+        return contestRepo.findById(contestId)
+                .orElseThrow(() -> new ContestBusinessException(ErrorCode.CONTEST_NOT_FOUND));
+    }
+
+    private Long getUserIdOrThrow() {
+        Long userId = getUserIdFromToken();
+        if (userId == null || userId == 0) {
+            throw new ContestBusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+        return userId;
+    }
+
+    private void validateContestAccess(ContestEntity contest, boolean isSpecial) {
+
+        if (contest.getContestType() == ContestType.DRAFT && !isSpecial) {
+            throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
+        }
+
+        if ((contest.getContestType() == ContestType.GYM
+                || contest.getContestType() == ContestType.OFFICIAL)
+                && isSpecial) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY);
         }
     }

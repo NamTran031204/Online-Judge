@@ -21,28 +21,15 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="comment" target="17" />
-      <module name="common" target="23" />
-      <module name="contest" target="17" />
-      <module name="gateway" target="17" />
-      <module name="group" target="17" />
       <module name="problem" target="21" />
-      <module name="submission" target="17" />
-      <module name="user" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="comment" options="-parameters" />
-      <module name="contest" options="-parameters" />
-      <module name="gateway" options="-parameters" />
-      <module name="group" options="-parameters" />
       <module name="jude-service" options="-parameters" />
       <module name="main-service" options="-parameters" />
       <module name="problem" options="-parameters" />
       <module name="proto" options="-parameters" />
-      <module name="submission" options="-parameters" />
-      <module name="user" options="-parameters" />
     </option>
   </component>
 </project>

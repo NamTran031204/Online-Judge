@@ -8,20 +8,21 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContestService {
-    ContestCreateUpdateResponseDto createContest(ContestCreateUpdateRequestDto input);
-    ContestCreateUpdateResponseDto updateContest(Long contestId, ContestCreateUpdateRequestDto input);
-    PageResult<ContestEntity> search(PageRequestDto<ContestFilterDto> input);
-    ContestDetailDto getById(Long contestId);
-    void deleteContest(Long contestId);
-    PromoteDraftToGymResponseDto promoteDraft(Long contestId, PromoteDraftToGymRequestDto input);
+    ContestCreateUpdateResponseDto createDraftContest(Long userId,ContestCreateUpdateRequestDto input);
+    ContestCreateUpdateResponseDto updateContest(Long userId,Long contestId, ContestCreateUpdateRequestDto input);
+    PageResult<ContestEntity> search(Long userId,PageRequestDto<ContestFilterDto> input);
+    ContestDetailDto getContestDetail(Long userId,Long contestId);
+    void deleteContest(Long userId,Long contestId);
+    void assignReviewer(Long userId,Long contestId, Long reviewerId);
+    PromoteDraftToGymResponseDto promoteDraftToGym(Long userId,Long contestId, PromoteDraftToGymRequestDto input);
+    void promoteDraftToOfficial(Long userId,Long contestId, PromoteDraftToOfficialRequestDto input);
+
     Boolean isContestRunning(Long contestId);
     Boolean isContestPublic(Long contestId);
     Boolean isUserRegistered(Long contestId,Long userId);
     Boolean isContestFinished(Long contestId);
     Boolean isContestUpcoming(Long contestId);
-    Boolean canUserSubmit(Long contestId,Long userId);
+    Boolean canViewProblemInContest(Long userId,ContestEntity contest);
     Long getContestStartTime(Long contestId);
-    void promoteDraftToOfficial(Long contestId, ContestMakeOfficialRequestDto input);
-    public void assignReviewer(Long contestId, Long reviewerId);
-
+    Boolean canUserSubmit(Long contestId, Long userId);
 }

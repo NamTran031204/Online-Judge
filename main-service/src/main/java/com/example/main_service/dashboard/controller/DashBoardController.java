@@ -34,12 +34,12 @@ public class DashBoardController {
         );
     }
 
-    @PostMapping("/{contestId}/calculate-rating")
+    @PostMapping("/{contestId}/calculate-rating") // k gọi api => dùng scheduler java
     public CommonResponse<ContestRatingCalcResponseDto> calculateRating(
             @PathVariable Long contestId
     ) {
         return CommonResponse.success(
-                contestRatingService.calculateRating(contestId)
+                contestRatingService.calculateRating(contestId) // tính rating cho problem nữa
         );
     }
 }

@@ -1,18 +1,20 @@
 package com.example.main_service.user.controller;
 
+import com.example.main_service.dashboard.dtos.UserContestRatingHistoryItemDto;
 import com.example.main_service.rbac.PermissionService;
 import com.example.main_service.rbac.RoleService;
-import com.example.main_service.rbac.repo.PermissionRepo;
-import com.example.main_service.rbac.repo.RoleRepo;
+import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import com.example.main_service.sharedAttribute.commonDto.PageRequestDto;
 import com.example.main_service.sharedAttribute.commonDto.PageResult;
 import com.example.main_service.user.dto.PermissionDto;
 import com.example.main_service.user.dto.RoleDto;
 import com.example.main_service.user.dto.UserDetailDto;
-import com.example.main_service.user.service.UserService;
+import com.example.main_service.user.service.UserServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 // them api xem rating history
 // them admin api set 1 user len pro_user (role_user)
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final RoleService roleService;
     private final PermissionService permissionService;
 
@@ -38,7 +40,14 @@ public class UserController {
     }
 
     @GetMapping("/user/{user_name}")
-    public UserDetailDto getUserProfile(@PathVariable("user_name") String username) {
-        return userService.getUserDetail(username);
+    public CommonResponse<UserDetailDto> getUserProfile(@PathVariable("user_name") String username) {
+        return CommonResponse.success(userService.getUserDetail(username));
+    }
+
+    @GetMapping("/user/rating-history/{user_id}")
+    public CommonResponse<List<UserContestRatingHistoryItemDto>> getMyRatingHistory(
+            @PathVariable("user_id") Long userId
+    ) {
+        return CommonResponse.success(userService.getUserRatingHistory(userId));
     }
 }

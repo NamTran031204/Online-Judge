@@ -34,14 +34,13 @@ public class RoleService {
     public boolean hasSpecialContestRole(Long userId, Long contestId) {
         List<String> roles = roleUserRepo.findUserRolesForContest(
                 userId,
-                RoleUserEntity.ScopeType.Contest,          // contest scope
+                RoleUserEntity.ScopeType.CONTEST,          // contest scope
                 String.valueOf(contestId),                // scopeId
-                RoleUserEntity.ScopeType.System           // system scope
+                RoleUserEntity.ScopeType.SYSTEM           // system scope
         );
 
-        return roles.stream().anyMatch(role ->
-                "Author".equals(role) ||
-                        "Tester".equals(role)
-        );
+        return roles.stream().anyMatch(role -> "AUTHOR".equals(role)
+                || "TESTER".equals(role)
+                || "REVIEWER".equals(role));
     }
 }

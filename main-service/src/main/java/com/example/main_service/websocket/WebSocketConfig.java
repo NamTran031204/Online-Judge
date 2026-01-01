@@ -8,9 +8,9 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final SubmissionWsHandler handler;
+    private final SubmissionWebSocketHandler handler;
 
-    public WebSocketConfig(SubmissionWsHandler handler) {
+    public WebSocketConfig(SubmissionWebSocketHandler handler) {
         this.handler = handler;
     }
 

@@ -115,8 +115,6 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         try {
             PageRequestDto<ProblemInputDto> pageRequest = convertToPageRequestDto(request);
 
-            log.info("akldjaskldasklm,djklsd ======{}",request);
-
             CommonResponse<PageResult<ProblemEntity>> result = problemService.getProblemPage(pageRequest);
             ProblemPageResponse response = convertToProblemPageResponse(result);
             responseObserver.onNext(response);
@@ -245,7 +243,6 @@ public class ProblemGrpcService extends ProblemServiceGrpc.ProblemServiceImplBas
         if (input.getRating() > 0) dto.setRating(input.getRating()); // do cái đầu buồi này là kiểu nguyên thủy nên không thể là null
         if (input.getScore() > 0) dto.setScore(input.getScore());
 
-        log.info("=========Inside convertToInputDto====={}",input);
         return dto;
     }
 

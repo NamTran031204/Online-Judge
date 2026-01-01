@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ContestMakeOfficialRequestDto {
+public class PromoteDraftToOfficialRequestDto {
 
     private Long rated; //rated hay k
 

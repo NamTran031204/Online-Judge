@@ -13,8 +13,6 @@ import java.util.Set;
 
 public interface ContestRegistrationRepo extends JpaRepository<ContestRegistrationEntity, Long> {
 
-    //Page<ContestRegistrationEntity> findByContestIdAndUserId(Long contestId, Long userId, Pageable pageable);
-    //Page<ContestRegistrationEntity> findByContestId(Long contestId, Pageable pageable);
 
     @Query(value = """
         SELECT cr.contest_id AS contestId, 
@@ -39,5 +37,8 @@ public interface ContestRegistrationRepo extends JpaRepository<ContestRegistrati
 
     @Query("SELECT cr.contestId FROM ContestRegistrationEntity cr WHERE cr.userId = :userId AND cr.contestId IN :contestIds")
     Set<Long> findContestIdsByUserIdAndContestIdIn(@Param("userId") Long userId, @Param("contestIds") Collection<Long> contestIds);
+
+    void deleteByContestIdAndUserId(Long contestId, Long userId);
+
 }
 

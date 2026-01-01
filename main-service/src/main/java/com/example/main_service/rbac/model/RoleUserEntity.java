@@ -27,9 +27,9 @@ public class RoleUserEntity {
     private ScopeType scopeType;
 
     public enum ScopeType {
-        System,
-        Contest,
-        Problem,
-        Group
+        SYSTEM,
+        CONTEST,
+        PROBLEM,
+        GROUP
     }
 }

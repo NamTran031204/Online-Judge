@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContestDetailDto extends ContestSummaryDto{
-    private List<Long> problems; // list problemId
+    private List<String> problems; // list problemId
 }

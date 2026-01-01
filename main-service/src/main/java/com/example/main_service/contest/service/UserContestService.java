@@ -13,5 +13,5 @@ public interface UserContestService {
     ContestRegistrationResponseDto registerUser(Long contestId);
     PageResult<ContestRegistrationResponseDto> getRegistration(Long contestId, PageRequestDto<ContestRegistrationFilterDto> input);
 
-    PageResult<ContestParticipantResponseDto> getParticipants(Long contestId, PageRequestDto<ContestParticipantFilterDto> input);
+    void unregisterUser(Long contestId,Long userId);
 }
