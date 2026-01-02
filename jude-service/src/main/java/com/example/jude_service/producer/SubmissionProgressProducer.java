@@ -29,7 +29,7 @@ public class SubmissionProgressProducer {
                             )
                     )
             );
-            System.out.println("submission.progress topic" + submissionId + " " + current + " " + total);
+            System.out.println("submission.progress topic ==== " + submissionId + " ==== " + current + " ===== " + total);
         } catch (Exception ignored) {}
     }
 }
