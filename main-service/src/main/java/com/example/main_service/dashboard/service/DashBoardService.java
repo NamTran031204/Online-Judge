@@ -13,19 +13,19 @@ public interface DashBoardService {
             long submitTimeEpochSeconds
     );
 
-    public DashBoardPageResponseDto getDashBoard(
+    DashBoardPageResponseDto getDashBoard(
             Long contestId,
             int offset,
             int limit
     );
 
-    public DashBoardPageResponseDto getDashBoardRunning(
+    DashBoardPageResponseDto getDashBoardRunning(
             Long contestId,
             int offset,
             int limit
     );
 
-    public DashBoardPageResponseDto getDashBoardFinished(
+    DashBoardPageResponseDto getDashBoardFinished(
             Long contestId,
             int offset,
             int limit

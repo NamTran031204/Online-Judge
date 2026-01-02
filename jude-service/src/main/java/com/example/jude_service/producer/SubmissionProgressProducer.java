@@ -3,7 +3,7 @@ package com.example.jude_service.producer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
@@ -11,9 +11,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SubmissionProgressProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<Object, Object> kafkaTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    // tao instance cua cai nay xong log
     public void send(String submissionId, int current, int total) {
         try {
             kafkaTemplate.send(
@@ -28,6 +29,7 @@ public class SubmissionProgressProducer {
                             )
                     )
             );
+            System.out.println("submission.progress topic" + submissionId + " " + current + " " + total);
         } catch (Exception ignored) {}
     }
 }

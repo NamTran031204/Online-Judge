@@ -151,6 +151,7 @@ public class DashBoardServiceImpl implements DashBoardService {
                 .build();
     }
 
+    // just đánh index bro
     @Override
     public DashBoardPageResponseDto getDashBoardFinished(Long contestId, int offset, int limit) {
         if (limit <= 0) {
