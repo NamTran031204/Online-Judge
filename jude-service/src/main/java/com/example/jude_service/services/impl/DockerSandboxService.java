@@ -52,7 +52,7 @@ public class DockerSandboxService {
             Files.createDirectories(testCaseDir);
 
             String extension = sourceCode.substring(sourceCode.lastIndexOf('.'));
-            Path solutionPath = judgeDir.resolve("solution"+extension);
+            Path solutionPath = judgeDir.resolve(getMountFileName(Path.of(sourceCode)));
             Files.copy(solutionFile, solutionPath, StandardCopyOption.REPLACE_EXISTING);
 
             Path inputPath = testCaseDir.resolve("input.txt");
@@ -63,9 +63,11 @@ public class DockerSandboxService {
 
             Path outputFilePath = testCaseDir.resolve("output.txt");
             Path errorFilePath = testCaseDir.resolve("error.txt");
+            Path metricsFilePath = testCaseDir.resolve("metrics.txt");
 
             Files.writeString(outputFilePath, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             Files.writeString(errorFilePath, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(metricsFilePath, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
             LanguageType language = switch (extension) {
                 case ".py" -> LanguageType.PYTHON;
@@ -80,12 +82,14 @@ public class DockerSandboxService {
                     outputFilePath,
                     errorFilePath,
                     expectedOutputPath,
+                    metricsFilePath,
                     timeLimit,
                     memoryLimit
             );
 
-            long executionTime = System.currentTimeMillis() - startTime;
-            result.setExecutionTime(executionTime);
+            MetricsResult metrics = parseMetricsFile(metricsFilePath);
+            result.setExecutionTime(metrics.executionTimeMs());
+            result.setMemoryUsed(metrics.memoryUsedKb());
 
             // upload minio
             String actualOutputFile = minioService.uploadLocalFile(outputFilePath, judgeId + "_actualOutput.txt");
@@ -95,10 +99,8 @@ public class DockerSandboxService {
             result.setActualOutput(actualOutputFile);
             result.setErrorMessage(errorMessage);
 
-            ResponseStatus verdict = determineVerdict(exitCode, actualOutputFile, testcase.getOutput(), errorMessage);
+            ResponseStatus verdict = determineVerdict(exitCode, errorMessage);
             result.setVerdict(verdict);
-
-            result.setMemoryUsed(0L);
 
             log.info("Test case {} executed with verdict: {}", testCaseId, verdict);
 
@@ -106,7 +108,7 @@ public class DockerSandboxService {
             log.error("Error executing test case {}: {}", testCaseId, e.getMessage(), e);
             result.setVerdict(ResponseStatus.RTE);
             result.setErrorMessage("System error: " + e.getMessage());
-            result.setExecutionTime(System.currentTimeMillis() - startTime);
+            result.setExecutionTime((float) System.currentTimeMillis() - startTime);
         }
 
         return result;
@@ -128,6 +130,7 @@ public class DockerSandboxService {
             Path outputFile,
             Path errorFile,
             Path expectedOutputFile,
+            Path metricFilePath,
             double timeLimit,
             double memoryLimit
     ) throws IOException, InterruptedException {
@@ -141,7 +144,8 @@ public class DockerSandboxService {
         command.add("--cpus=1"); // Limit to 1 CPU
 
         command.add("-v");
-        command.add(solutionFile.toAbsolutePath() + ":/sandbox/imageSolution." + getFileExtension(solutionFile));
+        String mountFileName = getMountFileName(solutionFile);
+        command.add(solutionFile.toAbsolutePath() + ":/sandbox/" + mountFileName);
 
         command.add("-v");
         command.add(inputFile + ":/sandbox/imageInput.txt");
@@ -154,6 +158,9 @@ public class DockerSandboxService {
 
         command.add("-v");
         command.add(expectedOutputFile + ":/sandbox/imageExpectedOutput.txt");
+
+        command.add("-v");
+        command.add(metricFilePath + ":/sandbox/metrics.txt");
 
         command.add(imageName);
 
@@ -187,13 +194,25 @@ public class DockerSandboxService {
         return lastDot > 0 ? fileName.substring(lastDot + 1) : "";
     }
 
-    private ResponseStatus determineVerdict(int exitCode, String actualOutput, String expectedOutput, String errorMessage) {
+    private String getMountFileName(Path file) {
+        String extension = getFileExtension(file);
+        return switch (extension.toLowerCase()) {
+            case "cpp", "cc", "cxx" -> "main.cpp";
+            case "java" -> "Main.java";
+            case "py" -> "main.py";
+            default -> "main." + extension;
+        };
+    }
+
+    private ResponseStatus determineVerdict(int exitCode, String errorMessage) {
         if (exitCode == 96) {
             return ResponseStatus.CE;
         } else if (exitCode == 124) {
             return ResponseStatus.TLE;
         } else if (exitCode == 139 || exitCode == 137) {
             return ResponseStatus.MLE;
+        } else if (exitCode == 100) {
+            return ResponseStatus.WA;
         } else if (exitCode != 0) {
             return ResponseStatus.RTE;
         }
@@ -212,14 +231,7 @@ public class DockerSandboxService {
             }
         }
 
-        String normalizedActual = normalizeOutput(actualOutput);
-        String normalizedExpected = normalizeOutput(expectedOutput);
-
-        if (normalizedActual.equals(normalizedExpected)) {
-            return ResponseStatus.AC;
-        } else {
-            return ResponseStatus.WA;
-        }
+        return ResponseStatus.AC;
     }
 
     private String normalizeOutput(String output) {
@@ -251,5 +263,38 @@ public class DockerSandboxService {
             }
         }
         directory.delete();
+    }
+
+    private record MetricsResult(float executionTimeMs, long memoryUsedKb) {}
+
+    private MetricsResult parseMetricsFile(Path metricsFilePath) {
+        long execTimeMs = 0L;
+        long memoryKb = 0L;
+
+        try {
+            if (Files.exists(metricsFilePath)) {
+                String content = Files.readString(metricsFilePath);
+                String[] lines = content.split("\n");
+
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.startsWith("EXEC_TIME_MS=")) {
+                        String value = line.substring("EXEC_TIME_MS=".length()).trim();
+                        if (!value.isEmpty()) {
+                            execTimeMs = Long.parseLong(value);
+                        }
+                    } else if (line.startsWith("MEMORY_USED_KB=")) {
+                        String value = line.substring("MEMORY_USED_KB=".length()).trim();
+                        if (!value.isEmpty()) {
+                            memoryKb = Long.parseLong(value);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse metrics file: {}", e.getMessage());
+        }
+
+        return new MetricsResult((float) execTimeMs/1000, memoryKb);
     }
 }

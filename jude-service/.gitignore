@@ -32,7 +32,6 @@ build/
 .vscode/
 
 ### goi y ###
-differrent-profile.md
 /src/main/java/com/example/jude_service/compile/
 /src/main/resources/compile-test/
 

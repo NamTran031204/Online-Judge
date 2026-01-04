@@ -72,6 +72,7 @@ public class ProblemServiceImpl implements ProblemService {
 
         entity.setIsActive(isActive);
         entity.setTestcaseEntities(testcaseList);
+        entity.setSolution(input.getSolution());
 
         problemRepo.save(entity);
         return CommonResponse.success(entity);
@@ -212,7 +213,10 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     Pair<Boolean, List<TestcaseEntity>> validateTestcaseEntities(List<TestcaseEntity> newTestCaseList, List<TestcaseEntity> entityTestcases, String sourceCode) {
-        Set<TestcaseEntity> set = new HashSet<>(entityTestcases);
+        Set<TestcaseEntity> set = new HashSet<>();
+        if (entityTestcases != null && !entityTestcases.isEmpty()) {
+            set.addAll(entityTestcases);
+        }
         entityTestcases = new ArrayList<>();
 
         boolean isActive = Boolean.TRUE;
@@ -225,7 +229,7 @@ public class ProblemServiceImpl implements ProblemService {
                 continue;
             }
             Path currentRelativePath = Paths.get("");
-            final String COMPILE_TEMP_DIR = currentRelativePath.toAbsolutePath()+ "compile-temp";
+            final String COMPILE_TEMP_DIR = String.valueOf(currentRelativePath.toAbsolutePath().resolve("compile-temp"));
             if (isActive == Boolean.TRUE) {
                 TestCaseResult testCaseResult = dockerSandboxService.executeTestCase(
                         UUID.randomUUID() + sourceCode,

@@ -36,13 +36,13 @@ public class JudgeServiceImpl implements JudgeService {
         JudgeResult judgeResult = JudgeResult.builder()
                 .submissionId(judgeId)
                 .testCaseResults(new ArrayList<>())
-                .totalExecutionTime(0L)
+                .totalExecutionTime((float) 0)
                 .maxMemoryUsed(0L)
                 .passedTestCases(0)
                 .build();
 
         Path currentRelativePath = Paths.get("");
-        final String COMPILE_TEMP_DIR = currentRelativePath.toAbsolutePath()+ "compile-temp";
+        final String COMPILE_TEMP_DIR = String.valueOf(currentRelativePath.toAbsolutePath().resolve("compile-temp"));
 
         try {
             Optional<ProblemEntity> problemOpt = problemRepo.findById(problemId);
