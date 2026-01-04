@@ -19,32 +19,32 @@ public class SubmissionApiResource {
 
     private final SubmissionService submissionService;
 
-    @PostMapping("/submit")
+    @PostMapping("")
     public CommonResponse<SubmissionEntity> submit(@RequestBody SubmissionInputDto input) {
         return submissionService.submit(input);
     }
 
-    @PostMapping("/get-page")
+    @PostMapping("/search")
     public CommonResponse<PageResult<SubmissionEntity>> getPage(PageRequestDto<SubmissionInputDto> pageRequest) {
         return submissionService.getPage(pageRequest);
     }
 
-    @GetMapping("/get-by-id/{submissionId}")
+    @GetMapping("/{submissionId}")
     public CommonResponse<SubmissionEntity> getById(@PathVariable("submissionId") String submissionId) {
         return submissionService.getById(submissionId);
     }
 
-    @DeleteMapping("/delete-by-id/{submissionId}")
+    @DeleteMapping("/{submissionId}")
     public CommonResponse<SubmissionEntity> deleteById(@PathVariable("submissionId") String submissionId) {
         return submissionService.deleteById(submissionId);
     }
 
-    @DeleteMapping("/delete-by-problem/{problemId}")
+    @DeleteMapping("/by-problem/{problemId}")
     public CommonResponse<SubmissionEntity> deleteByProblem(@PathVariable("problemId") String problemId) {
         return submissionService.deleteByProblem(problemId);
     }
 
-    @DeleteMapping("/delete-by-user/{userId}")
+    @DeleteMapping("/by-user/{userId}")
     public CommonResponse<SubmissionEntity> deleteByUser(@PathVariable("userId") Long userId) {
         return submissionService.deleteByUser(userId);
     }

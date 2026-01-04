@@ -47,11 +47,6 @@ public class SubmissionService {
         Long contestId = problem.getContestId();
         input.setContestId(contestId);
 
-        // check contest running
-        if (contestId == null || !contestService.isContestRunning(contestId)) {
-            throw new ContestBusinessException(ErrorCode.CONTEST_ERROR, "Contest is not running");
-        }
-
         if (!contestService.canUserSubmit(contestId, userId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ACCESS_DENY, "User cannot submit");
         }
@@ -60,15 +55,18 @@ public class SubmissionService {
         SubmissionEntity submission = submissionGrpcClient.submit(input);
         if (submission == null) return null;
 
-        // dashboard hook
-        dashBoardService.onSubmissionJudged(
-                submission.getSubmissionId(),
-                submission.getUserId(),
-                submission.getContestId(),
-                submission.getProblemId(),
-                submission.isAllAccepted(),
-                submission.getSubmittedAt().atZone(ZoneId.systemDefault()).toEpochSecond()
-        );
+        // check contest running
+        if (contestId != null && contestService.isContestRunning(contestId)) {
+            // dashboard hook
+            dashBoardService.onSubmissionJudged(
+                    submission.getSubmissionId(),
+                    submission.getUserId(),
+                    submission.getContestId(),
+                    submission.getProblemId(),
+                    submission.isAllAccepted(),
+                    submission.getSubmittedAt().atZone(ZoneId.systemDefault()).toEpochSecond()
+            );
+        }
 
         return submission;
     }

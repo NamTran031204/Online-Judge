@@ -14,6 +14,6 @@ public class SubmissionInputDto {
     private String problemId;
     private Long contestId;
     private Long userId;
-    private String sourceCode; // hiện tại vẫn lưu string trong csdl, sau thì lưu url source code
+    private String sourceCode; // objectName cua source code
     private LanguageType language;
 }

@@ -15,7 +15,7 @@ public class JudgeResult {
     private ResponseStatus finalVerdict;
     private Integer totalTestCases;
     private Integer passedTestCases;
-    private Long totalExecutionTime; // milliseconds
+    private Float totalExecutionTime; // milliseconds
     private Long maxMemoryUsed; // KB
     private List<TestCaseResult> testCaseResults;
     private String compileMessage;

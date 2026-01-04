@@ -24,7 +24,7 @@ while [ ${RETRY_COUNT} -lt ${MAX_RETRIES} ]; do
         echo "      ✓ Kết nối thành công!"
         break
     fi
-
+    
     RETRY_COUNT=$((RETRY_COUNT + 1))
     echo "      Đang chờ MinIO... (${RETRY_COUNT}/${MAX_RETRIES})"
     sleep 2
@@ -54,8 +54,7 @@ echo "[3/4] Đang tạo Service Account (Access Key)..."
 # Tạo service account và lấy output JSON
 ACCESS_KEY_OUTPUT=$(mc admin user svcacct add ${ALIAS_NAME} ${MINIO_ROOT_USER} --json 2>/dev/null || true)
 
-echo "$ACCESS_KEY_OUTPUT" > "$ACCESS_FILE"
-
+echo ACCESS_KEY_OUTPUT > ACCESS_FILE
 
 if [ -z "${ACCESS_KEY_OUTPUT}" ]; then
     echo "      ✗ Không thể tạo access key!"
@@ -74,6 +73,8 @@ echo "[4/4] Đang ghi credentials vào ${ACCESS_FILE}..."
 mkdir -p "$(dirname ${ACCESS_FILE})"
 
 # Ghi credentials vào file
+cat > ${ACCESS_FILE} << EOF
+EOF
 
 # Đảm bảo file có quyền đọc
 chmod 644 ${ACCESS_FILE}

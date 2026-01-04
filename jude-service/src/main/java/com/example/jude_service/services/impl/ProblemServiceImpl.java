@@ -3,30 +3,33 @@ package com.example.jude_service.services.impl;
 import com.example.jude_service.entities.CommonResponse;
 import com.example.jude_service.entities.PageRequestDto;
 import com.example.jude_service.entities.PageResult;
+import com.example.jude_service.entities.judge.TestCaseResult;
 import com.example.jude_service.entities.problem.ProblemEntity;
 import com.example.jude_service.entities.problem.ProblemInputDto;
 import com.example.jude_service.entities.testcase.TestcaseEntity;
+import com.example.jude_service.enums.LanguageType;
+import com.example.jude_service.enums.ResponseStatus;
 import com.example.jude_service.exceptions.ErrorCode;
 import com.example.jude_service.exceptions.specException.ProblemBusinessException;
 import com.example.jude_service.repo.ProblemRepo;
+import com.example.jude_service.repo.SubmissionRepo;
 import com.example.jude_service.services.ProblemService;
 import com.example.jude_service.services.SubmissionService;
 import com.example.jude_service.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
-// note : tất cả các giá trị int32 int64 double trong proto đều mặc định là 0
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class ProblemServiceImpl implements ProblemService {
@@ -34,20 +37,19 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemRepo problemRepo;
     private final MongoTemplate mongoTemplate;
     private final SubmissionService submissionService;
+    private final DockerSandboxService dockerSandboxService;
 
     @Override
     public CommonResponse<ProblemEntity> addProblem(ProblemInputDto input) {
         validateBeforeInsertProblem(input);
-        log.info("============{}",input);
 
-        ProblemEntity entity = problemRepo.save(ProblemEntity.builder()
+        ProblemEntity entity = ProblemEntity.builder()
                 .title(input.getTitle())
                 .description(input.getDescription())
                 .tags(input.getTags())
                 .imageUrls(input.getImageUrls())
                 .level(input.getLevel())
                 .supportedLanguage(input.getSupportedLanguage())
-                .solution(input.getSolution())
                 .rating(input.getRating())
                 .score(input.getScore())
                 .timeLimit(input.getTimeLimit())
@@ -55,18 +57,30 @@ public class ProblemServiceImpl implements ProblemService {
                 .inputType(input.getInputType())
                 .outputType(input.getOutputType())
                 .authorId(input.getUserId())
-                .testcaseEntities(input.getTestcaseEntities())
                 .createdBy(input.getUserId())
                 .lastModifiedBy(input.getUserId())
                 .contestId(input.getContestId())
-                .build());
+                .build();
+
+        Boolean isActive = input.getSolution() != null && input.getTestcaseEntities() != null;
+        var testcaseList = input.getTestcaseEntities();
+        if (testcaseList != null && !testcaseList.isEmpty()) {
+            var response = validateTestcaseEntities(testcaseList, null, input.getSolution());
+            testcaseList = response.getSecond();
+            isActive = response.getFirst();
+        }
+
+        entity.setIsActive(isActive);
+        entity.setTestcaseEntities(testcaseList);
+        entity.setSolution(input.getSolution());
+
+        problemRepo.save(entity);
         return CommonResponse.success(entity);
     }
 
     @Override
     public CommonResponse<PageResult<ProblemEntity>> getProblemPage(PageRequestDto<ProblemInputDto> input) {
         Query query = new Query();
-        log.info("=====Inside problem service getProblemPage======{}",input);
         if (input.getFilter() != null) {
             query = filter(input);
         }
@@ -116,7 +130,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<ProblemEntity> updateProblem(ProblemInputDto input, String problemId) {
-        ProblemEntity entity = problemRepo.findById(problemId.toString())
+        ProblemEntity entity = problemRepo.findById(problemId)
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         /**
@@ -125,9 +139,6 @@ public class ProblemServiceImpl implements ProblemService {
 
         if (!StringUtils.isNullOrEmpty(input.getTitle())) {
             entity.setTitle(input.getTitle());
-        }
-        if (!StringUtils.isNullOrEmpty(input.getDescription())) {
-            entity.setDescription(input.getDescription());
         }
         if (input.getTags() != null && !input.getTags().isEmpty()) {
             entity.setTags(input.getTags());
@@ -144,7 +155,7 @@ public class ProblemServiceImpl implements ProblemService {
         if (!StringUtils.isNullOrEmpty(input.getSolution())) {
             entity.setSolution(input.getSolution());
         }
-        if (input.getRating()!=null) {
+        if (input.getRating() != null) {
             entity.setRating(input.getRating());
         }
         if (input.getScore() != null) {
@@ -163,9 +174,11 @@ public class ProblemServiceImpl implements ProblemService {
             entity.setOutputType(input.getOutputType());
         }
         if (input.getTestcaseEntities() != null && !input.getTestcaseEntities().isEmpty()) {
+            var validateTestcases = validateTestcaseEntities(input.getTestcaseEntities(), entity.getTestcaseEntities(), input.getSolution() != null? input.getSolution() : entity.getSolution());
             entity.setTestcaseEntities(
-                    validateTestcaseEntities(input.getTestcaseEntities())
+                    validateTestcases.getSecond()
             );
+            entity.setIsActive(validateTestcases.getFirst());
         }
         if (input.getUserId() != null) {
             if (!input.getUserId().equals(entity.getAuthorId())){
@@ -199,122 +212,84 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
-    List<TestcaseEntity> validateTestcaseEntities(List<TestcaseEntity> input) {
-        List<TestcaseEntity> result = new ArrayList<>();
-        Set<String> set = new HashSet<String>();
-        for (var e: input) {
-            if (set.contains(e.getTestcaseName())) {
+    Pair<Boolean, List<TestcaseEntity>> validateTestcaseEntities(List<TestcaseEntity> newTestCaseList, List<TestcaseEntity> entityTestcases, String sourceCode) {
+        Set<TestcaseEntity> set = new HashSet<>();
+        if (entityTestcases != null && !entityTestcases.isEmpty()) {
+            set.addAll(entityTestcases);
+        }
+        entityTestcases = new ArrayList<>();
+
+        boolean isActive = Boolean.TRUE;
+        if (sourceCode == null || sourceCode.isEmpty()) {
+            isActive = Boolean.FALSE;
+        }
+
+        for (var testcase: newTestCaseList) {
+            if (set.contains(testcase)) {
                 continue;
             }
-            set.add(e.getTestcaseName());
-            result.add(e);
+            Path currentRelativePath = Paths.get("");
+            final String COMPILE_TEMP_DIR = String.valueOf(currentRelativePath.toAbsolutePath().resolve("compile-temp"));
+            if (isActive == Boolean.TRUE) {
+                TestCaseResult testCaseResult = dockerSandboxService.executeTestCase(
+                        UUID.randomUUID() + sourceCode,
+                        UUID.randomUUID().toString(),
+                        testcase,
+                        sourceCode,
+                        1,
+                        128,
+                        COMPILE_TEMP_DIR
+                );
+                if (testCaseResult.getVerdict() != ResponseStatus.AC) {
+                    continue;
+                }
+            }
+            set.add(testcase);
+            entityTestcases.add(testcase);
         }
-        return result;
+        return Pair.of(isActive, entityTestcases);
     }
 
     Query filter(PageRequestDto<ProblemInputDto> input) {
         Query query = new Query();
         ProblemInputDto term = input.getFilter();
-        log.info("======inside filter======{}", term);
-
-        if (!StringUtils.isNullOrEmpty(term.getTitle())) {
-            query.addCriteria(
-                    Criteria.where("title").regex(term.getTitle(), "i")  // ignore-case
-            );
-        }
-
-        if (!StringUtils.isNullOrEmpty(term.getDescription())) {
-            query.addCriteria(
-                    Criteria.where("description").regex(term.getDescription(), "i")
-            );
-        }
 
         if (term.getTags() != null && !term.getTags().isEmpty()) {
             query.addCriteria(
                     Criteria.where("tags").in(term.getTags())
             );
         }
-
-        if (term.getImageUrls() != null && !term.getImageUrls().isEmpty()) {
-            query.addCriteria(
-                    Criteria.where("imageUrls").in(term.getImageUrls())
-            );
-        }
-
         if (term.getLevel() != null) {
             query.addCriteria(
                     Criteria.where("level").is(term.getLevel())
             );
         }
 
+        // can xem xet them, vi dang ra yeu cau chi la mot loai thoi
         if (term.getSupportedLanguage() != null && !term.getSupportedLanguage().isEmpty()) {
+            LanguageType language = term.getSupportedLanguage().getFirst();
             query.addCriteria(
-                    Criteria.where("supportedLanguage").in(term.getSupportedLanguage())
+                    Criteria.where("supportedLanguage").is(language)
             );
         }
 
-        if (!StringUtils.isNullOrEmpty(term.getSolution())) {
-            query.addCriteria(
-                    Criteria.where("solution").regex(term.getSolution(), "i")
-            );
-        }
-
-        if (term.getRating() != null && term.getRating() > 0) {
+        if (term.getRating() != null) {
             query.addCriteria(
                     Criteria.where("rating").is(term.getRating())
             );
         }
 
-        if (term.getScore() != null && term.getScore() > 0) {
+        if (term.getScore() != null) {
             query.addCriteria(
                     Criteria.where("score").is(term.getScore())
-            );
-        }
-
-        if (term.getTimeLimit() != null && term.getTimeLimit() > 0) {
-            query.addCriteria(
-                    Criteria.where("timeLimit").is(term.getTimeLimit())
-            );
-        }
-
-        if (term.getMemoryLimit() != null && term.getMemoryLimit() > 0) {
-            query.addCriteria(
-                    Criteria.where("memoryLimit").is(term.getMemoryLimit())
-            );
-        }
-
-        if (!StringUtils.isNullOrEmpty(term.getInputType())) {
-            query.addCriteria(
-                    Criteria.where("inputType").regex(term.getInputType(), "i")
-            );
-        }
-
-        if (!StringUtils.isNullOrEmpty(term.getOutputType())) {
-            query.addCriteria(
-                    Criteria.where("outputType").regex(term.getOutputType(), "i")
-            );
-        }
-
-        if (term.getContestId() != null && term.getContestId() > 0) {
-            query.addCriteria(
-                    Criteria.where("contestId").is(term.getContestId())
-            );
-        }
-
-        if (term.getUserId() != null && term.getUserId() > 0) {
-            query.addCriteria(
-                    Criteria.where("authorId").is(term.getUserId())
             );
         }
 
         return query;
     }
 
-
     PageResult<ProblemEntity> queryByFilter(Query query, PageRequest input) {
         long count = mongoTemplate.count(query, ProblemEntity.class);
-
-        log.info("Mongo Query (with pagination) = {}", query);
 
         query.with(input);
 
@@ -323,9 +298,6 @@ public class ProblemServiceImpl implements ProblemService {
         PageResult<ProblemEntity> pageResult = new PageResult<>();
         pageResult.setTotalCount(count);
         pageResult.setData(entities);
-
-        log.info("Query Result: {}", entities);
-
         return pageResult;
     }
 

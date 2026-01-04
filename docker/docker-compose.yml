@@ -79,7 +79,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_PROMETHEUS_AUTH_TYPE: "public"
     volumes:
-      - ./data/minio:/data
+      - oj_minio_data:/data
       - ./minio/config:/root/.minio
     command: server /data --console-address ":9001"
     healthcheck:
@@ -117,38 +117,7 @@ services:
     networks:
       - oj-minio-network
 
-  kafka:
-    image: apache/kafka:3.7.2
-    container_name: kafka
-    ports:
-      - "9092:9092"
-    environment:
-      # 2 đường connect: host (localhost:9092) và container (kafka:9093)
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
-
-      # KRaft required
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
-
-      # inter-broker
-      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
-
-      # single node
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-      # optional
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-
-    networks:
-      - oj-judge-service-network
-
-
 volumes:
-  kafka_data:
   oj_mongodb_data:
   oj_mysql_data:
   oj_minio_data:

@@ -1,0 +1,8 @@
+Waiting for mount files
+Mount complete: 0s
+Compiling Java source: Main.java
+/sandbox/Main.java:1: error: illegal character: '\'
+import java.util.Scanner;\n public class Solution { public static void main(String[] args) { Scanner sc = new Scanner(System.in); int n = sc.nextInt(); int m = sc.nextInt(); int sum = n + m; System.out.print(sum); sc.close(); } }
+                         ^
+1 error
+COMPILATION_ERROR

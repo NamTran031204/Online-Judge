@@ -47,7 +47,8 @@ public class SubmissionServiceImpl implements SubmissionService {
             }
         }
 
-        if (StringUtils.isNullOrEmpty(String.valueOf(input.getUserId()))) {
+        // TODO: check lai submission đuơcj validate trước khi đi vào srvice nay khong, neu khong thi validate quyen
+        if (input.getUserId() == null) {
             throw new SubmissionBusinessException(ErrorCode.FORBIDDEN, "user id is empty");
         }
 

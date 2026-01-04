@@ -1,0 +1,8 @@
+Waiting for mount files
+Mount complete: 0s
+Compiling Java source: Main.java
+SUCCESS: Compilation successful
+Executing program with time limit: 1s, memory limit: 128m
+SUCCESS: Execution completed in 89ms
+Comparing output with expected output...
+ACCEPTED: Output matches expected output

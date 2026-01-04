@@ -11,7 +11,7 @@ import lombok.*;
 public class TestCaseResult {
     private String testCaseId;
     private ResponseStatus verdict;
-    private Long executionTime; // milliseconds
+    private Float executionTime; // milliseconds
     private Long memoryUsed; // KB
     private String actualOutput;
     private String expectedOutput;

@@ -41,4 +41,8 @@ server:
 logging:
   level:
     org.springframework.kafka.listener.KafkaMessageListenerContainer: DEBUG
-
+minio:
+  endpoint: http://localhost:9000
+  access-key: K8W8RR8ZJZFIR8IWY9RE
+  secret-key: KATi755+cxPCXxvaQDBYwAeKIUAiTtuK2FQ2ncAx
+  bucket-name: online-judge

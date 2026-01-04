@@ -31,18 +31,18 @@ public class JudgeServiceImpl implements JudgeService {
     public JudgeResult judge(SubmissionInputDto submission, String problemId) throws Exception {
         log.info("Starting judge process for problem: {}, language: {}", problemId, submission.getLanguage());
 
-        String judgeId = UUID.randomUUID().toString();
+        String judgeId = UUID.randomUUID() + "_" + problemId + "_" + submission.getUserId() + "_" + submission.getLanguage();
 
         JudgeResult judgeResult = JudgeResult.builder()
                 .submissionId(judgeId)
                 .testCaseResults(new ArrayList<>())
-                .totalExecutionTime(0L)
+                .totalExecutionTime((float) 0)
                 .maxMemoryUsed(0L)
                 .passedTestCases(0)
                 .build();
 
         Path currentRelativePath = Paths.get("");
-        final String COMPILE_TEMP_DIR = currentRelativePath.toAbsolutePath()+ "compile-temp";
+        final String COMPILE_TEMP_DIR = String.valueOf(currentRelativePath.toAbsolutePath().resolve("compile-temp"));
 
         try {
             Optional<ProblemEntity> problemOpt = problemRepo.findById(problemId);
@@ -68,27 +68,24 @@ public class JudgeServiceImpl implements JudgeService {
             double timeLimit = problem.getTimeLimit() != null ? problem.getTimeLimit() : 1.0;
             double memoryLimit = problem.getMemoryLimit() != null ? problem.getMemoryLimit() : 128.0;
 
-            log.info("Executing {} test cases with timeLimit={}s, memoryLimit={}MB", 
+            log.info("Executing {} test cases with timeLimit={}s, memoryLimit={}MB",
                     testCases.size(), timeLimit, memoryLimit);
 
             int passedCount = 0;
             ResponseStatus finalVerdict = ResponseStatus.AC;
-            
+
             for (int i = 0; i < testCases.size(); i++) {
                 TestcaseEntity testCase = testCases.get(i);
-                String testCaseId = testCase.getTestcaseName() != null && !testCase.getTestcaseName().isEmpty() 
-                        ? testCase.getTestcaseName() 
-                        : String.valueOf(i + 1);
 
-                log.info("Executing test case {}/{}: {}", i + 1, testCases.size(), testCaseId);
+                String testcaseId = String.valueOf(i+1);
+
+                log.info("Executing test case {}/{}: {}", i + 1, testCases.size(), testCase.getTestcaseName());
 
                 TestCaseResult testCaseResult = dockerSandboxService.executeTestCase(
                         judgeId,
-                        testCaseId,
+                        testcaseId,
+                        testCase,
                         submission.getSourceCode(),
-                        submission.getLanguage(),
-                        testCase.getInput(),
-                        testCase.getOutput(),
                         timeLimit,
                         memoryLimit,
                         COMPILE_TEMP_DIR
@@ -99,9 +96,9 @@ public class JudgeServiceImpl implements JudgeService {
                 judgeResult.setTotalExecutionTime(
                         judgeResult.getTotalExecutionTime() + testCaseResult.getExecutionTime()
                 );
-                
-                if (testCaseResult.getMemoryUsed() != null && 
-                    testCaseResult.getMemoryUsed() > judgeResult.getMaxMemoryUsed()) {
+
+                if (testCaseResult.getMemoryUsed() != null &&
+                        testCaseResult.getMemoryUsed() > judgeResult.getMaxMemoryUsed()) {
                     judgeResult.setMaxMemoryUsed(testCaseResult.getMemoryUsed());
                 }
 
@@ -122,7 +119,7 @@ public class JudgeServiceImpl implements JudgeService {
             judgeResult.setPassedTestCases(passedCount);
             judgeResult.setFinalVerdict(finalVerdict);
 
-            log.info("Judge completed: {}/{} test cases passed, final verdict: {}", 
+            log.info("Judge completed: {}/{} test cases passed, final verdict: {}",
                     passedCount, testCases.size(), finalVerdict);
 
         } catch (Exception e) {
