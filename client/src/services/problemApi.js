@@ -39,7 +39,7 @@ export const problemApi = baseApi.injectEndpoints({
     // search
     searchProblems: builder.query({
       query: (pageRequest) => ({
-        url: '/problems/search',
+        url: '/problem/search',
         method: 'POST',
         body: pageRequest,
       }),
@@ -65,7 +65,7 @@ export const problemApi = baseApi.injectEndpoints({
 
     // detail
     getProblemDetail: builder.query({
-      query: (problem_id) => `/problem/${problem_id}`,
+      query: (problem_id) => `/problems/${problem_id}`,
       providesTags: (r, e, problem_id) => [
         { type: "Problem", id: problem_id },
       ],

@@ -12,7 +12,7 @@ import {
   useSearchRegistrationsQuery,
 } from "../../services/contestApi";
 import { contestApi } from "../../services/contestApi";
-
+import { mockContests } from "../../mock/mock-contests";
 
 import "./contests.css";
 
@@ -27,28 +27,28 @@ export default function ContestList() {
   /* QUERY CONTESTS */
 
   const baseFilter = {
-    contest_type: "Official",
+    contest_type: "OFFICIAL",
   };
 
   const runningQuery = useSearchContestsQuery({
     maxResultCount: PAGE_SIZE,
     skipCount: 0,
-    sorting: "start_time asc",
-    filter: { ...baseFilter, contest_status: "Running" },
+    sorting: "startTime asc",
+    filter: { ...baseFilter, contestStatus: "RUNNING" },
   });
 
   const upcomingQuery = useSearchContestsQuery({
     maxResultCount: PAGE_SIZE,
     skipCount: 0,
-    sorting: "start_time asc",
-    filter: { ...baseFilter, contest_status: "Upcoming" },
+    sorting: "startTime asc",
+    filter: { ...baseFilter, contestStatus: "UPCOMING" },
   });
 
   const finishedQuery = useSearchContestsQuery({
     maxResultCount: PAGE_SIZE,
     skipCount: (page - 1) * PAGE_SIZE,
-    sorting: "start_time desc",
-    filter: { ...baseFilter, contest_status: "Finished" },
+    sorting: "startTime desc",
+    filter: { ...baseFilter, contestStatus: "FINISHED" },
   });
 
   const running = runningQuery.data?.data?.data || [];
@@ -56,7 +56,19 @@ export default function ContestList() {
   const finished = finishedQuery.data?.data?.data || [];
   const finishedTotal = finishedQuery.data?.data?.totalCount || 0;
 
-  const currentAndUpcoming = [...running, ...upcoming];
+  const useMock = !runningQuery.isLoading && !upcomingQuery.isLoading && !finishedQuery.isLoading &&
+                  running.length === 0 && upcoming.length === 0 && finished.length === 0;
+
+  const mockRunning = useMock ? mockContests.filter(c => c.contestStatus === "RUNNING") : [];
+  const mockUpcoming = useMock ? mockContests.filter(c => c.contestStatus === "UPCOMING") : [];
+  const mockFinished = useMock ? mockContests.filter(c => c.contestStatus === "FINISHED") : [];
+
+  const displayRunning = useMock ? mockRunning : running;
+  const displayUpcoming = useMock ? mockUpcoming : upcoming;
+  const displayFinished = useMock ? mockFinished : finished;
+  const displayFinishedTotal = useMock ? mockFinished.length : finishedTotal;
+
+  const currentAndUpcoming = [...displayRunning, ...displayUpcoming];
 
   /* REGISTRATION */
 
@@ -64,40 +76,40 @@ export default function ContestList() {
 
   const registeredCache = useRef(new Map());
 
-  const checkRegistered = (contest_id) => {
+  const checkRegistered = (contestId) => {
     if (!currentUser.isAuthenticated) return false;
 
-    if (registeredCache.current.has(contest_id)) {
+    if (registeredCache.current.has(contestId)) {
       return registeredCache.current.get(contest_id);
     }
 
     const res = contestApi.endpoints.searchRegistrations.initiate(
       {
-        contest_id,
+        contestId,
         pageRequest: {
           skipCount: 0,
           maxResultCount: 1,
-          filter: { user_id: currentUser.accessToken },
+          filter: { userId: currentUser.accessToken }, // cho vào token
         },
       },
       { forceRefetch: true }
     );
 
     const result = res.data?.data?.totalCount > 0;
-    registeredCache.current.set(contest_id, result);
+    registeredCache.current.set(contestId, result);
 
     return result;
   };
 
-  const handleRegister = async (contest_id) => {
+  const handleRegister = async (contestId) => {
     if (!currentUser.isAuthenticated) {
       navigate("/auth");
       return;
     }
 
     try {
-      await registerContest(contest_id).unwrap();
-      registeredCache.current.set(contest_id, true);
+      await registerContest(contestId).unwrap();
+      registeredCache.current.set(contestId, true);
       alert("Register successful");
     } catch {
       alert("Register failed");
@@ -108,17 +120,17 @@ export default function ContestList() {
   const handleTitleClick = async (e, contest) => {
     e.preventDefault();
 
-    const { contest_id, contest_status } = contest;
+    const { contestId, contestStatus } = contest;
 
     // UPCOMING
-    if (contest_status === "Upcoming") {
+    if (contestStatus === "UPCOMING") {
       alert("Contest has not started yet");
       return;
     }
 
     // FINISHED
-    if (contest_status === "Finished") {
-      navigate(`/contest/${contest_id}`);
+    if (contestStatus === "FINISHED") {
+      navigate(`/contest/${contestId}`);
       return;
     }
 
@@ -128,13 +140,13 @@ export default function ContestList() {
       return;
     }
 
-    const registered = await checkRegistered(contest_id);
+    const registered = await checkRegistered(contestId);
     if (!registered) {
       alert("You have not registered for this contest");
       return;
     }
 
-    navigate(`/contest/${contest_id}`);
+    navigate(`/contest/${contestId}`);
   };
 
   /* HELPERS */
@@ -149,29 +161,29 @@ export default function ContestList() {
       minute: "2-digit",
     });
 
-  const renderStatus = ({ contest_status, start_time, duration }) => (
+  const renderStatus = ({ contestStatus, startTime, duration }) => (
     <div className="status-cell">
-      <span className={`badge ${contest_status.toLowerCase()}`}>
-        {contest_status}
+      <span className={`badge ${contestStatus.toLowerCase()}`}>
+        {contestStatus}
       </span>
 
-      {(contest_status === "Running" ||
-        contest_status === "Upcoming") && (
+      {(contestStatus === "RUNNING" ||
+        contestStatus === "UPCOMING") && (
           <ContestCountdown
-            startTime={start_time}
+            startTime={startTime}
             duration={duration}
-            status={contest_status}
+            status={contestStatus}
           />
         )}
     </div>
   );
 
   const renderAction = (c) => {
-    if (c.contest_status === "Finished") {
+    if (c.contestStatus === "FINISHED") {
       return <button className="btn outline">Virtual</button>;
     }
 
-    if (c.contest_status === "Running") {
+    if (c.contestStatus === "RUNNING") {
       return (
         <button className="btn disabled" disabled>
           Register closed
@@ -183,7 +195,7 @@ export default function ContestList() {
       <button
         className="btn outline"
         disabled={registering}
-        onClick={() => handleRegister(c.contest_id)}
+        onClick={() => handleRegister(c.contestId)}
       >
         Register
       </button>
@@ -218,7 +230,7 @@ export default function ContestList() {
             </thead>
             <tbody>
               {currentAndUpcoming.map((c) => (
-                <tr key={c.contest_id}>
+                <tr key={c.contestId}>
                   <td className="contest-name">
                     <a
                       href="#"
@@ -231,7 +243,7 @@ export default function ContestList() {
                   <td>
                     <div className="contest-date-cell">
                       <Calendar size={16} />
-                      {formatDateTime(c.start_time)}
+                      {formatDateTime(c.startTime)}
                     </div>
                   </td>
                   <td>
@@ -275,11 +287,11 @@ export default function ContestList() {
               </tr>
             </thead>
             <tbody>
-              {finished.map((c) => (
-                <tr key={c.contest_id}>
+              {displayFinished.map((c) => (
+                <tr key={c.contestId}>
                   <td className="contest-name">
                     <a
-                      href={`/contest/${c.contest_id}`}
+                      href={`/contest/${c.contestId}`}
                       className="contest-link"
                     >
                       {c.title}
@@ -288,7 +300,7 @@ export default function ContestList() {
                   <td>
                     <div className="contest-date-cell">
                       <Calendar size={16} />
-                      {formatDateTime(c.start_time)}
+                      {formatDateTime(c.startTime)}
                     </div>
                   </td>
                   <td>{c.duration} min</td>
@@ -300,7 +312,7 @@ export default function ContestList() {
                 </tr>
               ))}
 
-              {finished.length === 0 && (
+              {displayFinished.length === 0 && (
                 <tr>
                   <td colSpan="6" className="empty-row">
                     No past contests
@@ -314,7 +326,7 @@ export default function ContestList() {
         <Pagination
           page={page}
           pageSize={PAGE_SIZE}
-          totalCount={finishedTotal}
+          totalCount={displayFinishedTotal}
           onPageChange={setPage}
         />
       </section >

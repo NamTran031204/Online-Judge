@@ -28,9 +28,9 @@ export default function DraftContest() {
   const { data, isLoading } = useSearchContestsQuery({
     maxResultCount: PAGE_SIZE,
     skipCount: 0,
-    sorting: "start_time desc",
+    sorting: "startTime desc",
     filter: {
-      contest_type: "Draft",
+      contestType: "DRAFT",
     },
   });
 
@@ -47,10 +47,10 @@ export default function DraftContest() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    start_time: null,
+    startTime: null,
     duration: 120,
     visibility: "PUBLIC",
-    group_id: "",
+    groupId: "",
     problems: [],
   });
 
@@ -58,10 +58,10 @@ export default function DraftContest() {
     setForm({
       title: "",
       description: "",
-      start_time: null,
+      startTime: null,
       duration: 120,
       visibility: "PUBLIC",
-      group_id: "",
+      groupId: "",
       problems: [],
     });
     setEditing(null);
@@ -88,10 +88,10 @@ export default function DraftContest() {
     setForm({
       title: contest.title,
       description: contest.description || "",
-      start_time: new Date(contest.start_time),
+      startTime: new Date(contest.startTime),
       duration: contest.duration,
       visibility: contest.visibility,
-      group_id: contest.group_id ?? null,
+      groupId: contest.groupId ?? null,
     });
     setShowModal(true);
   };
@@ -100,18 +100,20 @@ export default function DraftContest() {
     const payload = {
       title: form.title,
       description: form.description,
-      start_time: form.start_time?.toISOString(),
+      startTime: form.startTime?.toISOString(),
       duration: Number(form.duration),
-      contest_type: "Draft",
+      contestType: "DRAFT",
       visibility: form.visibility,
-      group_id: form.group_id ? Number(form.group_id) : null,
+      groupId: form.groupId ? Number(form.groupId) : null,
       problems: [],
     };
 
     try {
       if (editing) {
+          console.log('[EDIT] contest edit =', editing.contestId);
+
         await updateContest({
-          contest_id: editing.contest_id,
+          contestId: editing.contestId,
           data: payload,
         }).unwrap();
       } else {
@@ -126,11 +128,11 @@ export default function DraftContest() {
     }
   };
 
-  const handleDelete = async (contest_id) => {
+  const handleDelete = async (contestId) => {
     if (!confirm("Delete this draft contest?")) return;
 
     try {
-      await deleteContest(contest_id).unwrap();
+      await deleteContest(contestId).unwrap();
     } catch {
       alert("Delete failed");
     }
@@ -185,7 +187,7 @@ export default function DraftContest() {
 
             {!isLoading &&
               drafts.map((c) => (
-                <tr key={c.contest_id}>
+                <tr key={c.contestId}>
                   {/* TITLE + DESCRIPTION */}
                   <td className="draft-title">
                     <strong>{c.title}</strong>
@@ -196,7 +198,7 @@ export default function DraftContest() {
                   <td>
                     <div className="draft-cell">
                       <Calendar size={16} />
-                      {formatDateTime(c.start_time)}
+                      {formatDateTime(c.startTime)}
                     </div>
                   </td>
 
@@ -228,7 +230,7 @@ export default function DraftContest() {
 
                       <button
                         className="icon-btn danger"
-                        onClick={() => handleDelete(c.contest_id)}
+                        onClick={() => handleDelete(c.contestId)}
                       >
                         <Trash2 size={18} />
                       </button>
@@ -279,9 +281,9 @@ export default function DraftContest() {
             <div className="form-group">
               <label>Start Time *</label>
               <DatePicker
-                selected={form.start_time}
+                selected={form.startTime}
                 onChange={(date) =>
-                  setForm({ ...form, start_time: date })
+                  setForm({ ...form, startTime: date })
                 }
                 showTimeSelect
                 timeFormat="HH:mm"
@@ -327,7 +329,7 @@ export default function DraftContest() {
               <label>Group ID</label>
               <input
                 type="number"
-                value={form.group_id}
+                value={form.groupId}
                 onChange={(e) =>
                   setForm({
                     ...form,

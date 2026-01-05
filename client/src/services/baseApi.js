@@ -7,12 +7,14 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${SERVER_URL}`,
     prepareHeaders: (headers, { getState }) => {
-      const token = getState()?.user?.accessToken;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
+      const token = getState().user?.accessToken;
+        console.log("accessToken =", token, "| type =", typeof token);
+
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      else headers.delete("Authorization"); // ✅
       return headers;
-    },
+    }
+
   }),
   tagTypes: ['Auth', 'User', 'Contest', 'Problem'],
   endpoints: () => ({}),

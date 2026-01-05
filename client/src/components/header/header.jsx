@@ -40,7 +40,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await logoutApi().unwrap();
+      await logoutApi({refreshToken : user.refreshToken}).unwrap();
       setDropdownOpen(false);
       navigate('/home');
     } catch (err) {
