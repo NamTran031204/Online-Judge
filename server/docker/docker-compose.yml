@@ -4,8 +4,8 @@ services:
   # C++ Judge Sandbox
   judge-sandbox-cpp:
     build:
-      context: ../docker/docker-sandbox/cpp
-      dockerfile: Dockerfile
+      context: docker-sandbox/cpp
+      dockerfile: docker-sandbox/cpp/Dockerfile
     image: judge-sandbox-cpp:latest
     container_name: judge-sandbox-cpp
     # This container is used on-demand, not running continuously
@@ -15,8 +15,8 @@ services:
   # Java Judge Sandbox
   judge-sandbox-java:
     build:
-      context: ../docker/docker-sandbox/java
-      dockerfile: Dockerfile
+      context: docker-sandbox/java
+      dockerfile: docker-sandbox/java/Dockerfile
     image: judge-sandbox-java:latest
     container_name: judge-sandbox-java
     # This container is used on-demand, not running continuously
@@ -26,8 +26,8 @@ services:
   # Python Judge Sandbox
   judge-sandbox-python:
     build:
-      context: ../docker/docker-sandbox/python
-      dockerfile: Dockerfile
+      context: docker-sandbox/python
+      dockerfile: docker-sandbox/python/Dockerfile
     image: judge-sandbox-python:latest
     container_name: judge-sandbox-python
     # This container is used on-demand, not running continuously
