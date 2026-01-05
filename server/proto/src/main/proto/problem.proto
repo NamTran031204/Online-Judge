@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package com.example.proto;
+
+option java_multiple_files = true;
+option java_package = "com.example.proto";
+option java_outer_classname = "ProblemProto";
+
+// Service để validate và tạo bản sao problem
+service ProblemService {
+  rpc ValidateAndCloneProblem(ValidateAndCloneProblemRequest) returns (ValidateAndCloneProblemResponse);
+
+  rpc AddProblem(AddProblemRequest) returns (ProblemResponse);
+  rpc GetProblemPage(GetProblemPageRequest) returns (ProblemPageResponse);
+  rpc GetProblemById(GetProblemByIdRequest) returns (ProblemResponse);
+  rpc UpdateProblem(UpdateProblemRequest) returns (ProblemResponse);
+  rpc GetProblemByContest(GetProblemByContestRequest) returns (ProblemPageResponse);
+  rpc SearchProblem(SearchProblemRequest) returns (ProblemPageResponse);
+  rpc DeleteProblem(DeleteProblemRequest) returns (ProblemResponse);
+}
+
+message ValidateAndCloneProblemRequest {
+  string problem_id = 1;
+  int64 contest_id = 2;
+  int64 userId = 3;
+}
+
+message ValidateAndCloneProblemResponse {
+  bool success = 1;
+  string new_problem_id = 2;
+  string message = 3;
+  string error_code = 4;
+}
+
+
+message PageRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string sortBy = 3;
+  string sortDirection = 4;
+}
+
+message PageResult {
+  int32 page = 1;
+  int32 size = 2;
+  int64 totalElements = 3;
+  int32 totalPages = 4;
+}
+
+// ==================== Testcase Messages ====================
+
+message TestcaseInput {
+  string input = 1;
+  string expectedOutput = 2;
+  int32 score = 3;
+  bool isSample = 4;
+  string testcaseName = 5;
+}
+
+message Testcase {
+  string id = 1;
+  string problemId = 2;
+  string input = 3;
+  string expectedOutput = 4;
+  int32 score = 5;
+  bool isSample = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
+}
+
+// ==================== Problem Messages ====================
+
+message ProblemInput {
+  string title = 1;
+  string description = 2;
+  string inputFormat = 3;
+  string outputFormat = 4;
+  string constraints = 5;
+  int32 timeLimit = 6;
+  int32 memoryLimit = 7;
+  string level = 8;
+  repeated string tags = 9;
+  repeated string supportedLanguages = 10;
+  repeated TestcaseInput testcases = 11;
+  int64 contestId = 12;
+  string authorId = 13;
+  repeated string imageUrls = 14;
+  string solution = 15;
+  int32 score = 16;
+  int32 rating = 17;
+}
+
+message Problem {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string inputFormat = 4;
+  string outputFormat = 5;
+  string constraints = 6;
+  int32 timeLimit = 7;
+  int32 memoryLimit = 8;
+  string level = 9;
+  repeated string tags = 10;
+  repeated string supportedLanguages = 11;
+  repeated Testcase testcases = 12;
+  int64 contestId = 13;
+  string authorId = 14;
+  string createdAt = 15;
+  string updatedAt = 16;
+  string solution = 17;
+  repeated string imageUrls = 18;
+  int32 rating = 19;
+  int32 score = 20;
+}
+
+// ==================== Request Messages ====================
+
+message AddProblemRequest {
+  ProblemInput input = 1;
+}
+
+message GetProblemPageRequest {
+  PageRequest pageRequest = 1;
+  ProblemInput filter = 2;
+}
+
+message GetProblemByIdRequest {
+  string problemId = 1;
+}
+
+message UpdateProblemRequest {
+  string problemId = 1;
+  ProblemInput input = 2;
+}
+
+message GetProblemByContestRequest {
+  PageRequest pageRequest = 1;
+  int64 contestId = 2;
+}
+
+message SearchProblemRequest {
+  PageRequest pageRequest = 1;
+  string keyword = 2;
+}
+
+message DeleteProblemRequest {
+  string problemId = 1;
+}
+
+// ==================== Response Messages ====================
+
+message ProblemResponse {
+  int32 code = 1;
+  string message = 2;
+  Problem data = 3;
+}
+
+message ProblemPageResponse {
+  int32 code = 1;
+  string message = 2;
+  repeated Problem data = 3;
+  PageResult pageResult = 4;
+}
