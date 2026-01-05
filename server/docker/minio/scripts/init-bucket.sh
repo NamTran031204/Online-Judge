@@ -1,5 +1,4 @@
 # #!/bin/bash
-
 set -e
 
 MINIO_HOST="http://minio:9000"
