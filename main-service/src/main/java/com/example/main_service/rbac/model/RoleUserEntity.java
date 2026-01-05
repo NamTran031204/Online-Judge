@@ -2,11 +2,12 @@ package com.example.main_service.rbac.model;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Data;
 
 @Entity
 @Table(name = "role_user")
 @Builder
-
+@Data
 public class RoleUserEntity {
 
     @Id
@@ -17,7 +18,7 @@ public class RoleUserEntity {
     private Integer roleId;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Integer userId;
 
     @Column(name = "scope_id")
     private String scopeId;

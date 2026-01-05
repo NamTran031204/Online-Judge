@@ -10,4 +10,5 @@ public class UserDetailDto {
     private String userName;
     private String email;
     private String info;
+    // thêm rating history
 }

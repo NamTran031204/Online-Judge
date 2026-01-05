@@ -49,6 +49,9 @@ public class ContestEntity {
     @Column(name = "group_id")
     private Long groupId;
 
+    @Column(name = "rating_calculated", nullable = false)
+    private Boolean ratingCalculated = false;
+
     public LocalDateTime getEndTime() {
         return startTime.plusSeconds(duration);
     }

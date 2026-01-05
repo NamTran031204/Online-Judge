@@ -43,4 +43,8 @@ public interface RoleUserRepo extends CrudRepository<RoleUserEntity, Integer> {
             String contestId,
             RoleUserEntity.ScopeType systemScopeType
     );
+
+    List<RoleUserEntity> findByUserIdAndScopeType(Long userId, RoleUserEntity.ScopeType scopeType);
+
+    void deleteByUserIdAndScopeType(Integer userId, RoleUserEntity.ScopeType scopeType);
 }

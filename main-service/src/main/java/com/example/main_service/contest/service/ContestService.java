@@ -6,6 +6,9 @@ import com.example.main_service.contest.dto.contest.*;
 import com.example.main_service.contest.model.ContestEntity;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface ContestService {
     ContestCreateUpdateResponseDto createDraftContest(Long userId,ContestCreateUpdateRequestDto input);
@@ -25,4 +28,5 @@ public interface ContestService {
     Boolean canViewProblemInContest(Long userId,ContestEntity contest);
     Long getContestStartTime(Long contestId);
     Boolean canUserSubmit(Long contestId, Long userId);
+    List<ContestEntity> findFinishedOfficialNotRated(LocalDateTime now);
 }

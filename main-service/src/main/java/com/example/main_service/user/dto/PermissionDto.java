@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 
 public class PermissionDto {
-    Integer permission_id;
-    String permission_name;
+    Integer permissionId;
+    String permissionName;
 }

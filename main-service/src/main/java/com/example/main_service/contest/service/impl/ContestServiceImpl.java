@@ -351,6 +351,15 @@ public class ContestServiceImpl implements ContestService {
         return canViewProblemInContest(userId, contest);
     }
 
+    @Override
+    public List<ContestEntity> findFinishedOfficialNotRated(LocalDateTime now) {
+        return contestRepo.findFinishedOfficialNotRated(
+                ContestType.OFFICIAL,
+                ContestStatus.FINISHED,
+                now
+        );
+    }
+
     // =========================
     // STATUS CHECK
     // =========================

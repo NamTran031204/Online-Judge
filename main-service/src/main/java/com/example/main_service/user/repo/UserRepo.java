@@ -15,7 +15,7 @@ public interface UserRepo extends CrudRepository<UserEntity, Integer> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    Optional<UserEntity> findByUserId(Long userId);
+    Optional<UserEntity> findByUserId(Integer userId);
 
     @Query("SELECT u.userId, u.userName FROM UserEntity u WHERE u.userId IN :userIds")
     List<Object[]> findUserIdAndUserNameByUserIdIn(@Param("userIds") List<Long> userIds);

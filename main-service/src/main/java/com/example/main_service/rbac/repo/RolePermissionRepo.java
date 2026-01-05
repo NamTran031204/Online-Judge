@@ -17,5 +17,8 @@ public interface RolePermissionRepo extends CrudRepository<RolePermissionEntity,
             WHERE rp.roleId IN :roleIds
             """)
     List<Integer> findPermissionIdsByRoleIds(List<Integer> roleIds);
+    List<RolePermissionEntity> findByRoleId(Integer roleId);
+
+    void deleteByRoleId(Integer roleId);
 }
 

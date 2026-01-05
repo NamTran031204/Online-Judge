@@ -7,6 +7,7 @@ import com.example.main_service.dashboard.service.DashBoardService;
 import com.example.main_service.sharedAttribute.commonDto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class DashBoardController {
         );
     }
 
-    @PostMapping("/{contestId}/calculate-rating") // k gọi api => dùng scheduler java
+    @PostMapping("/{contestId}/calculate-rating") // scheduler 30s đọc bảng contest xem có cái nào được tính chưa
     public CommonResponse<ContestRatingCalcResponseDto> calculateRating(
             @PathVariable Long contestId
     ) {
