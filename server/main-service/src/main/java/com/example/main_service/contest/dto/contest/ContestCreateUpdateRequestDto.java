@@ -12,7 +12,6 @@ public class ContestCreateUpdateRequestDto {
     private String title;
     private String description;
 
-    @JsonProperty("start_time")
     private LocalDateTime startTime;
 
     private Integer duration;

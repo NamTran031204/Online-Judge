@@ -1,6 +1,6 @@
 import "./auth.css";
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   clearError,
 } from "../../redux/slices/user-slice";
@@ -46,25 +46,20 @@ export default function Auth() {
           userName: form.userName,
           password: form.password,
         }).unwrap();
+          navigate("/");
       } else {
         await register({
           userName: form.userName.trim(),
           email: form.email.trim(),
           password: form.password,
         }).unwrap();
+        setAuthMode("login");
       }
-
-      navigate("/home");
     } catch (err) {
       // error đã được RTK Query quản lý
       console.error("Auth error:", err);
     }
   }
-
-  // if (result.meta.requestStatus === "fulfilled") {
-  //   navigate("/home");
-  // }
-
 
   return (
     <div className="auth-wrapper">
@@ -80,7 +75,6 @@ export default function Auth() {
       </div>
       <div className="auth-container">
 
-        {/* header */}
         <div className="auth-floating-header">
           <h2>
             {authMode === "login" ? "Welcome back" : "Create account"}
@@ -92,7 +86,6 @@ export default function Auth() {
           </p>
         </div>
 
-        {/* auth form */}
         <form className="auth-card" onSubmit={handleSubmit}>
           {error && <div className="auth-error">{error}</div>}
 

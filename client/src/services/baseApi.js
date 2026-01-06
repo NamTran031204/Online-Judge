@@ -11,7 +11,7 @@ export const baseApi = createApi({
         console.log("accessToken =", token, "| type =", typeof token);
 
       if (token) headers.set("Authorization", `Bearer ${token}`);
-      else headers.delete("Authorization"); // ✅
+      else headers.delete("Authorization");
       return headers;
     }
 

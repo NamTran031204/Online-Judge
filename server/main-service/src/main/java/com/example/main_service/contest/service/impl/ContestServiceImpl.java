@@ -56,6 +56,7 @@ public class ContestServiceImpl implements ContestService {
                 .rated(input.getRated() != null ? input.getRated() : 0L)
                 .visibility(ContestVisibility.PRIVATE)
                 .groupId(input.getGroupId())
+                .ratingCalculated(Boolean.TRUE)
                 .build();
 
         validateContest(entity);

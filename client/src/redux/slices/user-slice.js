@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { authApi } from '../../services/authApi';
+import { useNavigate } from "react-router-dom";
 // import localStorage from 'localStorage';
 
 //  user lưu trong store
@@ -69,6 +70,8 @@ const userSlice = createSlice({
 
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
+        // const navigate = useNavigate();
+        // navigate("/home");
       }
     );
 

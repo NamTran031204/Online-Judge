@@ -1,7 +1,6 @@
-// src/services/authApi.js
-import { baseApi } from './baseApi';
+import {notContainHeaderBaseApi} from "./unauthorHeaderBaseApi.js";
 
-export const authApi = baseApi.injectEndpoints({
+export const authApi = notContainHeaderBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation({
       query: (body) => ({

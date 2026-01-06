@@ -207,3 +207,36 @@ CREATE TABLE `user_rating_history` (
   UNIQUE KEY `uk_user_rating_history` (`user_id`,`contest_id`),
   KEY `contest_id` (`contest_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `permission` (`permission_id`, `permission_name`) VALUES
+                                                                  (1, 'user:delete'),
+                                                                  (2, 'user:set_rating'),
+                                                                  (3, 'user:grant'),
+                                                                  (4, 'user:revoke'),
+                                                                  (5, 'contest:edit'),
+                                                                  (6, 'contest:invite'),
+                                                                  (7, 'contest:tester_comment'),
+                                                                  (8, 'contest:participants_comment'),
+                                                                  (9, 'rbac'),
+                                                                  (10, 'contest:view'),
+                                                                  (11, 'problem:view'),
+                                                                  (12, 'problem:edit'),
+                                                                  (13, 'problem:delete'),
+                                                                  (14, 'contest:make_official');
+INSERT INTO `role` (`role_id`, `role_name`) VALUES
+                                                (1, 'ADMIN'),
+                                                (2, 'AUTHOR'),
+                                                (3, 'PRO_USER'),
+                                                (4, 'REVIEWER');
+
+INSERT INTO `role_permission` (`id`, `role_id`, `permission_id`) VALUES
+                                                                     (1, 1, 1),  -- ADMIN có quyền user:delete
+                                                                     (2, 1, 2),  -- ADMIN có quyền user:set_rating
+                                                                     (3, 1, 3),  -- ADMIN có quyền user:grant
+                                                                     (4, 1, 4),  -- ADMIN có quyền user:revoke
+                                                                     (5, 2, 5),  -- AUTHOR có quyền contest:edit
+                                                                     (6, 2, 6),  -- AUTHOR có quyền contest:invite
+                                                                     (7, 2, 7),  -- AUTHOR có quyền contest:tester_comment
+                                                                     (8, 2, 8),  -- AUTHOR có quyền contest:participants_comment
+                                                                     (9, 1, 9),  -- ADMIN có quyền rbac
+                                                                     (14, 1, 14);
