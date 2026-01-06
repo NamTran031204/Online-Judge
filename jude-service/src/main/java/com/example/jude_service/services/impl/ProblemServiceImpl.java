@@ -90,7 +90,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public CommonResponse<ProblemEntity> getProblemById(String problemId) {
-        ProblemEntity entity = problemRepo.findById(problemId.toString())
+        ProblemEntity entity = problemRepo.findById(problemId)
                 .orElseThrow(() -> new ProblemBusinessException(ErrorCode.PROBLEM_NOT_FOUND));
         return CommonResponse.success(entity);
     }

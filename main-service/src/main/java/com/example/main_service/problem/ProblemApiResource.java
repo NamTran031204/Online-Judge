@@ -35,7 +35,6 @@ public class ProblemApiResource {
     }
 
     @GetMapping("/get-by-id/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:view', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> getProblemById(@PathVariable String problemId) {
         ProblemEntity problem = problemService.getProblemById(getUserIdFromToken(), problemId);
         return CommonResponse.success(problem);
