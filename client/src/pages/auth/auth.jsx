@@ -15,10 +15,11 @@ import {
 export default function Auth() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
 
   const [login, { isLoading: isLoginLoading, error: loginError }] = useLoginMutation();
 
-  const [ register, { isLoading: isRegisterLoading, error: registerError }] = useRegisterMutation();
+  const [register, { isLoading: isRegisterLoading, error: registerError }] = useRegisterMutation();
 
   const [authMode, setAuthMode] = useState("login"); // login | register
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +33,10 @@ export default function Auth() {
   const loading = isLoginLoading || isRegisterLoading;
   const error = loginError || registerError;
 
+  useEffect(() => {
+    if (user?.isAuthenticated)
+    navigate("/home");
+  });
 
   useEffect(() => {
     dispatch(clearError());

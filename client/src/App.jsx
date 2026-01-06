@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AuthLayout from "./layout/auth-layout";
 import MainLayout from "./layout/main-layout";
+import AdminRoute from "./layout/admin-route";
 
 import Home from "./pages/home/home";
 import Auth from "./pages/auth/auth";
@@ -9,14 +10,14 @@ import Contests from "./pages/contest/contests";
 import Gym from "./pages/contest/gym";
 import ContestDetail from "./pages/contest/contest-detail";
 import ContestDashboard from "./pages/contest/contest-dashboard";
-import ContestForm from "./pages/contest/contest-form";
+// import ContestForm from "./pages/contest/contest-form";
 import DraftContest from "./pages/contest/draft-contest";
 import Problems from "./pages/problems/problems";
 import ProblemDetail from "./pages/problems/problem-detail";
 import ProblemSandbox from "./pages/problems/problem-sandbox";
 import Profile from "./pages/profile/profile"
-import ProblemForm from "./pages/problems/problem-form";
-import Dashboard from "./pages/dashboard/dashboard";
+// import ProblemForm from "./pages/problems/problem-form";
+// import Dashboard from "./pages/dashboard/dashboard";
 import SubmissionList from "./pages/submissions/submission-list";
 import SubmissionDetail from "./pages/submissions/submission-detail";
 import GroupList from "./pages/groups/group-list";
@@ -24,6 +25,8 @@ import GroupDetail from "./pages/groups/group-detail";
 import GroupCreate from "./pages/groups/group-create";
 import RatingList from "./pages/ratings/rating-list"
 import AdminUser from "./pages/admin/admin-user";
+import NotFound from "./pages/error/not-found";
+import Forbidden from "./pages/error/forbidden";
 
 function App() {
   return (
@@ -57,12 +60,11 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           {/* Dashboard */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
           {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />
           <Route path="/submission/:submission_id" element={<SubmissionDetail />} />
-          {/* <Route path="/submission/create" element={<SubmissionCreate />} /> */}
 
           {/* groups */}
           <Route path="/groups" element={<GroupList />} />
@@ -72,9 +74,14 @@ function App() {
           {/* ratings */}
           <Route path="/standings" element={<RatingList />} />
 
-          <Route path="/admin/users" element={<AdminUser />} />
+          {/* admin */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/users" element={<AdminUser />} />
+          </Route>
 
-          <Route path="*" element={<h1>404 - Not Found</h1>} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/404" element={<NotFound />} />
+          <Route path="/403" element={<Forbidden/>} />
         </Route>
       </Routes>
     </BrowserRouter>

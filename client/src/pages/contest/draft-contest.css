@@ -53,13 +53,6 @@
   overflow: hidden;
 }
 
-/* .draft-table {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #9b969b;
-  overflow: hidden;
-} */
-
 .draft-table {
   width: 100%;
   border-collapse: collapse;
@@ -318,4 +311,223 @@
 .react-datepicker__day--selected,
 .react-datepicker__time-list-item--selected {
   background-color: #2563eb !important;
+}
+
+.icon-btn.warning {
+  color: #d97706; /* Amber-600 */
+}
+
+.icon-btn.warning:hover {
+  color: #b45309; /* Amber-700 */
+  background: #fef3c7; /* Amber-100 */
+  border-radius: 4px;
+}
+
+.badge-draft.clickable {
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.badge-draft.clickable:hover {
+  background: #fde68a;
+  transform: translateY(-1px);
+}
+
+.problem-modal-size {
+  width: 900px;
+  max-width: 95vw;
+}
+
+.problem-manager-layout {
+  display: flex;
+  gap: 24px;
+  height: 500px;
+  margin-top: 10px;
+}
+
+.pm-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pm-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.pm-list {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  background: #f8fafc;
+}
+
+.pm-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.pm-item:hover {
+  border-color: #cbd5e1;
+}
+
+.pm-item.disabled {
+  opacity: 0.6;
+  background: #f1f5f9;
+}
+
+.pm-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.pm-index {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: bold;
+}
+
+.pm-title {
+  font-weight: 500;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.pm-item-info small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.search-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.text-muted {
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.icon-btn.primary {
+  color: #2563eb;
+}
+
+.icon-btn.primary:hover {
+  color: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .draft-page {
+    max-width: 90vw;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .draft-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .draft-header > div {
+    width: 100%;
+  }
+
+  .draft-header button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .draft-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; 
+  }
+
+  .draft-table {
+    min-width: 800px;
+  }
+
+  .draft-modal {
+    width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .draft-modal-header h2 {
+    font-size: 18px;
+    max-width: 80%; 
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .problem-modal-size {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .problem-manager-layout {
+    flex-direction: column;
+    height: auto; 
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .pm-section {
+    max-height: none;
+    flex: none; 
+    height: auto;
+  }
+  
+  .pm-section.current-problems {
+    max-height: 300px;
+  }
+  
+  .pm-list {
+    min-height: 200px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
 }

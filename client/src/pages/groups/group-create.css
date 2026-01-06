@@ -80,12 +80,11 @@
   color: #000;
 }
 
-/* PHẦN THAY ĐỔI CHÍNH Ở ĐÂY */
 .form-actions {
   display: flex;
   gap: 16px;
   margin-top: 40px;
-  max-width: 580px; /* Giới hạn tổng độ rộng để nút không bị quá dài trên màn hình lớn */
+  max-width: 580px; 
 }
 
 .form-actions button {
@@ -123,7 +122,6 @@
   cursor: not-allowed;
 }
 
-/* ERROR MESSAGE */
 .gc-error {
   color: #be123c;
   background: #fff1f2;
@@ -132,4 +130,33 @@
   margin-bottom: 20px;
   font-size: 14px;
   border: 1px solid #fecdd3;
+}
+
+@media screen and (max-width: 600px) {
+  .problem-page {
+    padding: 10px;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .form-container {
+    padding: 20px 0; 
+  }
+
+  .form-control, 
+  .file-input-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+    max-width: 100%;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
 }

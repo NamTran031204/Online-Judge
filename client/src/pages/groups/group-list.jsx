@@ -130,7 +130,7 @@ export default function GroupList() {
                     </Link>
                   </td>
                   <td className="problem-title-cell">
-                    <span className="problem-title">{g.group_name}</span>
+                    <Link to={`/group/${g.group_id}`} className="problem-title">{g.group_name}</Link>
                   </td>
                   <td>{g.owner_id}</td>
                   <td style={{ textAlign: "right" }}>
@@ -155,8 +155,8 @@ export default function GroupList() {
       </div>
 
       <div className="pagination">
-        <button 
-          disabled={page === 1} 
+        <button
+          disabled={page === 1}
           onClick={() => setPage(page - 1)}
         >
           Prev

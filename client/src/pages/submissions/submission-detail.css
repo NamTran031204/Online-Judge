@@ -164,3 +164,73 @@
 
 .status-accepted { color: #10b981; font-weight: 700; }
 .status-wrong { color: #ef4444; font-weight: 700; }
+
+@media screen and (max-width: 900px) {
+  .submission-detail-container {
+    flex-direction: column; 
+    gap: 20px;
+    padding: 10px;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .submission-sidebar {
+    width: 100%;
+    order: -1; 
+  }
+
+  .sidebar-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .sidebar-item { margin-bottom: 0; }
+
+  .submission-main-content {
+    width: 100%;
+    min-width: 0; 
+  }
+
+  .testcase-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .testcase-table tbody {
+    display: table;
+    width: 100%;
+    min-width: 500px;
+  }
+
+  .testcase-modal-custom {
+    width: 95vw !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-body-custom {
+    padding: 16px;
+  }
+
+  .output-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .data-box-small {
+    font-size: 12px; 
+    overflow-x: auto;
+  }
+  
+  .data-box-large pre {
+    font-size: 12px;
+  }
+
+  .code-editor-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

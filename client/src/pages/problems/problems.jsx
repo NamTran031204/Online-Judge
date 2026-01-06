@@ -99,7 +99,7 @@ export default function ProblemList() {
                 <tr>
                   <th className="col-id">ID</th>
                   <th>Title</th>
-                  <th>Tag</th>
+                  <th className="col-tags">Tag</th>
                   <th className="col-score">Score</th>
                   <th className="col-rating">Rating</th>
                 </tr>

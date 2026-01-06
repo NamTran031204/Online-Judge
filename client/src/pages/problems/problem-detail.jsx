@@ -133,7 +133,7 @@ export default function ProblemDetail() {
       <div className="problem-left">
         <div className="problem-left-inner">
           {/* Header */}
-          <div className="problem-header">
+          <div className="problem-detail-header">
             <Link
               to={location.state?.from || "/problems"}
               className="back-link"

@@ -133,3 +133,63 @@
   color: #fff;
   border-color: #3182ce;
 }
+
+@media screen and (max-width: 768px) {
+  .submission-container.list-full-width {
+    width: 100%;
+    max-width: 100vw;
+    padding: 16px 10px;
+    margin: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .list-header-actions h2 {
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+  }
+
+  .list-filter-container {
+    flex-direction: column;
+    align-items: stretch; 
+    gap: 12px;
+  }
+
+  .filter-left, .filter-right {
+    width: 100%;
+  }
+
+  .list-filter-container select,
+  .btn-new-submission {
+    width: 100%; 
+    box-sizing: border-box;
+  }
+
+  .submission-table {
+    display: block; 
+    width: 100%;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap; 
+  }
+
+  .submission-table thead,
+  .submission-table tbody {
+    display: table; 
+    width: 100%;
+    table-layout: fixed; 
+    min-width: 600px; 
+  }
+
+  .submission-table th,
+  .submission-table td {
+    padding: 12px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .list-action-btn-box {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

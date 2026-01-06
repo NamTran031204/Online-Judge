@@ -10,3 +10,14 @@
   background-color: #fff;
   overflow: auto;
 }
+
+@media (max-width: 768px) {
+  .main-layout {
+    width: 100%;
+    overflow-x: hidden; 
+  }
+
+  /* .main-content {
+    padding-bottom: 60px; 
+  } */
+}

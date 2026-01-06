@@ -41,7 +41,7 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await logoutApi().unwrap();
-      setDropdownOpen(false);
+      // setDropdownOpen(false);
       navigate('/home');
     } catch (err) {
       console.error('Logout failed', err);
@@ -100,10 +100,10 @@ export default function Header() {
 
                   {userDropdownSelected && (
                     <div className="profile-dropdown">
-                      <Link to="/dashboard" className="dropdown-item">
+                      <Link to="/standings" className="dropdown-item">
                         <User className="dropdown-icon" /> Dashboard
                       </Link>
-                      <Link to={`/profile/${user?.user_name}`} className="dropdown-item">
+                      <Link to={`/profile}`} className="dropdown-item">
                         <Trophy className="dropdown-icon" /> Profile
                       </Link>
                       <Link to="/settings" className="dropdown-item">
@@ -177,7 +177,7 @@ export default function Header() {
               className="mobile-link login"
               onClick={() => setMobileResponsive(false)}
             >
-              Login in
+              Login
             </Link>
           )}
         </div>

@@ -173,7 +173,6 @@
   max-width: 100%;
 }
 
-
 /* BADGES */
 .badge {
   padding: 4px 10px;
@@ -233,4 +232,56 @@
 .loading {
   margin-top: 20px;
   color: #64748b;
+}
+
+@media screen and (max-width: 768px) {
+  .contest-page {
+    width: 100%;
+    max-width: 100vw;
+    margin: 16px auto;
+    padding: 0 10px;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .contest-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .contest-header div {
+    width: 100%;
+  }
+
+  .contest-table-wrapper {
+    display: block;
+    width: 100%;
+    max-width: calc(100vw - 22px); 
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .contest-list-table {
+    width: 100%;
+    min-width: 800px; 
+    table-layout: fixed;
+  }
+
+  .contest-list-table th,
+  .contest-list-table td {
+    white-space: nowrap;
+    padding: 12px 10px;
+    font-size: 13px;
+  }
+
+  .col-rated { display: none; }
+
+  .contest-search {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }

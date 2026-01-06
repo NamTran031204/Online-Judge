@@ -1,17 +1,9 @@
-/* 
-   LAYOUT
-    */
-
 .problem-detail-layout {
   display: flex;
   height: calc(100vh - 64px);
   background: #ffffff;
   font-family: system-ui, -apple-system, sans-serif;
 }
-
-/* 
-   LEFT PANEL
-    */
 
 .problem-left {
   width: 50%;
@@ -88,10 +80,6 @@
   font-size: 12px;
 }
 
-/* 
-   TABS (DESCRIPTION / SUBMISSIONS)
-    */
-
 .problem-tabs {
   display: flex;
   gap: 8px;
@@ -103,9 +91,7 @@
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #f8fafc;
-  /* nền sáng */
   color: #0f172a;
-  /* chữ tối */
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -121,10 +107,6 @@
   color: #2563eb;
   font-weight: 600;
 }
-
-/* 
-   CONTENT
-    */
 
 .problem-content section {
   margin-bottom: 24px;
@@ -143,10 +125,6 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
 }
-
-/* 
-   EXAMPLES
-    */
 
 .examples-section {
   margin-top: 20px;
@@ -182,10 +160,6 @@
   font-weight: 600;
 }
 
-/* =======================
-   SUBMISSIONS TAB
-   ======================= */
-
 .submissions-empty {
   margin-top: 32px;
 }
@@ -215,10 +189,6 @@
   text-decoration: underline;
 }
 
-/* 
-   RIGHT PANEL (EDITOR)
-    */
-
 .problem-right {
   width: 50%;
   display: flex;
@@ -226,17 +196,12 @@
   background: #0f172a;
 }
 
-/* 
-   EDITOR HEADER (LANGUAGE + RESET)
-    */
-
 .editor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
   background: #ffffff;
-  /* nền sáng */
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -245,7 +210,7 @@
   position: relative;
 }
 
-/* Button hiển thị language */
+/* Button language */
 .language-trigger {
   padding: 8px 16px;
   border-radius: 12px;
@@ -303,9 +268,7 @@
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #f8fafc;
-  /* nền sáng */
   color: #0f172a;
-  /* chữ tối */
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -315,19 +278,11 @@
   background: #f1f5f9;
 }
 
-/* 
-   MONACO EDITOR
-    */
-
 .editor-body {
   flex: 1;
   min-height: 0;
   background: #1e1e1e;
 }
-
-/* 
-   EDITOR FOOTER (RUN / SUBMIT)
-    */
 
 .editor-footer {
   display: flex;
@@ -357,9 +312,7 @@
   border-radius: 8px;
   border: none;
   background: #475569;
-  /* nền màu */
   color: #ffffff;
-  /* chữ trắng */
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -378,9 +331,7 @@
   border-radius: 8px;
   border: none;
   background: #2563eb;
-  /* nền màu */
   color: #ffffff;
-  /* chữ trắng */
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -388,4 +339,47 @@
 
 .submit-btn:hover {
   background: #1d4ed8;
+}
+
+@media (max-width: 1024px) {
+  .problem-detail-layout {
+    flex-direction: column;
+    height: auto !important; 
+    min-height: 100vh;
+  }
+  
+  .problem-left {
+    width: 100%;
+    border-right: none; 
+    border-bottom: 1px solid #e5e7eb;
+    height: auto;
+    max-height: 50vh; 
+    overflow-y: auto;
+  }
+
+  .problem-right {
+    width: 100%;
+    height: 600px; 
+    flex: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .problem-right {
+    height: 500px; 
+  }
+
+  .problem-detail-header {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .title-row h1 {
+    font-size: 20px;
+  }
+
+  .problem-meta {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 }

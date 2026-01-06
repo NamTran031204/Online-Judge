@@ -78,3 +78,17 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 50px; 
+  }
+
+  html {
+    font-size: 14px;
+  }
+  
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+}
