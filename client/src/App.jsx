@@ -27,6 +27,7 @@ import RatingList from "./pages/ratings/rating-list"
 import AdminUser from "./pages/admin/admin-user";
 import NotFound from "./pages/error/not-found";
 import Forbidden from "./pages/error/forbidden";
+import AdminDashboard from "./pages/admin/admin-dashboard";
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
 
           {/* Dashboard */}
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+          
 
           {/* SUBMISSIONS */}
           <Route path="/submissions" element={<SubmissionList />} />
@@ -77,6 +79,7 @@ function App() {
           {/* admin */}
           <Route element={<AdminRoute />}>
             <Route path="/admin/users" element={<AdminUser />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

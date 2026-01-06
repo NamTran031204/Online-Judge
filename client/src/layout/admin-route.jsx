@@ -8,7 +8,7 @@ export default function AdminRoute() {
   );
 
   const isAdmin = useSelector(
-    (state) => state.user.user?.is_admin
+    (state) => state.user?.is_admin
   );
 
   // chưa đăng nhập → auth
