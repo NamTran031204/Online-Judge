@@ -151,19 +151,22 @@ public class SubmissionServiceImpl implements SubmissionService {
         Query query = new Query();
         SubmissionInputDto request = pageRequest.getFilter();
 
-        if (StringUtils.isNullOrEmpty(request.getProblemId())) {
+        if (!StringUtils.isNullOrEmpty(request.getProblemId())) {
+            System.out.println("======problemId====" + request.getProblemId());
             query.addCriteria(
                     Criteria.where("problemId").is(request.getProblemId())
             );
         }
 
-        if (request.getUserId() != null) {
+        if (request.getUserId() != null &&  request.getUserId()!=0) {
+            System.out.println("======userId====" + request.getUserId());
             query.addCriteria(
                     Criteria.where("userId").is(request.getUserId())
             );
         }
 
-        if (request.getContestId() != null) {
+        if (request.getContestId() != null && request.getContestId()!=0) {
+            System.out.println("======contestId====" + request.getContestId());
             query.addCriteria(
                     Criteria.where("contestId").is(request.getContestId())
             );
@@ -172,7 +175,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         if (request.getLanguage() != null) {
             query.addCriteria(Criteria.where("language").is(request.getLanguage()));
         }
-
+        System.out.println("======asdjaskldjsakldjaslk====" + query);
         return query;
     }
 }

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -156,7 +157,7 @@ public class ProblemGrpcClient {
 
         if (testcase.getInput() != null) builder.setInput(testcase.getInput());
         if (testcase.getOutput() != null) builder.setExpectedOutput(testcase.getOutput());
-        if (testcase.getIsSample() != null) builder.setIsSample(testcase.getIsSample());
+        if (testcase.getIsSample() != null && testcase.getIsSample()) builder.setIsSample(true);
         if (testcase.getScore() != null) builder.setScore(testcase.getScore());
         if (testcase.getTestcaseName() != null) builder.setTestcaseName(testcase.getTestcaseName());
 
@@ -215,6 +216,23 @@ public class ProblemGrpcClient {
                 .score(proto.getScore())
                 .solution(proto.getSolution())
                 .imageUrls(proto.getImageUrlsList())
+                .testcaseEntities(toTestcaseEntities(proto.getTestcasesList()))
                 .build();
+    }
+
+    public static List<TestcaseEntity> toTestcaseEntities(List<Testcase> testcases) {
+        List<TestcaseEntity> out = new ArrayList<>();
+        if (testcases == null) return out;
+
+        for (Testcase tc : testcases) {
+            out.add(TestcaseEntity.builder()
+                    .testcaseName(tc.getId())
+                    .input(tc.getInput())
+                    .output(tc.getExpectedOutput())
+                    .isSample(tc.getIsSample())
+                    .score(tc.getScore())
+                    .build());
+        }
+        return out;
     }
 }
