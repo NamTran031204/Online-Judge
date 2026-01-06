@@ -40,8 +40,8 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await logoutApi().unwrap();
-      // setDropdownOpen(false);
+      await logoutApi({refreshToken : user.refreshToken}).unwrap();
+      setDropdownOpen(false);
       navigate('/home');
     } catch (err) {
       console.error('Logout failed', err);

@@ -9,8 +9,18 @@ const emptyUser = {
 };
 
 //  Load token từ localStorage khi reload trang
-const accessToken = localStorage.getItem('accessToken');
-const refreshToken = localStorage.getItem('refreshToken');
+const rawAccessToken = localStorage.getItem("accessToken");
+const rawRefreshToken = localStorage.getItem("refreshToken");
+
+const accessToken =
+  rawAccessToken && rawAccessToken !== "undefined" && rawAccessToken !== "null"
+    ? rawAccessToken
+    : null;
+
+const refreshToken =
+  rawRefreshToken && rawRefreshToken !== "undefined" && rawRefreshToken !== "null"
+    ? rawRefreshToken
+    : null;
 
 const initialState = {
   user: emptyUser,
@@ -49,16 +59,16 @@ const userSlice = createSlice({
 
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        const { access_token, refresh_token, is_admin } = payload.data;
+        const { accessToken, refreshToken, isAdmin } = payload.data;
 
-        state.accessToken = access_token;
-        state.refreshToken = refresh_token;
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
         state.isAuthenticated = true;
-        state.is_admin = is_admin;
+        state.is_admin = isAdmin;
 
 
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('refreshToken', refresh_token);
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
       }
     );
 

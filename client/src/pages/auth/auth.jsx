@@ -25,7 +25,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
-    user_name: "",
+    userName: "",
     email: "",
     password: "",
   });
@@ -48,12 +48,12 @@ export default function Auth() {
     try {
       if (authMode === "login") {
         await login({
-          user_name: form.user_name,
+          userName: form.userName,
           password: form.password,
         }).unwrap();
       } else {
         await register({
-          user_name: form.user_name.trim(),
+          userName: form.userName.trim(),
           email: form.email.trim(),
           password: form.password,
         }).unwrap();
@@ -108,9 +108,9 @@ export default function Auth() {
                 id="user_name-input"
                 type="text"
                 placeholder="coder123"
-                value={form.user_name}
+                value={form.userName}
                 onChange={(e) =>
-                  setForm({ ...form, user_name: e.target.value })
+                  setForm({ ...form, userName: e.target.value })
                 }
                 required
               />
@@ -123,9 +123,9 @@ export default function Auth() {
                 id="user_name-input"
                 type="text"
                 placeholder="coder123"
-                value={form.user_name}
+                value={form.userName}
                 onChange={(e) =>
-                  setForm({ ...form, user_name: e.target.value })
+                  setForm({ ...form, userName: e.target.value })
                 }
                 required
               />

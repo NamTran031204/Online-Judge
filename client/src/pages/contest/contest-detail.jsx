@@ -2,11 +2,6 @@ import { useEffect } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-  fetchContestDetail,
-  deleteContest,
-} from "../../redux/slices/contest-slice";
-
 import ContestDashboard from "../../pages/dashboard/dashboard"
 import CommentList from "../../pages/comments/comment-list"
 
@@ -55,7 +50,7 @@ export default function ContestDetail() {
         },
       },
       {
-        skip: !contest || contest.contest_status !== "Running",
+        skip: !contest || contest.contestStatus !== "RUNNING",
       }
     );
 
@@ -68,7 +63,7 @@ export default function ContestDetail() {
         maxResultCount: 10,
         skipCount: 0,
         sorting: "title asc",
-        filter: { contest_id },
+        filter: { contestId : contest_id },
       },
       { skip: !contest }
     );
@@ -93,41 +88,41 @@ export default function ContestDetail() {
   useEffect(() => {
     if (!contest) return;
 
-    if (contest.contest_type === "Official") {
-      if (contest.contest_status === "Upcoming") {
+    if (contest.contestType === "OFFICIAL") {
+      if (contest.contestStatus === "UPCOMING") {
         navigate("/contests", { replace: true });
         return;
       }
 
       if (
-        contest.contest_status === "Running" && !regLoading && !isRegistered
+        contest.contestStatus === "RUNNING" && !regLoading && !isRegistered
       ) {
         navigate("/contests", { replace: true });
       }
     }
   }, [contest, isRegistered, regLoading, navigate]);
 
-  const renderStatusCountDown = ({ contest_status, start_time, duration }) => (
+  const renderStatusCountDown = ({ contestStatus, startTime, duration }) => (
     <div className="status-cell">
-      <span className={`badge ${contest_status.toLowerCase()}`}>
-        {contest_status}
+      <span className={`badge ${contestStatus.toLowerCase()}`}>
+        {contestStatus}
       </span>
 
-      {(contest_status === "Running" ||
-        contest_status === "Upcoming") && (
+      {(contestStatus === "RUNNING" ||
+        contestStatus === "UPCOMING") && (
           <ContestCountdown
-            startTime={start_time}
+            startTime={startTime}
             duration={duration}
-            status={contest_status}
+            status={contestStatus}
           />
         )}
     </div>
   );
 
-  const renderStatus = ({ contest_status, start_time, duration }) => (
+  const renderStatus = ({ contestStatus, startTime, duration }) => (
     <div className="status-cell">
-      <span className={`badge ${contest_status.toLowerCase()}`}>
-        {contest_status}
+      <span className={`badge ${contestStatus.toLowerCase()}`}>
+        {contestStatus}
       </span>
     </div>
   );
@@ -141,11 +136,11 @@ export default function ContestDetail() {
   return (
     <div className="contest-detail-page">
       <Link
-        to={contest.contest_type === "Gym" ? "/gym" : "/contests"}
+        to={contest.contestType === "GYM" ? "/gym" : "/contests"}
         className="contest-back-btn"
       >
         <ArrowLeft size={16} />
-        Back to {contest.contest_type === "Gym" ? "Gym" : "Contests"}
+        Back to {contest.contestType === "GYM" ? "Gym" : "Contests"}
       </Link>
       {/* Header */}
       <div className="contest-detail-header">
@@ -189,11 +184,11 @@ export default function ContestDetail() {
                   )}
 
                   {problems.map((p, idx) => (
-                    <tr key={p.problem_id}>
+                    <tr key={p.problemId}>
                       <td>{String.fromCharCode(65 + idx)}</td>
                       <td>
                         <Link
-                          to={`/contest/${contest_id}/problem/${p.problem_id}`}
+                          to={`/contest/${contest_id}/problem/${p.problemId}`}
                           state={{ from: location.pathname }}
                         >
                           {p.title}
@@ -267,7 +262,7 @@ export default function ContestDetail() {
             </h2>
 
             {/* {isRunning || isEnded ? ( */}
-            {contest.contest_status === "Running" || contest.contest_status === "Finished" ? (
+            {contest.contestStatus === "RUNNING" || contest.contestStatus === "FINISHED" ? (
               <ContestDashboard />
             ) : (
               <div className="standings-placeholder">
@@ -296,7 +291,7 @@ export default function ContestDetail() {
 
             <div className="info-row">
               <span>Type</span>
-              <b>{contest.contest_type}</b>
+              <b>{contest.contestType}</b>
             </div>
 
             <div className="info-row">
@@ -313,7 +308,7 @@ export default function ContestDetail() {
 
             <div className="info-row">
               <span>Start Time</span>
-              <b>{contest.start_time}</b>
+              <b>{contest.startTime}</b>
             </div>
           </div>
         </div>

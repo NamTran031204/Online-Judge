@@ -1,12 +1,15 @@
 // src/services/contestApi.js
 import { baseApi } from './baseApi';
 
+const moduleName = "/contest/";
+
 export const contestApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     // search
     searchContests: builder.query({
       query: (pageRequest) => ({
-        url: '/contests/search',
+        url: '/contest/search',
         method: 'POST',
         body: pageRequest,
       }),
@@ -15,7 +18,11 @@ export const contestApi = baseApi.injectEndpoints({
 
     // detail
     getContestDetail: builder.query({
-      query: (contest_id) => `/contest/${contest_id}`,
+      query: (contest_id) => {
+      console.log('[RTKQ] getContestDetail.query contest_id =', contest_id);
+
+      return `/contest/${contest_id}`;
+      },
       providesTags: (r, e, contest_id) => [{ type: "Contest", id: contest_id }],
     }),
 
@@ -30,8 +37,8 @@ export const contestApi = baseApi.injectEndpoints({
     }),
 
     updateContest: builder.mutation({
-      query: ({ contest_id, data }) => ({
-        url: `/contest/${contest_id}/edit`,
+      query: ({ contestId, data }) => ({
+        url: `/contests/${contestId}/edit`,
         method: 'POST',
         body: data,
       }),
@@ -43,7 +50,7 @@ export const contestApi = baseApi.injectEndpoints({
 
     deleteContest: builder.mutation({
       query: (contest_id) => ({
-        url: `/contest/${contest_id}`,
+        url: `/contests/${contest_id}`,
         method: 'DELETE',
       }),
       invalidatesTags: (r, e, contest_id) => [
@@ -55,7 +62,7 @@ export const contestApi = baseApi.injectEndpoints({
     // registration and participants
     registerContest: builder.mutation({
       query: (contest_id) => ({
-        url: `/contest/${contest_id}/register`,
+        url: `/contests/${contest_id}/register`,
         method: 'POST',
       }),
       invalidatesTags: (r, e, contest_id) => [
@@ -65,7 +72,7 @@ export const contestApi = baseApi.injectEndpoints({
 
     searchRegistrations: builder.query({
       query: ({ contest_id, pageRequest }) => ({
-        url: `/contest/${contest_id}/registrations/search`,
+        url: `/contests/${contest_id}/registrations/search`,
         method: 'POST',
         body: pageRequest,
       }),
@@ -76,7 +83,7 @@ export const contestApi = baseApi.injectEndpoints({
 
     searchParticipants: builder.query({
       query: ({ contest_id, pageRequest }) => ({
-        url: `/contest/${contest_id}/participants/search`,
+        url: `/contests/${contest_id}/participants/search`,
         method: 'POST',
         body: pageRequest,
       }),
@@ -88,7 +95,7 @@ export const contestApi = baseApi.injectEndpoints({
     // problems in contest
     addProblemToContest: builder.mutation({
       query: ({ contest_id, data }) => ({
-        url: `/contest/${contest_id}/problems`,
+        url: `/contests/${contest_id}/problems`,
         method: 'POST',
         body: data,
       }),
@@ -99,7 +106,7 @@ export const contestApi = baseApi.injectEndpoints({
 
     removeProblemFromContest: builder.mutation({
       query: ({ contest_id, problem_id }) => ({
-        url: `/contest/${contest_id}/problem/${problem_id}`,
+        url: `/contests/${contest_id}/problem/${problem_id}`,
         method: 'DELETE',
       }),
       invalidatesTags: (r, e, { contest_id }) => [
@@ -110,7 +117,7 @@ export const contestApi = baseApi.injectEndpoints({
     // promote to gym
     promoteContestToGym: builder.mutation({
       query: ({ contest_id, data }) => ({
-        url: `/contest/${contest_id}/promote-to-gym`,
+        url: `/contests/${contest_id}/promote-to-gym`,
         method: 'POST',
         body: data,
       }),
@@ -123,7 +130,7 @@ export const contestApi = baseApi.injectEndpoints({
     // rankings
     searchRankings: builder.query({
       query: ({ contest_id, pageRequest }) => ({
-        url: `/contest/${contest_id}/rankings/search`,
+        url: `/contests/${contest_id}/rankings/search`,
         method: 'POST',
         body: pageRequest,
       }),
@@ -135,7 +142,7 @@ export const contestApi = baseApi.injectEndpoints({
     // post contest actions
     calculateRating: builder.mutation({
       query: ({ contest_id, data }) => ({
-        url: `/contest/${contest_id}/calculate-rating`,
+        url: `/contests/${contest_id}/calculate-rating`,
         method: 'POST',
         body: data,
       }),
@@ -146,7 +153,7 @@ export const contestApi = baseApi.injectEndpoints({
 
     openSolutions: builder.mutation({
       query: ({ contest_id, data }) => ({
-        url: `/contest/${contest_id}/open-solutions`,
+        url: `/contests/${contest_id}/open-solutions`,
         method: 'POST',
         body: data,
       }),

@@ -23,14 +23,14 @@ import "./problem-sandbox.css";
 const PAGE_SIZE = 10;
 
 const emptyProblem = {
-  problem_id: null,
+  problemId: null,
   title: "",
   description: "",
-  time_limit: 1000,
-  memory_limit: 256,
+  timeLimit: 1000,
+  memoryLimit: 256,
   tags: [],
   sample: [{ sample_inp1: "", sample_out1: "" }],
-  system_test: [{ test_id: "t1", system_inp: "", system_out: "" }],
+  systemTest: [{ test_id: "t1", system_inp: "", system_out: "" }],
   score: 100,
   rating: 1500,
   solution_text: "",
@@ -100,34 +100,78 @@ export default function ProblemSandbox() {
   const handleSave = async () => {
     if (!editing.title) return;
 
-    const formData = new FormData();
+    const payload = buildProblemPayload(editing);
 
-    Object.entries(editing).forEach(([key, value]) => {
-      if (key === "solution_file") {
-        if (value) formData.append("solution", value);
-      } else if (typeof value === "object") {
-        formData.append(key, JSON.stringify(value));
+    try {
+      if (editing.problem_id) {
+        await updateProblem({
+          problem_id: editing.problem_id,
+          data: payload,
+        }).unwrap();
       } else {
-        formData.append(key, value);
+        await createProblem(payload).unwrap();
       }
-    });
 
-    if (editing.problem_id) {
-      await updateProblem({
-        problem_id: editing.problem_id,
-        data: formData,
-      }).unwrap();
-    } else {
-      await createProblem(formData).unwrap();
+      closeModal();
+    } catch (e) {
+      console.error(e);
+      alert("Save problem failed");
     }
-
-    closeModal();
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this problem?")) return;
     await deleteProblem(id).unwrap();
   };
+
+  const buildProblemPayload = (editing) => {
+    return {
+      title: editing.title,
+      description: editing.description,
+
+      tags: editing.tags ?? [],
+
+      imageUrls: [
+        // "https://minio.com/img/problem_diagram.png",
+        // "https://minio.com/img/constraint_table.png"
+      ],
+
+      level: "HARD", // TODO: làm dropdown sau
+
+      supportedLanguage: ["JAVA", "CPP", "PYTHON"],
+
+      solution: editing.solution_text,
+
+      rating: Number(editing.rating),
+      score: Number(editing.score),
+
+      timeLimit: Number(editing.time_limit),
+      memoryLimit: Number(editing.memory_limit),
+
+      inputType: "stdin",
+      outputType: "stdout",
+
+      testcaseEntities: [
+        ...(editing.sample ?? []).map((s, i) => ({
+          testcaseName: `sample i`,
+          input: s.sample_inp1,
+          output: s.sample_out1,
+          isSample: true,
+          description: "Test case mẫu (Hiển thị cho người dùng)",
+        })),
+
+        // SYSTEM TEST → isSample = false
+        ...(editing.system_test ?? []).map((t, i) => ({
+          testcaseName: `test i`,
+          input: t.system_inp,
+          output: t.system_out,
+          isSample: false,
+          description: "Test case ẩn (Dùng để chấm điểm)",
+        })),
+      ],
+    };
+  };
+
 
   return (
     <div className="ps-container">

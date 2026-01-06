@@ -4,6 +4,7 @@ import { useSearchProblemsQuery, useSearchProblemsByTextQuery } from "../../serv
 import Pagination from "../../components/pagination/pagination";
 import { Link } from "react-router-dom";
 import { Search, Plus, X } from "lucide-react";
+import { mockProblems } from "../../mock/mock-problems";
 import "./problems.css";
 
 export default function ProblemList() {
@@ -46,6 +47,10 @@ export default function ProblemList() {
   const problems = dataSource.data?.data?.data || [];
   const loading = dataSource.isLoading;
   const totalCount = dataSource.data?.data?.totalCount || 0;
+
+  const useMock = !loading && problems.length === 0;
+  const displayProblems = useMock ? mockProblems : problems;
+  const displayTotalCount = useMock ? mockProblems.length : totalCount;
 
   useEffect(() => {
     setPage(1);
@@ -115,13 +120,13 @@ export default function ProblemList() {
                     <td colSpan="5" className="empty">No problems found</td>
                   </tr>
                 ) : (
-                  problems.map((p) => (
-                    <tr key={p.problem_id}>
-                      <td className="col-id">{p.problem_id}</td>
+                  displayProblems.map((p) => (
+                    <tr key={p.problemId}>
+                      <td className="col-id">{p.problemId}</td>
 
                       <td className="problem-title-cell">
                         <Link
-                          to={`/problem/${p.problem_id}`}
+                          to={`/problem/${p.problemId}`}
                           className="problem-title"
                         >
                           {p.title}
@@ -153,7 +158,7 @@ export default function ProblemList() {
           <Pagination
             page={page}
             PAGE_SIZE={PAGE_SIZE}
-            totalCount={totalCount}
+            totalCount={displayTotalCount}
             onPageChange={setPage}
           />
         </div>
