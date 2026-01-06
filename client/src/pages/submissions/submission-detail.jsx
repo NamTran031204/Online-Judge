@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { 
-  Box, Typography, CircularProgress, Modal, Backdrop, Fade, IconButton 
+import {
+  Box, Typography, CircularProgress, Modal, Backdrop, Fade, IconButton
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -41,7 +41,7 @@ export default function SubmissionDetail() {
     const l = lang.toLowerCase();
     if (l.includes("python")) return "python";
     if (l.includes("java")) return "java";
-    return "cpp"; 
+    return "cpp";
   };
 
   const handleCopy = (text) => {
@@ -67,43 +67,58 @@ export default function SubmissionDetail() {
             </tr>
           </thead>
           <tbody>
-            {detail.result_detail?.map((tc, index) => (
-              <tr key={index} className={index % 2 === 0 ? "" : "row-highlight"}>
-                <td style={{ textAlign: 'center' }}>
-                    {tc.status === "Accepted" ? <span className="check-icon">✔</span> : <span className="cross-icon">✘</span>}
-                </td>
-                <td>{tc.score}</td>
-                <td className={tc.status === "Accepted" ? "status-accepted" : "status-wrong"}>{tc.status}</td>
-                <td>{tc.time_limit}</td>
-                <td>{tc.memory_limit}</td>
-                <td style={{ textAlign: 'center' }}>
-                  <IconButton 
-                    onClick={() => { setSelectedTestCase(tc); setOpenModal(true); }}
-                    className="icon-info-btn"
-                  >
-                    <InfoIcon />
-                  </IconButton>
+            {Array.isArray(detail.testcases) && detail.testcases.length > 0 ? (
+              detail.testcases.map((tc, index) => (
+                <tr key={index} className={index % 2 === 0 ? "" : "row-highlight"}>
+                  <td style={{ textAlign: "center" }}>
+                    {tc.status === "AC"
+                      ? <span className="check-icon">✔</span>
+                      : <span className="cross-icon">✘</span>}
+                  </td>
+                  <td>—</td>
+                  <td className={tc.status === "AC" ? "status-accepted" : "status-wrong"}>
+                    {tc.status}
+                  </td>
+                  <td>{tc.time}</td>
+                  <td>{tc.memory}</td>
+                  <td style={{ textAlign: "center" }}>
+                    <IconButton
+                      onClick={() => {
+                        setSelectedTestCase(tc);
+                        setOpenModal(true);
+                      }}
+                      className="icon-info-btn"
+                    >
+                      <InfoIcon />
+                    </IconButton>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center" }}>
+                  Chưa có test case
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
 
         <div className="source-code-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-             <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>Mã nguồn</Typography>
-             <KeyboardArrowDownIcon 
-                className={`expand-icon ${isExpanded ? '' : 'collapsed'}`} 
-                onClick={() => setIsExpanded(!isExpanded)}
-                style={{ cursor: 'pointer', color: '#3b82f6' }}
-             />
+            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>Mã nguồn</Typography>
+            <KeyboardArrowDownIcon
+              className={`expand-icon ${isExpanded ? '' : 'collapsed'}`}
+              onClick={() => setIsExpanded(!isExpanded)}
+              style={{ cursor: 'pointer', color: '#3b82f6' }}
+            />
           </div>
         </div>
 
         {isExpanded && (
           <div className="code-editor-container">
-            <SyntaxHighlighter 
-              language={getLanguageMode(detail.lang)} 
+            <SyntaxHighlighter
+              language={getLanguageMode(detail.lang)}
               style={atomOneDark}
               showLineNumbers={true}
               customStyle={{ margin: 0, padding: '20px', borderRadius: '8px', fontSize: '14px', backgroundColor: '#282c34' }}
@@ -117,17 +132,20 @@ export default function SubmissionDetail() {
 
       <div className="submission-sidebar">
         <div className="sidebar-card">
-            <div className="sidebar-item">
-                <span className="sidebar-label">KẾT QUẢ </span>
-                <span className="sidebar-value result-highlight" style={{ color: detail.result === 'Accepted' ? '#10b981' : '#ef4444' }}>{detail.result}</span>
-            </div>
-            <div className="sidebar-item">
-                <span className="sidebar-label">ĐIỂM SỐ</span>
-                <span className="sidebar-value score-text">{detail.score || 0}</span>
-            </div>
-            <div className="sidebar-item"><span className="sidebar-label">NGÔN NGỮ</span><span className="sidebar-value">{detail.lang}</span></div>
-            <div className="sidebar-item"><span className="sidebar-label">ID BÀI TẬP</span><span className="sidebar-value link-text">{detail.problem_id}</span></div>
-            <div className="sidebar-item"><span className="sidebar-label">THỜI GIAN NỘP</span><span className="sidebar-value time-text">{new Date(detail.created_at).toLocaleString()}</span></div>
+          <div className="sidebar-item">
+            <span className="sidebar-label">KẾT QUẢ </span>
+            <span className="sidebar-value result-highlight">
+              {detail.allAccepted ? "AC" : "WA"}
+            </span>
+
+          </div>
+          <div className="sidebar-item">
+            <span className="sidebar-label">ĐIỂM SỐ</span>
+            <span className="sidebar-value score-text">{detail.score || 0}</span>
+          </div>
+          <div className="sidebar-item"><span className="sidebar-label">NGÔN NGỮ</span><span className="sidebar-value">{detail.lang}</span></div>
+          <div className="sidebar-item"><span className="sidebar-label">ID BÀI TẬP</span><span className="sidebar-value link-text">{detail.problem_id}</span></div>
+          <div className="sidebar-item"><span className="sidebar-label">THỜI GIAN NỘP</span><span className="sidebar-value time-text">{new Date(detail.created_at).toLocaleString()}</span></div>
         </div>
       </div>
 
@@ -143,18 +161,30 @@ export default function SubmissionDetail() {
                 <div className="output-column">
                   <Typography className="label-text">Đầu ra đúng</Typography>
                   <div className="data-box-small">
-                    <code>{selectedTestCase?.expected_output || "N/A"}</code>
-                    <button className="copy-btn-inner" onClick={() => handleCopy(selectedTestCase?.expected_output)}><ContentPasteIcon fontSize="inherit" /></button>
+                    <code>{"N/A"}</code>
+                    <button
+                      className="copy-btn-inner"
+                      onClick={() => handleCopy("N/A")}
+                    >
+                      <ContentPasteIcon fontSize="inherit" />
+                    </button>
                   </div>
                 </div>
+
                 <div className="output-column">
                   <Typography className="label-text">Đầu ra chương trình</Typography>
                   <div className="data-box-small">
-                    <code>{selectedTestCase?.actual_output || "N/A"}</code>
-                    <button className="copy-btn-inner" onClick={() => handleCopy(selectedTestCase?.actual_output)}><ContentPasteIcon fontSize="inherit" /></button>
+                    <code>{selectedTestCase?.output ?? "N/A"}</code>
+                    <button
+                      className="copy-btn-inner"
+                      onClick={() => handleCopy(selectedTestCase?.output)}
+                    >
+                      <ContentPasteIcon fontSize="inherit" />
+                    </button>
                   </div>
                 </div>
               </div>
+
               <div className="input-section">
                 <Typography className="label-text">Đầu vào</Typography>
                 <div className="data-box-large">

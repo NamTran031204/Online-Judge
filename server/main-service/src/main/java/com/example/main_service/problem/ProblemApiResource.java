@@ -34,6 +34,12 @@ public class ProblemApiResource {
         return CommonResponse.success(page);
     }
 
+    @PostMapping("/by-contest")
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(@RequestBody PageRequestDto<ProblemInputDto> input) {
+        PageResult<ProblemEntity> page = problemService.getProblemPage(getUserIdFromToken(), input);
+        return CommonResponse.success(page);
+    }
+
     @GetMapping("/get-by-id/{problemId}")
     public CommonResponse<ProblemEntity> getProblemById(@PathVariable String problemId) {
         ProblemEntity problem = problemService.getProblemById(getUserIdFromToken(), problemId);

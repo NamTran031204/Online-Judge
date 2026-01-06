@@ -14,7 +14,6 @@ import ratingsReducer from "./slices/rating-slice";
 import dashboardReducer from "./slices/dashboard-slice";
 
 import { baseApi } from "../services/baseApi";
-import {notContainHeaderBaseApi} from "../services/unauthorHeaderBaseApi.js";
 
 export const store = configureStore({
   reducer: {
@@ -33,10 +32,9 @@ export const store = configureStore({
     dashboard: dashboardReducer,
 
     [baseApi.reducerPath]: baseApi.reducer,
-      [notContainHeaderBaseApi.reducerPath]: notContainHeaderBaseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(baseApi.middleware, notContainHeaderBaseApi.middleware),
+    getDefaultMiddleware().concat(baseApi.middleware),
 });
 
 export default store;

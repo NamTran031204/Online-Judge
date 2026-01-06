@@ -18,6 +18,6 @@ spring:
 
 minio:
   endpoint: http://localhost:9000
-  access-key: GW93L25W0YFYUYEXFES4
-  secret-key: XYgLag0JqS6LCU66hYwJfNuJtxFaFHhWgoTjn6g+
+  access-key: 1N7KHFMR5KHINN57JNH2
+  secret-key: vQhzZJzcutOEAhL3mUiEZ2EfwbKcdyiiJWpP6+26
   bucket-name: online-judge

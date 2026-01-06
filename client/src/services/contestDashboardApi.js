@@ -5,7 +5,7 @@ export const contestDashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getContestDashboard: builder.query({
       query: ({ contest_id, offset = 0, limit = 50 }) => ({
-        url: `/contest/${contest_id}/dashboard/page`,
+        url: `/contest/dashboard/page/${contest_id}`,
         method: 'POST',
         body: { offset, limit },
       }),

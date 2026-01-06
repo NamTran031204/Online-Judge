@@ -40,7 +40,7 @@ public class ContestProblemServiceImpl implements ContestProblemService {
             throw new ContestBusinessException(ErrorCode.CONTEST_VALIDATION_ERROR);
 
         ContestEntity contest = getContestOrThrow(contestId);
-        ensureDraft(contest);
+        //ensureDraft(contest);
 
         ValidateAndCloneProblemResponse grpcResp = validateAndCloneProblem(userId, contestId, input.getProblemId());
 

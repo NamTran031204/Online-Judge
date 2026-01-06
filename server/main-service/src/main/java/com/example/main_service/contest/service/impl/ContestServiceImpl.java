@@ -84,11 +84,12 @@ public class ContestServiceImpl implements ContestService {
         requireUser(userId);
         ContestEntity contest = getContestOrThrow(contestId);
 
-        return switch (contest.getContestType()) {
-            case OFFICIAL -> updateOfficial(userId, contest, input);
-            case GYM -> updateGym(userId, contest, input);
-            case DRAFT -> updateDraft(userId, contest, input);
-        };
+        return updateDraft(userId, contest, input);
+//        return switch (contest.getContestType()) {
+//            case OFFICIAL -> updateOfficial(userId, contest, input);
+//            case GYM -> updateGym(userId, contest, input);
+//            case DRAFT -> updateDraft(userId, contest, input);
+//        }; cái return mới chuẩn
     }
 
     private ContestCreateUpdateResponseDto updateOfficial(Long userId, ContestEntity contest, ContestCreateUpdateRequestDto input) {

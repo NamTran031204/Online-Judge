@@ -49,10 +49,10 @@ public class UserContestServiceImpl implements UserContestService {
         Long userId = getUserIdOrThrow();
 
         if (contestService.isContestFinished(contestId)) {
-            throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
+            //throw new ContestBusinessException(ErrorCode.CONTEST_ENDED);
         }
 
-        validateContestAccess(contest, roleService.hasSpecialContestRole(userId, contestId));
+        //validateContestAccess(contest, roleService.hasSpecialContestRole(userId, contestId));
 
         if (contestRegistrationRepo.existsByContestIdAndUserId(contestId, userId)) {
             throw new ContestBusinessException(ErrorCode.CONTEST_ALREADY_REGISTERED);

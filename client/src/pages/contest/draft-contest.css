@@ -319,3 +319,69 @@
 .react-datepicker__time-list-item--selected {
   background-color: #2563eb !important;
 }
+
+/* Problems */
+.problems-list {
+  margin-bottom: 10px;
+}
+
+.problem-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.remove-problem-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.problem-title-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  text-align: left;
+  flex: 1;
+  padding: 0;
+  font-size: inherit;
+}
+
+.problem-title-btn:hover {
+  text-decoration: underline;
+}
+
+.add-problem-section {
+  position: relative;
+}
+
+.problem-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.problem-search-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.problem-search-item:hover {
+  background: #f8fafc;
+}

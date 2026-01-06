@@ -51,9 +51,9 @@ export default function ContestList() {
     filter: { ...baseFilter, contestStatus: "FINISHED" },
   });
 
-  const running = runningQuery.data?.data?.data || [];
-  const upcoming = upcomingQuery.data?.data?.data || [];
-  const finished = finishedQuery.data?.data?.data || [];
+  const running = (runningQuery.data?.data?.data || []).filter(c => c.contestStatus === "RUNNING");
+  const upcoming = (upcomingQuery.data?.data?.data || []).filter(c => c.contestStatus === "UPCOMING");
+  const finished = (finishedQuery.data?.data?.data || []).filter(c => c.contestStatus === "FINISHED");
   const finishedTotal = finishedQuery.data?.data?.totalCount || 0;
 
   const useMock = !runningQuery.isLoading && !upcomingQuery.isLoading && !finishedQuery.isLoading &&
@@ -179,17 +179,17 @@ export default function ContestList() {
   );
 
   const renderAction = (c) => {
-    if (c.contestStatus === "FINISHED") {
-      return <button className="btn outline">Virtual</button>;
-    }
+    // if (c.contestStatus === "FINISHED") {
+    //   return <button className="btn outline">Virtual</button>;
+    // }
 
-    if (c.contestStatus === "RUNNING") {
-      return (
-        <button className="btn disabled" disabled>
-          Register closed
-        </button>
-      );
-    }
+    // if (c.contestStatus === "RUNNING") {
+    //   return (
+    //     <button className="btn disabled" disabled>
+    //       Register closed
+    //     </button>
+    //   );
+    // }
 
     return (
       <button

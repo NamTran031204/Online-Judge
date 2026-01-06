@@ -50,7 +50,7 @@ export default function ContestDetail() {
         },
       },
       {
-        skip: !contest || contest.contestStatus !== "RUNNING",
+        skip: !contest || contest.status !== "RUNNING",
       }
     );
 

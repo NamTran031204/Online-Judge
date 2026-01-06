@@ -22,18 +22,18 @@ public class ContestSummaryDto {
     private String title;
     private String description;
 
-    @JsonProperty("start_time")
+    @JsonProperty("startTime")
     private LocalDateTime startTime;
 
     private Integer duration;
 
-    @JsonProperty("contest_status")
+    @JsonProperty("contestStatus")
     private ContestStatus contestStatus;
 
-    @JsonProperty("contest_type")
+    @JsonProperty("contestType")
     private ContestType contestType;
 
-    @JsonProperty("author_id")
+    @JsonProperty("authorId")
     private Long authorId;
 
     private Long rated;

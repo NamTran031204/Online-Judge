@@ -29,7 +29,6 @@ public class ContestController {
     }
 
     @PostMapping("/{contestId}/edit")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:edit','CONTEST',#contestId)")
     public CommonResponse<ContestCreateUpdateResponseDto> update(
             @PathVariable Long contestId,
             @RequestBody ContestCreateUpdateRequestDto input) {
@@ -42,7 +41,6 @@ public class ContestController {
     }
 
     @GetMapping("/{contestId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'contest:view', 'CONTEST', #contestId)")
     public CommonResponse<ContestDetailDto> getById(@PathVariable Long contestId) {
         return CommonResponse.success(contestService.getContestDetail(getUserIdFromToken(),contestId));
     }

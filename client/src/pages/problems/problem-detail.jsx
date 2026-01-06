@@ -19,6 +19,8 @@ import {
 import "./problem-detail.css";
 import SubmissionList from "../submissions/submission-list";
 
+import { useNavigate } from "react-router-dom";
+import { SERVER_URL } from '../../config/config';
 /* CODE TEMPLATES */
 const LANGUAGE_TEMPLATES = {
   cpp: `#include <bits/stdc++.h>
@@ -55,6 +57,7 @@ const MONACO_LANGUAGE_MAP = {
 };
 
 export default function ProblemDetail() {
+  const navigate = useNavigate();
   const { problem_id } = useParams();
   const location = useLocation();
   const pathParts = location.pathname.split("/").filter(Boolean);
@@ -66,6 +69,9 @@ export default function ProblemDetail() {
 
   const { data, isLoading: loading, isError } = useGetProblemDetailQuery(problem_id);
   const p = data?.data;
+  const samples = Array.isArray(p?.testcaseEntities)
+    ? p.testcaseEntities.filter(tc => tc.isSample)
+    : [];
 
   const [submitSolution, { isLoading: isSubmitting }] = useSubmitSolutionMutation();
 
@@ -74,6 +80,43 @@ export default function ProblemDetail() {
   const [code, setCode] = useState(LANGUAGE_TEMPLATES.cpp);
   const [langOpen, setLangOpen] = useState(false);
   const dropdownRef = useRef(null);
+  async function uploadSourceCode(code, language) {
+    // 1. Đặt tên file theo language
+    const extMap = {
+      cpp: "cpp",
+      python: "py",
+      java: "java",
+    };
+
+    const filename = `solution.${extMap[language] || "txt"}`;
+
+    // 2. Tạo File object từ string
+    const file = new File([code], filename, {
+      type: "text/plain",
+    });
+
+    // 3. Gói vào FormData
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // 4. Gọi API upload
+    const token = localStorage.getItem("accessToken");
+
+    const res = await fetch(SERVER_URL + "/file/upload", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Upload source code failed");
+    }
+
+    const json = await res.json();
+    return json.data; // ← chính là `res` backend trả về
+  }
 
 
   useEffect(() => {
@@ -102,21 +145,24 @@ export default function ProblemDetail() {
       alert("You must login to submit");
       return;
     }
+    // 1️⃣ Upload source code → lấy URL / objectName
+    const uploadedSource = await uploadSourceCode(code, language);
 
     const payload = {
-      problem_id: problem_id,
-      lang: language,
-      source_code: code,
+      problemId: problem_id,
+      lang: language.toUpperCase(),
+      sourceCode: uploadedSource,
     };
 
     if (isContestProblem && contest_id) {
       payload.contest_id = contest_id;
     }
 
+
     try {
       const res = await submitSolution(payload).unwrap();
-      console.log("Submission ID:", res.submission_id);
-
+      console.log("Submission ID:", res.data.submissionId);
+      navigate(`/submission/${res.data.submissionId}`);
       // optional: navigate to submissions / toast success
     } catch (err) {
       console.error("Submit failed:", err);
@@ -196,11 +242,11 @@ export default function ProblemDetail() {
                   <p className="pre-wrap">{p.description}</p>
                 </section>
 
-                {p.sample?.length > 0 && (
+                {samples.length > 0 && (
                   <section className="examples-section">
                     <h3>Examples</h3>
 
-                    {p.sample.map((ex, i) => (
+                    {samples.map((ex, i) => (
                       <div key={i} className="example-card">
                         <div className="example-block">
                           <div className="example-label">Input</div>
@@ -211,16 +257,11 @@ export default function ProblemDetail() {
                           <div className="example-label">Output</div>
                           <pre className="example-content">{ex.output}</pre>
                         </div>
-
-                        {ex.explanation && (
-                          <div className="example-explanation">
-                            <span>Explanation:</span> {ex.explanation}
-                          </div>
-                        )}
                       </div>
                     ))}
                   </section>
                 )}
+
               </>
             )}
 
@@ -236,7 +277,7 @@ export default function ProblemDetail() {
               // </div>
 
               // phongdt
-              <SubmissionList minimal={true} />
+              <SubmissionList minimal={true} problemId={problem_id} />
             )}
           </div>
         </div>

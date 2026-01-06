@@ -7,7 +7,7 @@ import "./submission-list.css";
 
 const LIMIT = 10;
 
-export default function SubmissionList({ minimal = false }) {
+export default function SubmissionList({ minimal = false, problemId }) {
   const dispatch = useDispatch();
 
   const { items = [], totalItems = 0, loading } = useSelector(
@@ -18,22 +18,23 @@ export default function SubmissionList({ minimal = false }) {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    dispatch(
-      searchSubmissions({
+    const pageRequest = {
+      maxResultCount: LIMIT,
+      skipCount: (page - 1) * LIMIT,
+      sorting: "submittedAt desc",
+      filter: {
         status: status || undefined,
-      })
-    );
-  }, [dispatch, status]);
+        ...(minimal && problemId && { problemId: problemId })
+      }
+    };
+    dispatch(searchSubmissions(pageRequest));
+  }, [dispatch, status, page, minimal, problemId]);
 
   const useMock = !loading && (!items || items.length === 0);
   const submissions = useMock ? mockSubmissions : items;
   const totalCount = useMock ? mockSubmissions.length : totalItems;
 
   const totalPages = Math.ceil(totalCount / LIMIT);
-  const pagedItems = submissions.slice(
-    (page - 1) * LIMIT,
-    page * LIMIT
-  );
 
   return (
     <div className={`submission-container ${minimal ? "minimal-mode" : "list-full-width"}`}>
@@ -57,7 +58,7 @@ export default function SubmissionList({ minimal = false }) {
                 <option value="DONE">DONE</option>
               </select>
             </div>
-            
+
             <div className="filter-right">
               <Link to="/problems">
                 <button className="btn-new-submission">
@@ -88,7 +89,7 @@ export default function SubmissionList({ minimal = false }) {
             </tr>
           )}
 
-          {!loading && pagedItems.length === 0 && (
+          {!loading && submissions.length === 0 && (
             <tr>
               <td colSpan={minimal ? "4" : "5"} style={{ textAlign: "center" }}>
                 No submissions found
@@ -97,7 +98,7 @@ export default function SubmissionList({ minimal = false }) {
           )}
 
           {!loading &&
-            pagedItems.map((s) => (
+            submissions.map((s) => (
               <tr key={s.submission_id}>
                 <td>
                   <Link
@@ -110,19 +111,24 @@ export default function SubmissionList({ minimal = false }) {
                 {!minimal && <td>{s.user_id}</td>}
                 <td>
                   <span
-                    className={`result ${
-                      s.result === "AC" || s.result === "Accepted"
-                        ? "result-ac"
-                        : s.result === "WA" || s.result === "Wrong Answer"
+                    className={`result ${s.result === "AC"
+                      ? "result-ac"
+                      : s.result === "WA"
                         ? "result-wa"
                         : "result-other"
-                    }`}
+                      }`}
                   >
-                    {s.result}
+                    {typeof s.result === "string" ? s.result : "—"}
                   </span>
+
                 </td>
                 <td>{s.status}</td>
-                <td>{new Date(s.created_at).toLocaleString()}</td>
+                <td>
+                  {s.created_at && !isNaN(new Date(s.created_at))
+                    ? new Date(s.created_at).toLocaleString()
+                    : "—"}
+                </td>
+
               </tr>
             ))}
         </tbody>

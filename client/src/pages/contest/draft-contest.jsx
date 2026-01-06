@@ -10,19 +10,25 @@ import {
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 import {
   useSearchContestsQuery,
   useCreateContestMutation,
   useUpdateContestMutation,
   useDeleteContestMutation,
+  useAddProblemToContestMutation,
+  useRemoveProblemFromContestMutation,
 } from "../../services/contestApi";
+
+import { useSearchProblemsByTextQuery, useGetProblemsByContestQuery } from "../../services/problemApi";
 
 import "./draft-contest.css";
 
 const PAGE_SIZE = 50;
 
 export default function DraftContest() {
+  const navigate = useNavigate();
   /* QUERY */
 
   const { data, isLoading } = useSearchContestsQuery({
@@ -39,9 +45,35 @@ export default function DraftContest() {
   const [createContest] = useCreateContestMutation();
   const [updateContest] = useUpdateContestMutation();
   const [deleteContest] = useDeleteContestMutation();
+  const [addProblemToContest] = useAddProblemToContestMutation();
+  const [removeProblemFromContest] = useRemoveProblemFromContestMutation();
 
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
+
+  const [problemSearch, setProblemSearch] = useState("");
+  const [showProblemSearch, setShowProblemSearch] = useState(false);
+
+  const { data: problemsData } = useSearchProblemsByTextQuery(
+    {
+      searchText: problemSearch,
+      maxResultCount: 20,
+    },
+    { skip: !showProblemSearch || !problemSearch }
+  );
+
+  const availableProblems = problemsData?.data?.data || [];
+
+  const { data: existingProblemsData } = useGetProblemsByContestQuery(
+    editing ? {
+      maxResultCount: 100,
+      skipCount: 0,
+      filter: { contestId: editing.contestId }
+    } : {},
+    { skip: !editing }
+  );
+
+  const existingProblems = existingProblemsData?.data?.data || [];
 
   /* FORM */
   const [form, setForm] = useState({
@@ -92,6 +124,7 @@ export default function DraftContest() {
       duration: contest.duration,
       visibility: contest.visibility,
       groupId: contest.groupId ?? null,
+      problems: [], // Don't initialize with existing problems, use the query instead
     });
     setShowModal(true);
   };
@@ -105,7 +138,8 @@ export default function DraftContest() {
       contestType: "DRAFT",
       visibility: form.visibility,
       groupId: form.groupId ? Number(form.groupId) : null,
-      problems: [],
+      // Only include problems for new contests, not for editing
+      ...(editing ? {} : { problems: form.problems.map(p => ({ problemId: p.problemId })) }),
     };
 
     try {
@@ -136,6 +170,61 @@ export default function DraftContest() {
     } catch {
       alert("Delete failed");
     }
+  };
+
+  const addProblem = async (problem) => {
+    console.log('addProblem called, editing:', editing);
+    if (!form.problems.find(p => p.problemId === problem.problemId)) {
+      // Add to form state immediately for UI update
+      setForm({ ...form, problems: [...form.problems, problem] });
+
+      // If editing existing contest, also call the API
+      if (editing) {
+        console.log('Calling addProblemToContest API');
+        try {
+          await addProblemToContest({
+            contest_id: editing.contestId,
+            problemId: problem.problemId
+          }).unwrap();
+          console.log('addProblemToContest API call successful');
+        } catch (e) {
+          console.error('Failed to add problem to contest:', e);
+          // Remove from form state if API call failed
+          setForm({ ...form, problems: form.problems.filter(p => p.problemId !== problem.problemId) });
+          alert('Failed to add problem to contest');
+        }
+      } else {
+        console.log('Not editing, skipping API call');
+      }
+    }
+    setProblemSearch("");
+    setShowProblemSearch(false);
+  };
+
+  const removeProblem = async (problemId) => {
+    // Check if it's a newly added problem
+    const isNewlyAdded = form.problems.find(p => p.problemId === problemId);
+    
+    if (isNewlyAdded) {
+      // Just remove from form state
+      setForm({ ...form, problems: form.problems.filter(p => p.problemId !== problemId) });
+    } else if (editing) {
+      // It's an existing problem, call the API
+      try {
+        await removeProblemFromContest({
+          contest_id: editing.contestId,
+          problem_id: problemId
+        }).unwrap();
+        // Note: The query will refetch automatically due to invalidatesTags
+      } catch (e) {
+        console.error('Failed to remove problem from contest:', e);
+        alert('Failed to remove problem from contest');
+      }
+    }
+  };
+
+  const handleProblemClick = (problemId) => {
+    navigate(`/problem/${problemId}`);
   };
 
   /* RENDER */
@@ -339,7 +428,61 @@ export default function DraftContest() {
                 placeholder="Leave empty if not group contest"
               />
             </div>
-
+            <div className="form-group">
+              <label>Problems</label>
+              <div className="problems-list">
+                {[
+                  ...(editing ? existingProblems : []),
+                  ...form.problems
+                ].map((p) => (
+                  <div key={p.problemId} className="problem-item">
+                    <button
+                      type="button"
+                      className="problem-title-btn"
+                      onClick={() => handleProblemClick(p.problemId)}
+                    >
+                      {p.title}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeProblem(p.problemId)}
+                      className="remove-problem-btn"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="add-problem-section">
+                <input
+                  type="text"
+                  placeholder="Search problems..."
+                  value={problemSearch}
+                  onChange={(e) => {
+                    setProblemSearch(e.target.value);
+                    setShowProblemSearch(true);
+                  }}
+                />
+                {showProblemSearch && availableProblems.length > 0 && (
+                  <div className="problem-search-results">
+                    {availableProblems
+                      .filter(p => 
+                        !form.problems.find(fp => fp.problemId === p.problemId) &&
+                        !(editing && existingProblems.find(ep => ep.problemId === p.problemId))
+                      )
+                      .map((p) => (
+                        <div
+                          key={p.problemId}
+                          className="problem-search-item"
+                          onClick={() => addProblem(p)}
+                        >
+                          {p.title}
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="modal-actions">
               <button
                 className="btn-outline"
