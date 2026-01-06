@@ -6,7 +6,7 @@ export const problemApi = baseApi.injectEndpoints({
     // crud problem
     createProblem: builder.mutation({
       query: (data) => ({
-        url: '/problem',
+        url: '/problem/add-problem',
         method: 'POST',
         body: data,
       }),
@@ -15,7 +15,7 @@ export const problemApi = baseApi.injectEndpoints({
 
     updateProblem: builder.mutation({
       query: ({ problem_id, data }) => ({
-        url: `/problem/${problem_id}/edit`,
+        url: `/problem/update/${problem_id}`,
         method: 'POST',
         body: data,
       }),
@@ -27,7 +27,7 @@ export const problemApi = baseApi.injectEndpoints({
 
     deleteProblem: builder.mutation({
       query: (problem_id) => ({
-        url: `/problem/${problem_id}`,
+        url: `/problem/delete/${problem_id}`,
         method: 'DELETE',
       }),
       invalidatesTags: (r, e, problem_id) => [

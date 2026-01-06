@@ -41,7 +41,7 @@ public class ProblemApiResource {
     }
 
     @PostMapping("/update/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'PROBLEM', #problemId)")
+//    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> updateProblem(
             @RequestBody ProblemInputDto input,
             @PathVariable String problemId
@@ -66,7 +66,7 @@ public class ProblemApiResource {
     }
 
     @DeleteMapping("/delete/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
+//    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable String problemId) {
         ProblemEntity deleted = problemService.deleteProblem(getUserIdFromToken(), problemId);
         return CommonResponse.success(deleted);
