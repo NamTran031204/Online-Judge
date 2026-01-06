@@ -3,6 +3,49 @@ import axios from "axios";
 import { SERVER_URL } from "../../config/config.js";
 import { mockSubmissions } from "../../pages/submissions/mock-submissions";
 
+function getAuthHeader() {
+  const token = localStorage.getItem("accessToken");
+  console.log(token);
+  return token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+}
+function deriveVerdictFromTestcases(testcases = []) {
+  if (!Array.isArray(testcases) || testcases.length === 0) {
+    return null; // chưa có verdict
+  }
+
+  const firstNotAC = testcases.find(tc => tc.status !== "AC");
+  return firstNotAC ? firstNotAC.status : "AC";
+}
+
+
+function deriveJudgingStatus(testcases = []) {
+  return Array.isArray(testcases) && testcases.length > 0
+    ? "DONE"
+    : "PENDING";
+}
+
+function normalizeSubmissionDetail(s) {
+  return {
+    submission_id: s.submissionId,
+    user_id: s.userId,
+    problem_id: s.problemId,
+    created_at: s.submittedAt,
+    language: s.language,
+    source_code: s.sourceCode,
+
+    // verdict & status
+    result: deriveVerdictFromTestcases(s.result) ?? "—",
+    status: deriveJudgingStatus(s.result),
+
+    // giữ raw testcase cho bảng chi tiết
+    // ✅ GIỮ testcase array để render table
+    testcases: Array.isArray(s.result) ? s.result : [],
+    allAccepted: !!s.allAccepted,
+  };
+}
+
 /* ============================================================
    GET SUBMISSION DETAIL
 ============================================================ */
@@ -11,7 +54,10 @@ export const getSubmissionDetail = createAsyncThunk(
   async (submission_id, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `${SERVER_URL}/submission/${submission_id}`
+        `${SERVER_URL}/submission/${submission_id}`,
+        {
+          headers: getAuthHeader(),
+        }
       );
       return res.data.data;
     } catch (err) {
@@ -46,7 +92,7 @@ export const deleteSubmission = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message ||
-          "Delete submission failed"
+        "Delete submission failed"
       );
     }
   }
@@ -66,7 +112,7 @@ export const deleteSubmissionsByProblem = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message ||
-          "Delete submissions by problem failed"
+        "Delete submissions by problem failed"
       );
     }
   }
@@ -86,7 +132,7 @@ export const deleteSubmissionsByUser = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message ||
-          "Delete submissions by user failed"
+        "Delete submissions by user failed"
       );
     }
   }
@@ -119,7 +165,8 @@ const submissionSlice = createSlice({
       })
       .addCase(getSubmissionDetail.fulfilled, (state, action) => {
         state.loading = false;
-        state.detail = action.payload;
+        state.detail = normalizeSubmissionDetail(action.payload);
+        state.error = null;
       })
       .addCase(getSubmissionDetail.rejected, (state, action) => {
         state.loading = false;

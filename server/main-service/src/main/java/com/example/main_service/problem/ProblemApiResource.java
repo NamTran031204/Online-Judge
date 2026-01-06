@@ -59,6 +59,12 @@ public class ProblemApiResource {
         return CommonResponse.success(page);
     }
 
+    @PostMapping("/by-contest")
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(@RequestBody PageRequestDto<ProblemInputDto> input) {
+        PageResult<ProblemEntity> page = problemService.getProblemPage(getUserIdFromToken(), input);
+        return CommonResponse.success(page);
+    }
+
     @DeleteMapping("/delete/{problemId}")
     @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable String problemId) {

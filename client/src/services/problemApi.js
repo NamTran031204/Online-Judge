@@ -6,7 +6,7 @@ export const problemApi = baseApi.injectEndpoints({
     // crud problem
     createProblem: builder.mutation({
       query: (data) => ({
-        url: '/problems',
+        url: '/problem',
         method: 'POST',
         body: data,
       }),
@@ -57,7 +57,7 @@ export const problemApi = baseApi.injectEndpoints({
 
     searchProblemsByText: builder.query({
       query: (pageRequest) => ({
-        url: '/problems/search-text',
+        url: '/problem/search-text',
         method: 'POST',
         body: pageRequest,
       }),
@@ -65,7 +65,7 @@ export const problemApi = baseApi.injectEndpoints({
 
     // detail
     getProblemDetail: builder.query({
-      query: (problem_id) => `/problems/${problem_id}`,
+      query: (problem_id) => `/problem/get-by-id/${problem_id}`,
       providesTags: (r, e, problem_id) => [
         { type: "Problem", id: problem_id },
       ],
@@ -74,7 +74,7 @@ export const problemApi = baseApi.injectEndpoints({
     // problems by contest
     getProblemsByContest: builder.query({
       query: (pageRequest) => ({
-        url: '/problems/by-contest',
+        url: '/problem/by-contest',
         method: 'POST',
         body: pageRequest,
       }),

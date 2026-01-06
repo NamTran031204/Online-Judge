@@ -3,6 +3,14 @@ import axios from "axios";
 
 import { SERVER_URL } from "../../config/config.js";
 
+function getAuthHeader() {
+  const token = localStorage.getItem("accessToken");
+  console.log(token);
+  return token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+}
+
 /* ============================================================
    CREATE SUBMISSION
 ============================================================ */
@@ -12,7 +20,10 @@ export const createSubmission = createAsyncThunk(
     try {
       const res = await axios.post(
         `${SERVER_URL}/submissions`,
-        body
+        body,
+        {
+          headers: getAuthHeader(),
+        }
       );
       return res.data.data;
     } catch (err) {
@@ -27,12 +38,15 @@ export const createSubmission = createAsyncThunk(
    SEARCH SUBMISSIONS
 ============================================================ */
 export const searchSubmissions = createAsyncThunk(
-  "submissions/search",
-  async (filter, { rejectWithValue }) => {
+  "submission/search",
+  async (pageRequest, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `${SERVER_URL}/submissions/search`,
-        filter
+        `${SERVER_URL}/submission/search`,
+        pageRequest,
+        {
+          headers: getAuthHeader(),
+        }
       );
       return res.data.data;
     } catch (err) {
@@ -46,6 +60,40 @@ export const searchSubmissions = createAsyncThunk(
 /* ============================================================
    SLICE
 ============================================================ */
+
+
+function normalizeSubmission(s) {
+  const verdict = deriveVerdictFromTestcases(s.result);
+  const judgingStatus = deriveJudgingStatus(s.result);
+
+  return {
+    submission_id: s.submissionId,
+    user_id: s.userId,
+    problem_id: s.problemId,
+    created_at: s.submittedAt,   // backend field
+    result: verdict ?? "—",
+    status: judgingStatus,
+  };
+}
+
+
+function deriveVerdictFromTestcases(testcases = []) {
+  if (!Array.isArray(testcases) || testcases.length === 0) {
+    return null; // chưa có verdict
+  }
+
+  const firstNotAC = testcases.find(tc => tc.status !== "AC");
+  return firstNotAC ? firstNotAC.status : "AC";
+}
+
+
+function deriveJudgingStatus(testcases = []) {
+  return Array.isArray(testcases) && testcases.length > 0
+    ? "DONE"
+    : "PENDING";
+}
+
+
 const submissionsListSlice = createSlice({
   name: "submissions",
   initialState: {
@@ -59,7 +107,7 @@ const submissionsListSlice = createSlice({
 
   reducers: {
     clearCreateError: (state) => {
-        state.createError = null;
+      state.createError = null;
     },
     clearSubmissions: (state) => {
       state.items = [];
@@ -82,13 +130,14 @@ const submissionsListSlice = createSlice({
         state.createError = null;
 
         if (action.payload) {
-          state.items.unshift(action.payload);
+          // action.payload là 1 submission raw từ backend
+          state.items.unshift(normalizeSubmission(action.payload));
           state.totalItems += 1;
         }
       })
       .addCase(createSubmission.rejected, (state, action) => {
         state.loading = false;
-        state.createError = action.payload; 
+        state.createError = action.payload;
       })
 
       /* ================= SEARCH ================= */
@@ -97,13 +146,16 @@ const submissionsListSlice = createSlice({
       })
       .addCase(searchSubmissions.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload?.data || [];
+
+        const rawItems = action.payload?.data || [];
+        state.items = rawItems.map(normalizeSubmission);
         state.totalItems = action.payload?.totalCount || 0;
+
         state.error = null;
       })
       .addCase(searchSubmissions.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload; 
+        state.error = action.payload;
       });
   },
 });
