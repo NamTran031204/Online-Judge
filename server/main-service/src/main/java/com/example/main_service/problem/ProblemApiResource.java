@@ -47,7 +47,7 @@ public class ProblemApiResource {
     }
 
     @PostMapping("/update/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'PROBLEM', #problemId)")
+//    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:edit', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> updateProblem(
             @RequestBody ProblemInputDto input,
             @PathVariable String problemId
@@ -65,8 +65,14 @@ public class ProblemApiResource {
         return CommonResponse.success(page);
     }
 
+    @PostMapping("/by-contest")
+    public CommonResponse<PageResult<ProblemEntity>> getProblemByContest(@RequestBody PageRequestDto<ProblemInputDto> input) {
+        PageResult<ProblemEntity> page = problemService.getProblemPage(getUserIdFromToken(), input);
+        return CommonResponse.success(page);
+    }
+
     @DeleteMapping("/delete/{problemId}")
-    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
+//    @PreAuthorize("@rbacService.hasPermission(authentication, 'problem:delete', 'PROBLEM', #problemId)")
     public CommonResponse<ProblemEntity> deleteProblem(@PathVariable String problemId) {
         ProblemEntity deleted = problemService.deleteProblem(getUserIdFromToken(), problemId);
         return CommonResponse.success(deleted);

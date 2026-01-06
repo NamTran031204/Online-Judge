@@ -34,8 +34,8 @@ public class ProblemService {
         ProblemEntity p = problemGrpcClient.addProblem(input);
         rbacService.assignRole(
                 userId,
-                "Author",
-                "Problem",
+                "AUTHOR",
+                "PROBLEM",
                 p.getProblemId()
         );
         return sanitizeProblem(p);

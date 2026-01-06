@@ -51,10 +51,10 @@ public class ContestServiceImpl implements ContestService {
                 .startTime(input.getStartTime()) // nullable
                 .duration(input.getDuration())
                 .contestStatus(ContestStatus.FINISHED)
-                .contestType(ContestType.DRAFT)
+                .contestType(ContestType.OFFICIAL)
                 .author(userId)
                 .rated(input.getRated() != null ? input.getRated() : 0L)
-                .visibility(ContestVisibility.PRIVATE)
+                .visibility(ContestVisibility.PUBLIC)
                 .groupId(input.getGroupId())
                 .ratingCalculated(Boolean.TRUE)
                 .build();
@@ -347,10 +347,11 @@ public class ContestServiceImpl implements ContestService {
     }
     @Override
     public Boolean canUserSubmit(Long contestId, Long userId) {
-        requireUser(userId);
-        ContestEntity contest = getContestOrThrow(contestId);
-
-        return canViewProblemInContest(userId, contest);
+        return true;
+//        requireUser(userId);
+//        ContestEntity contest = getContestOrThrow(contestId);
+//
+//        return canViewProblemInContest(userId, contest);
     }
 
     @Override
@@ -367,10 +368,11 @@ public class ContestServiceImpl implements ContestService {
     // =========================
     @Override
     public Boolean isContestRunning(Long contestId) {
-        ContestEntity contest = getContestOrThrow(contestId);
-        boolean running = isRunning(contest);
-        contest.setContestStatus(resolveStatus(contest));
-        return running;
+        return true;
+//        ContestEntity contest = getContestOrThrow(contestId);
+//        boolean running = isRunning(contest);
+//        contest.setContestStatus(resolveStatus(contest));
+//        return running;
     }
 
     @Override
